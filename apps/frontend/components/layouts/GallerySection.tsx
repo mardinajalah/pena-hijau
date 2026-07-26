@@ -82,16 +82,16 @@ const GallerySection = () => {
 
   return (
     <section className='overflow-hidden bg-slate-50 py-20 sm:py-24'>
-      <div className='px-5 sm:px-6 lg:px-8'>
-        <div className='mbe-14 max-w-3xl mx-auto text-center'>
+      <div className='mx-auto max-w-8xl px-5 sm:px-6 lg:px-8'>
+        <div className='mx-auto mb-14 max-w-3xl text-center'>
           <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Galeri Kegiatan</p>
           <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Jejak Aksi Pena Hijau di Berbagai Desa</h2>
           <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>
-            Galeri ini menampilkan perjalanan dan kontribusi Pena Hijau dalam mendukung pelestarian lingkungan, mulai dari Membersikan Sampah, penanaman pohon hingga kegiatan edukasi yang melibatkan masyarakat secara aktif.
+            Galeri ini menampilkan perjalanan dan kontribusi Pena Hijau dalam mendukung pelestarian lingkungan, mulai dari membersihkan sampah, penanaman pohon hingga kegiatan edukasi yang melibatkan masyarakat secara aktif.
           </p>
         </div>
 
-        <div className='grid items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-0'>
+        <div className='grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-0'>
           <div className='relative z-0 h-90 overflow-hidden rounded-3xl shadow-xl shadow-slate-900/10 sm:h-115 lg:h-130'>
             <Image
               src={activeGallery.image}
@@ -104,10 +104,10 @@ const GallerySection = () => {
             <div className='absolute inset-0 bg-linear-to-t from-black/25 to-transparent' />
           </div>
 
-          <div className='relative z-10 lg:-ml-36'>
+          <div className='relative z-10 min-w-0 lg:-ml-36'>
             <div
               key={`${activeIndex}-${slideDirection}`}
-              className={`flex gap-5 overflow-hidden pb-3 ${slideDirection === 'next' ? 'animate-gallery-slide-next' : 'animate-gallery-slide-previous'}`}
+              className={`flex w-full min-w-0 gap-5 overflow-hidden pb-3 ${slideDirection === 'next' ? 'animate-gallery-slide-next' : 'animate-gallery-slide-previous'}`}
             >
               {visibleGalleries.map((gallery) => {
                 const isActive = gallery.galleryIndex === activeIndex;
@@ -117,7 +117,7 @@ const GallerySection = () => {
                     key={gallery.title}
                     type='button'
                     onClick={() => handleSelectGallery(gallery.galleryIndex)}
-                    className={`min-h-75 min-w-65 cursor-pointer rounded-3xl p-8 text-left shadow-lg transition-all duration-300 sm:min-w-75 ${
+                    className={`min-h-75 min-w-full cursor-pointer rounded-3xl p-8 text-left shadow-lg transition-all duration-300 sm:min-w-[calc(50%-10px)] md:min-w-[calc(33.333%-14px)] lg:min-w-75 ${
                       isActive ? 'bg-green-600 text-white shadow-green-900/20' : 'bg-white text-slate-900 shadow-slate-900/5 hover:-translate-y-1'
                     }`}
                   >
