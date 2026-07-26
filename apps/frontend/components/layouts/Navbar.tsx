@@ -43,7 +43,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className={`fixed top-0 z-50 w-full bg-white/95 shadow backdrop-blur transition-transform duration-500 ease-out will-change-transform ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+    <nav className={`fixed top-0 z-50 w-full bg-white/95 shadow backdrop-blur transition-transform duration-500 ease-out will-change-transform ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className='mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8'>
         {/* logo */}
         <Image
@@ -106,7 +106,7 @@ const Navbar = () => {
           Donasi
         </Link>
       </div>
-    </div>
+    </nav>
   );
 };
 
