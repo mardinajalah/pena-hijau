@@ -48,7 +48,7 @@ const MemberSection = () => {
     <section className='bg-white py-20 sm:py-24'>
       <div className='mx-auto max-w-7xl px-5 sm:px-6 lg:px-8'>
         <div className='mx-auto max-w-3xl text-center'>
-          <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Member</p>
+          <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Anggota</p>
           <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Tim Penggerak Pena Hijau</h2>
           <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>Orang-orang di balik kegiatan edukasi, aksi bersih lingkungan, dan kolaborasi desa bersama Pena Hijau.</p>
         </div>

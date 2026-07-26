@@ -7,6 +7,29 @@ import { useEffect, useState } from 'react';
 const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
 
+  const navigation = [
+    {
+      id: 1,
+      name: 'Beranda',
+    },
+    {
+      id: 2,
+      name: 'Tentang Kami',
+    },
+    {
+      id: 3,
+      name: 'Galeri',
+    },
+    {
+      id: 4,
+      name: 'Anggota',
+    },
+    {
+      id: 5,
+      name: 'Gabung',
+    },
+  ];
+
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
@@ -56,46 +79,16 @@ const Navbar = () => {
 
         {/* navigation */}
         <ul className='hidden items-center gap-8 text-sm font-medium text-slate-700 md:flex lg:gap-10'>
-          <li>
-            <Link
-              className='transition-colors hover:text-green-600'
-              href='#'
-            >
-              Beranda
-            </Link>
-          </li>
-          <li>
-            <Link
-              className='transition-colors hover:text-green-600'
-              href='#'
-            >
-              Tentang Kami
-            </Link>
-          </li>
-          <li>
-            <Link
-              className='transition-colors hover:text-green-600'
-              href='#'
-            >
-              Tentang Sampah
-            </Link>
-          </li>
-          <li>
-            <Link
-              className='transition-colors hover:text-green-600'
-              href='#'
-            >
-              Gabung
-            </Link>
-          </li>
-          <li>
-            <Link
-              className='transition-colors hover:text-green-600'
-              href='#'
-            >
-              Galeri
-            </Link>
-          </li>
+          {navigation.map((nav) => (
+            <li key={nav.id}>
+              <Link
+                className='transition-colors hover:text-green-600'
+                href='#'
+              >
+                {nav.name}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* button donasi */}
