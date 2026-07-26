@@ -2,6 +2,7 @@ import HeroSaction from '../layouts/HeroSaction';
 import GallerySection from '../layouts/GallerySection';
 import VisionMissionSection from '../layouts/VisionMissionSection';
 import MemberSection from '../layouts/MemberSection';
+import Footer from '../layouts/Footer';
 
 const HomePage = () => {
   return (
