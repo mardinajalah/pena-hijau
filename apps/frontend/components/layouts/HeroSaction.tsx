@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Montserrat } from 'next/font/google';
+import Link from 'next/link';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -36,6 +37,10 @@ const HeroSection = () => {
             Bergerak bersama menjaga lingkungan dan membangun kebiasaan hijau
             untuk masa depan yang lebih baik.
           </p>
+
+          <Link href="#" className='mt-6 inline-flex rounded-full bg-green-700 hover:bg-green-800 px-4 py-2 text-sm font-semibold text-white'>
+            Gabung
+          </Link>
         </div>
       </div>
     </section>

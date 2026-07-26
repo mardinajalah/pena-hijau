@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { ChevronRight, ChevronLeft, MoveUpRight } from 'lucide-react';
 
 const galleries = [
   {
@@ -123,7 +124,9 @@ const GallerySection = () => {
                     <h3 className='text-2xl font-bold'>{gallery.title}</h3>
                     <div className={`mt-7 h-1 w-12 rounded-full ${isActive ? 'bg-white' : 'bg-green-600'}`} />
                     <p className={`mt-8 text-base leading-8 ${isActive ? 'text-green-50' : 'text-slate-600'}`}>{gallery.description}</p>
-                    <span className='mt-10 block text-3xl'>&#8599;</span>
+                    <span className='mt-10 block text-3xl'>
+                      <MoveUpRight />
+                    </span>
                   </button>
                 );
               })}
@@ -136,7 +139,7 @@ const GallerySection = () => {
                 aria-label='Galeri sebelumnya'
                 className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
               >
-                &#8592;
+                <ChevronLeft />
               </button>
               <button
                 type='button'
@@ -144,7 +147,7 @@ const GallerySection = () => {
                 aria-label='Galeri berikutnya'
                 className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
               >
-                &#8594;
+                <ChevronRight />
               </button>
             </div>
           </div>

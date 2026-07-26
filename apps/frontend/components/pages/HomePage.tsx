@@ -1,6 +1,7 @@
 import HeroSaction from '../layouts/HeroSaction';
 import GallerySection from '../layouts/GallerySection';
 import VisionMissionSection from '../layouts/VisionMissionSection';
+import MemberSection from '../layouts/MemberSection';
 
 const HomePage = () => {
   return (
@@ -13,6 +14,9 @@ const HomePage = () => {
 
       {/* gallery */}
       <GallerySection />
+
+      {/* Member */}
+      <MemberSection />
     </div>
   );
 };
