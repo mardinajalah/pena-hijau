@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# env files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# jangan ignore contoh env
+!.env.example
+!**/.env.example
+
+# build output
+dist/
+build/
+.next/
+out/
+**/dist/
+**/build/
+**/.next/
+**/out/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# cache
+.turbo/
+.cache/
+
+*.rest
+**/.rest

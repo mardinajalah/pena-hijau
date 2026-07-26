@@ -1,0 +1,19 @@
+{
+  "name": "Pena-Hijau",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --recursive --filter \"./apps/*\" build",
+    "lint": "pnpm --recursive --filter \"./apps/*\" lint",
+    "frontend": "pnpm --filter frontend dev",
+    "backend": "pnpm --filter backend dev"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.0"
+}
