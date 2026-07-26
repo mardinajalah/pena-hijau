@@ -82,9 +82,12 @@ const GallerySection = () => {
   return (
     <section className='overflow-hidden bg-slate-50 py-20 sm:py-24'>
       <div className='px-5 sm:px-6 lg:px-8'>
-        <div className='mb-12 max-w-2xl'>
+        <div className='mbe-14 max-w-3xl mx-auto text-center'>
           <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Galeri Kegiatan</p>
           <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Jejak Aksi Pena Hijau di Berbagai Desa</h2>
+          <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>
+            Galeri ini menampilkan perjalanan dan kontribusi Pena Hijau dalam mendukung pelestarian lingkungan, mulai dari Membersikan Sampah, penanaman pohon hingga kegiatan edukasi yang melibatkan masyarakat secara aktif.
+          </p>
         </div>
 
         <div className='grid items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-0'>
@@ -103,11 +106,7 @@ const GallerySection = () => {
           <div className='relative z-10 lg:-ml-36'>
             <div
               key={`${activeIndex}-${slideDirection}`}
-              className={`flex gap-5 overflow-hidden pb-3 ${
-                slideDirection === 'next'
-                  ? 'animate-gallery-slide-next'
-                  : 'animate-gallery-slide-previous'
-              }`}
+              className={`flex gap-5 overflow-hidden pb-3 ${slideDirection === 'next' ? 'animate-gallery-slide-next' : 'animate-gallery-slide-previous'}`}
             >
               {visibleGalleries.map((gallery) => {
                 const isActive = gallery.galleryIndex === activeIndex;
