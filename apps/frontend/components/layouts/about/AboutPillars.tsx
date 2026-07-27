@@ -1,18 +1,95 @@
-import Image from 'next/image';
-import { ArrowUpRight } from 'lucide-react';
+'use client';
 
-const pillars = [
+import { useState } from 'react';
+import Image from 'next/image';
+import { ArrowUpRight, X, Calendar, MapPin, ExternalLink, User, Share2 } from 'lucide-react';
+
+interface ArticleData {
+  title: string;
+  date: string;
+  location: string;
+  author: string;
+  image: string;
+  galleryImages?: string[];
+  excerpt: string;
+  paragraphs: string[];
+  quote?: string;
+  sources: {
+    name: string;
+    url: string;
+  }[];
+}
+
+interface PillarItem {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  tag: string;
+  article?: ArticleData;
+}
+
+const pillars: PillarItem[] = [
   {
     id: 1,
     title: 'Aksi Bersih Lingkungan',
     subtitle: 'Clean-Up Day',
-    description: 'Aksi membersihkan limbah plastik dan sampah di aliran sungai.',
+    description: 'Aksi nyata komunitas pemuda membersihkan tumpukan sampah limbah plastik di aliran sungai Kotaanyar Probolinggo.',
     image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
     tag: 'Aksi Bersih',
+    article: {
+      title: 'Peduli Lingkungan, Komunitas PENA HIJAU Gelar Aksi Clean Up River di Kotaanyar Probolinggo',
+      date: '27 Juli 2026',
+      location: 'Kecamatan Kotaanyar, Kabupaten Probolinggo',
+      author: 'Taufiqur Rohim (Koordinator PENA HIJAU)',
+      image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+      galleryImages: [
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
+        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
+      ],
+      excerpt: 'Kelompok pemuda Komunitas PENA HIJAU menggelar aksi bersih-bersih sungai di Kotaanyar Probolinggo sebagai langkah konkrit mencegah pencemaran dan bencana banjir.',
+      paragraphs: [
+        'PROBOLINGGO — Kelompok pemuda yang tergabung dalam Komunitas Pemuda Nusantara Peduli Lingkungan Hijau (PENA HIJAU) menggelar aksi clean up river (bersih-bersih sungai) di wilayah Kecamatan Kotaanyar, Kabupaten Probolinggo, Senin sore (27/07/2026).',
+        'Aksi tanggap lingkungan ini dilakukan sebagai bentuk kepedulian nyata para generasi muda terhadap kondisi sungai yang kian tertutup tumpukan sampah plastik, limbah rumah tangga, dan kotoran liar yang mengganggu kelancaran aliran air.',
+        'Dengan menggunakan peralatan lengkap seperti karung sampah, sepatu boots, dan sarung tangan, para relawan muda Pena Hijau secara langsung menyusuri dan mengangkat berbagai material sampah dari dasar serta pinggiran sungai.',
+        'Langkah ini diharapkan tidak hanya dapat mengembalikan kebersihan dan kelancaran fungsi aliran sungai Kotaanyar, melainkan juga mengedukasi dan menggugah kesadaran masyarakat sekitar agar menghentikan kebiasaan membuang sampah sembarangan ke sungai.',
+      ],
+      quote: 'Kami melihat tumpukan sampah di aliran sungai ini sudah sangat mengkhawatirkan. Jika dibiarkan, saat musim hujan bisa memicu banjir dan pencemaran air. Oleh karena itu, kami bersama teman-teman relawan tergerak untuk turun langsung bersihkan sungai.',
+      sources: [
+        {
+          name: 'Berdampak.net',
+          url: 'https://berdampak.net/peduli-lingkungan-komunitas-pena-hijau-gelar-aksi-clean-up-river-di-kotaanyar-probolinggo/',
+        },
+        {
+          name: 'HarianJatim.com',
+          url: 'https://www.harianjatim.com/2026/07/27/aksi-nyata-komunitas-pena-hijau-bersihkan-tumpukan-sampah-di-sungai-kotaanyar-probolinggo/',
+        },
+      ],
+    },
   },
 ];
 
 const AboutPillars = () => {
+  const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+
+  const handleOpenArticle = (article?: ArticleData) => {
+    if (article) {
+      setSelectedArticle(article);
+      setActivePhotoIdx(0);
+    }
+  };
+
+  const handleCloseArticle = () => {
+    setSelectedArticle(null);
+  };
+
   return (
     <section className='bg-slate-50 py-20 sm:py-24'>
       <div className='mx-auto max-w-7xl px-5 sm:px-6 lg:px-8'>
@@ -26,7 +103,8 @@ const AboutPillars = () => {
           {pillars.map((item) => (
             <article
               key={item.id}
-              className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10'
+              onClick={() => handleOpenArticle(item.article)}
+              className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 cursor-pointer border border-slate-100'
             >
               <div className='relative h-60 w-full overflow-hidden bg-slate-100'>
                 <Image
@@ -55,6 +133,125 @@ const AboutPillars = () => {
           ))}
         </div>
       </div>
+
+      {/* Article Detail Modal */}
+      {selectedArticle && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm transition-opacity duration-300 overflow-y-auto'
+          onClick={handleCloseArticle}
+        >
+          <div
+            className='relative max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white text-slate-900 shadow-2xl border border-slate-200 my-auto'
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Close Button */}
+            <button
+              type='button'
+              onClick={handleCloseArticle}
+              className='sticky top-4 right-4 ml-auto mr-4 mt-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-white backdrop-blur transition-colors hover:bg-green-600 cursor-pointer shadow-md'
+              aria-label='Tutup artikel'
+            >
+              <X className='h-5 w-5' />
+            </button>
+
+            <div className='p-6 sm:p-10 -mt-10'>
+              {/* Category Tag */}
+              <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-green-700'>
+                <span>Berita & Aksi Lapangan</span>
+              </div>
+
+              {/* Title */}
+              <h2 className='text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight'>
+                {selectedArticle.title}
+              </h2>
+
+              {/* Meta Info */}
+              <div className='mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-500 pt-4 border-t border-slate-100'>
+                <div className='flex items-center gap-1.5'>
+                  <Calendar className='h-4 w-4 text-green-600' />
+                  <span>{selectedArticle.date}</span>
+                </div>
+                <div className='flex items-center gap-1.5'>
+                  <MapPin className='h-4 w-4 text-green-600' />
+                  <span>{selectedArticle.location}</span>
+                </div>
+                <div className='flex items-center gap-1.5'>
+                  <User className='h-4 w-4 text-green-600' />
+                  <span>{selectedArticle.author}</span>
+                </div>
+              </div>
+
+              {/* Main Featured Image / Photo Preview */}
+              <div className='relative mt-6 h-72 sm:h-96 w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md'>
+                <Image
+                  src={selectedArticle.galleryImages ? selectedArticle.galleryImages[activePhotoIdx] : selectedArticle.image}
+                  alt={selectedArticle.title}
+                  fill
+                  sizes='(max-width: 768px) 100vw, 800px'
+                  className='object-cover'
+                  priority
+                />
+              </div>
+
+              {/* Gallery Thumbnails (if any) */}
+              {selectedArticle.galleryImages && selectedArticle.galleryImages.length > 1 && (
+                <div className='mt-3 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin'>
+                  {selectedArticle.galleryImages.map((img, idx) => (
+                    <button
+                      key={img}
+                      type='button'
+                      onClick={() => setActivePhotoIdx(idx)}
+                      className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
+                        idx === activePhotoIdx ? 'border-green-600 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <Image src={img} alt={`Foto ${idx + 1}`} fill sizes='80px' className='object-cover' />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Article Content Paragraphs */}
+              <div className='mt-8 space-y-5 text-base leading-8 text-slate-700'>
+                {selectedArticle.paragraphs.map((p, idx) => (
+                  <p key={idx}>{p}</p>
+                ))}
+
+                {/* Quote Highlight Box */}
+                {selectedArticle.quote && (
+                  <blockquote className='my-6 rounded-2xl bg-green-50/80 p-6 border-l-4 border-green-600 text-slate-800 italic font-medium leading-relaxed'>
+                    "{selectedArticle.quote}"
+                  </blockquote>
+                )}
+              </div>
+
+              {/* External Sources Links */}
+              {selectedArticle.sources && selectedArticle.sources.length > 0 && (
+                <div className='mt-10 pt-6 border-t border-slate-200'>
+                  <p className='text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5'>
+                    <Share2 className='h-4 w-4 text-green-600' />
+                    <span>Diberitakan Oleh Media Partner:</span>
+                  </p>
+                  <div className='flex flex-wrap gap-3'>
+                    {selectedArticle.sources.map((src) => (
+                      <a
+                        key={src.name}
+                        href={src.url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 transition-colors hover:bg-green-600 hover:text-white'
+                      >
+                        <span>{src.name}</span>
+                        <ExternalLink className='h-3.5 w-3.5' />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
