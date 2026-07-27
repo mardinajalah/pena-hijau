@@ -19,7 +19,7 @@ const navigation = [
   {
     id: 3,
     name: 'Galeri',
-    href: '#',
+    href: '/gallery',
   },
   {
     id: 4,
