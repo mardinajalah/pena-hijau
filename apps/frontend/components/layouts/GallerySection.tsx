@@ -7,7 +7,7 @@ import { ChevronRight, ChevronLeft, MoveUpRight } from 'lucide-react';
 const galleries = [
   {
     id: 1,
-    title: 'Desa Kotaanyar',
+    title: 'Kotaanyar',
     description: 'Jembatan kotaanyar, Kecamatan Kotaanyar, Kabupaten Probolinggo.',
     image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
   }
@@ -48,9 +48,9 @@ const GallerySection = () => {
       <div className='mx-auto max-w-8xl px-5 sm:px-6 lg:px-8'>
         <div className='mx-auto mb-14 max-w-3xl text-center'>
           <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Galeri Kegiatan</p>
-          <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Jejak Aksi Pena Hijau di Berbagai Desa</h2>
+          <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Jejak Aksi Pena Hijau di Berbagai Tempat</h2>
           <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>
-            Galeri ini menampilkan perjalanan dan kontribusi Pena Hijau dalam mendukung pelestarian lingkungan, mulai dari membersihkan sampah, penanaman pohon hingga kegiatan edukasi yang melibatkan masyarakat secara aktif.
+            Galeri ini menampilkan perjalanan dan kontribusi Pena Hijau dalam mendukung pelestarian lingkungan, mulai dari membersihkan sampah, penanaman pohon hingga kegiatan edukasi secara aktif.
           </p>
         </div>
 

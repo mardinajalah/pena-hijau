@@ -99,7 +99,7 @@ const HeroSection = () => {
                     Aksi Clean-Up river
                   </span>
                   <h3 className='mt-2 text-lg font-bold'>Aksi Bersih Sampah Sungai</h3>
-                  <p className='text-xs text-slate-200/90 mt-1'>Desa Kotaanyar • 2026</p>
+                  <p className='text-xs text-slate-200/90 mt-1'>Kotaanyar • 2026</p>
                 </div>
               </div>
 
