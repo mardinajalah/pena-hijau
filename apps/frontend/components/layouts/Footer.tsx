@@ -37,7 +37,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className='bg-emerald-950 text-emerald-50'>
+    <footer className='bg-emerald-950 text-emerald-50 w-full mt-auto'>
       <div className='relative px-8 py-12 sm:px-12 lg:px-16 lg:py-16'>
         <div className='pointer-events-none absolute inset-0 overflow-hidden opacity-20'>
           <div className='absolute -right-24 -top-32 h-96 w-96 rotate-45 border border-emerald-200/40' />

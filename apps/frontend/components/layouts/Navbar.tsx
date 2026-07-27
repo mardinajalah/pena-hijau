@@ -5,32 +5,37 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+const navigation = [
+  {
+    id: 1,
+    name: 'Beranda',
+    href: '/',
+  },
+  {
+    id: 2,
+    name: 'Tentang Kami',
+    href: '/about',
+  },
+  {
+    id: 3,
+    name: 'Galeri',
+    href: '#',
+  },
+  {
+    id: 4,
+    name: 'Anggota',
+    href: '#',
+  },
+  {
+    id: 5,
+    name: 'Gabung',
+    href: '#',
+  },
+];
+
 const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const navigation = [
-    {
-      id: 1,
-      name: 'Beranda',
-    },
-    {
-      id: 2,
-      name: 'Tentang Kami',
-    },
-    {
-      id: 3,
-      name: 'Galeri',
-    },
-    {
-      id: 4,
-      name: 'Anggota',
-    },
-    {
-      id: 5,
-      name: 'Gabung',
-    },
-  ];
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -98,7 +103,7 @@ const Navbar = () => {
               <li key={nav.id}>
                 <Link
                   className='transition-colors hover:text-green-600'
-                  href='#'
+                  href={nav.href}
                 >
                   {nav.name}
                 </Link>
@@ -129,21 +134,21 @@ const Navbar = () => {
       </nav>
 
       <div
-        className={`fixed inset-0 z-60 bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
-          isMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        className={`fixed inset-0 z-60 bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
         onClick={closeMenu}
         aria-hidden='true'
       />
 
       <aside
-        className={`fixed right-0 top-0 z-70 flex h-svh w-[82%] max-w-sm flex-col bg-white px-6 py-6 shadow-2xl shadow-slate-950/20 transition-transform duration-500 ease-out md:hidden ${
-          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed right-0 top-0 z-70 flex h-svh w-[82%] max-w-sm flex-col bg-white px-6 py-6 shadow-2xl shadow-slate-950/20 transition-transform duration-500 ease-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
         aria-hidden={!isMenuOpen}
       >
         <div className='flex items-center justify-between'>
-          <Link href='#' className='flex items-center gap-3' onClick={closeMenu}>
+          <Link
+            href='#'
+            className='flex items-center gap-3'
+            onClick={closeMenu}
+          >
             <Image
               src='/logo.webp'
               alt='Logo Pena Hijau'
