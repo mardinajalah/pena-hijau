@@ -145,8 +145,8 @@ const Navbar = () => {
         <div className='flex items-center justify-between'>
           <Link href='#' className='flex items-center gap-3' onClick={closeMenu}>
             <Image
-              src='/logo.png'
-              alt='logo.webp'
+              src='/logo.webp'
+              alt='Logo Pena Hijau'
               width={56}
               height={56}
               className='h-12 w-12 object-contain'
