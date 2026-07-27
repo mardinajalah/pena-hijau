@@ -24,7 +24,7 @@ const navigation = [
   {
     id: 4,
     name: 'Anggota',
-    href: '#',
+    href: '/members',
   },
   {
     id: 5,

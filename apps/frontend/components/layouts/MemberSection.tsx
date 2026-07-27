@@ -4,26 +4,26 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6';
 const members = [
   {
     id: 1,
-    name: 'Tidak ada Nama',
-    role: 'Koordinator Lapangan',
+    name: 'Rizky Pratama, S.Ling.',
+    role: 'Ketua Umum & Founder',
     image: '/profile.webp',
   },
   {
     id: 2,
-    name: 'Tidak ada Nama',
-    role: 'Ketua Edukasi',
+    name: 'Dewi Lestari',
+    role: 'Ketua Divisi Edukasi',
     image: '/profile.webp',
   },
   {
     id: 3,
-    name: 'Tidak ada Nama',
-    role: 'Penggerak Komunitas',
+    name: 'Fajar Hidayat',
+    role: 'Koordinator Lapangan Clean-Up',
     image: '/profile.webp',
   },
   {
     id: 4,
-    name: 'Tidak ada Nama',
-    role: 'Relawan Lingkungan',
+    name: 'Siti Nurhaliza',
+    role: 'Manajer Media & Komunikasi',
     image: '/profile.webp',
   },
 ];
@@ -46,20 +46,20 @@ const socialLinks = [
 const MemberSection = () => {
   return (
     <section className='bg-white py-20 sm:py-24'>
-      <div className='mx-auto max-w-8xl px-5 sm:px-6 lg:px-8'>
+      <div className='mx-auto max-w-7xl px-5 sm:px-6 lg:px-8'>
         <div className='mx-auto max-w-3xl text-center'>
-          <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Anggota</p>
+          <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>Anggota & Penggerak</p>
           <h2 className='mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl'>Tim Penggerak Pena Hijau</h2>
-          <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>Orang-orang di balik kegiatan edukasi, aksi bersih lingkungan, dan kolaborasi desa bersama Pena Hijau.</p>
+          <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>Orang-orang berdedikasi di balik kegiatan edukasi, aksi bersih lingkungan, dan kolaborasi desa bersama Pena Hijau.</p>
         </div>
 
         <div className='mt-16 grid gap-12 sm:grid-cols-2 lg:grid-cols-4'>
           {members.map((member) => (
             <article
               key={member.id}
-              className='text-center'
+              className='text-center group'
             >
-              <div className='mx-auto flex h-48 w-48 items-center justify-center rounded-full border-[6px] border-green-600 p-2 shadow-lg shadow-green-900/10'>
+              <div className='mx-auto flex h-48 w-48 items-center justify-center rounded-full border-[6px] border-green-600 p-2 shadow-lg shadow-green-900/10 transition-transform duration-300 group-hover:scale-105'>
                 <div className='relative h-full w-full overflow-hidden rounded-full bg-green-50'>
                   <Image
                     src={member.image}
@@ -71,10 +71,10 @@ const MemberSection = () => {
                 </div>
               </div>
 
-              <h3 className='mt-6 text-2xl font-bold text-slate-950'>{member.name}</h3>
-              <p className='mt-3 text-base text-slate-600'>{member.role}</p>
+              <h3 className='mt-6 text-xl font-bold text-slate-950 group-hover:text-green-600 transition-colors'>{member.name}</h3>
+              <p className='mt-2 text-sm text-slate-600 font-medium'>{member.role}</p>
 
-              <div className='mt-5 flex justify-center gap-4 text-green-600'>
+              <div className='mt-4 flex justify-center gap-4 text-green-600'>
                 {socialLinks.map(({ label, Icon }) => (
                   <a
                     key={`${member.name}-${label}`}
