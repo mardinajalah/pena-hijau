@@ -8,47 +8,47 @@ const galleries = [
   {
     title: 'Desa Pesisir Hijau',
     description: 'Jalan Pantai Bersih, kawasan pesisir tempat aksi bersih sampah bersama warga.',
-    image: '/gallery/foto1.jpg',
+    image: '/gallery/foto1.webp',
   },
   {
     title: 'Desa Lestari',
     description: 'Jalan Raya Lestari, area edukasi lingkungan dan pengelolaan sampah warga.',
-    image: '/gallery/foto2.jpg',
+    image: '/gallery/foto2.webp',
   },
   {
     title: 'Desa Sukamaju',
     description: 'Jalan Sukamaju Indah, lokasi kegiatan penghijauan dan gotong royong pemuda.',
-    image: '/gallery/foto3.jpg',
+    image: '/gallery/foto3.webp',
   },
   {
     title: 'Desa Cinta Alam',
     description: 'Jalan Cinta Alam, tempat kampanye peduli lingkungan dan pemilahan sampah.',
-    image: '/gallery/foto4.jpg',
+    image: '/gallery/foto4.webp',
   },
   {
     title: 'Desa Harapan Baru',
     description: 'Jalan Harapan Baru, ruang kolaborasi warga untuk menjaga lingkungan sekitar.',
-    image: '/gallery/foto5.jpg',
+    image: '/gallery/foto5.webp',
   },
   {
     title: 'Desa Bumi Asri',
     description: 'Jalan Bumi Asri, titik edukasi daur ulang dan pemanfaatan sampah rumah tangga.',
-    image: '/gallery/foto6.jpg',
+    image: '/gallery/foto6.webp',
   },
   {
     title: 'Desa Tunas Hijau',
     description: 'Jalan Tunas Hijau, area kegiatan tanam pohon dan perawatan ruang terbuka.',
-    image: '/gallery/foto7.jpg',
+    image: '/gallery/foto7.webp',
   },
   {
     title: 'Desa Sejahtera',
     description: 'Jalan Sejahtera, lokasi pendampingan warga untuk lingkungan yang lebih bersih.',
-    image: '/gallery/foto8.jpg',
+    image: '/gallery/foto8.webp',
   },
   {
     title: 'Desa Mekar Sari',
     description: 'Jalan Mekar Sari, tempat aksi komunitas dalam menjaga kebersihan desa.',
-    image: '/gallery/foto9.jpg',
+    image: '/gallery/foto9.webp',
   },
 ];
 

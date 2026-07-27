@@ -11,7 +11,7 @@ const HeroSection = () => {
   return (
     <section className='relative flex min-h-svh w-full items-center overflow-hidden'>
       <Image
-        src='/hero.jpg'
+        src='/hero.webp'
         alt='Hero Image'
         fill
         className='object-cover'

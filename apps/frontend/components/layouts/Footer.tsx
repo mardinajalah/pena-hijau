@@ -52,7 +52,7 @@ const Footer = () => {
               className='inline-flex items-center gap-3'
             >
               <Image
-                src='/logo.png'
+                src='/logo.webp'
                 alt='Logo Pena Hijau'
                 width={64}
                 height={64}
