@@ -12,15 +12,15 @@ const GalleryHero = () => {
   return (
     <section className='relative flex min-h-svh w-full items-center justify-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       <Image
-        src='/gallery/foto4.webp'
+        src='/bannerGalleryHero.webp'
         alt='Galeri Kegiatan Pena Hijau'
         fill
         className='object-cover object-center scale-105'
         priority
       />
 
-      <div className='absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/85 to-slate-950/80' />
-      <div className='absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/30' />
+      <div className='absolute inset-0 bg-linear-to-r from-emerald-950/95 via-emerald-950/85 to-slate-950/80' />
+      <div className='absolute inset-0 bg-linear-to-t from-slate-950/90 via-transparent to-black/30' />
 
       <div className='relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 text-center sm:text-left z-10'>
         {/* Breadcrumb */}

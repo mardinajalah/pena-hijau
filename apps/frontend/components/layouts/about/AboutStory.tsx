@@ -47,15 +47,15 @@ const AboutStory = () => {
           {/* Right Column: Visual Graphic & Images */}
           <div className='relative'>
             <div className='relative mx-auto max-w-md lg:max-w-none'>
-              <div className='overflow-hidden rounded-3xl bg-slate-200 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-[4/3] relative'>
+              <div className='overflow-hidden rounded-3xl bg-slate-200 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-4/3 relative'>
                 <Image
-                  src='/gallery/foto2.webp'
+                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp'
                   alt='Kegiatan Penghijauan Pena Hijau'
                   fill
                   sizes='(max-width: 1024px) 100vw, 50vw'
                   className='object-cover'
                 />
-                <div className='absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent' />
+                <div className='absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent' />
                 <div className='absolute bottom-4 left-4 right-4 rounded-2xl bg-white/90 p-4 backdrop-blur border border-white/40'>
                   <div className='flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white'>
@@ -72,7 +72,7 @@ const AboutStory = () => {
               {/* Floating secondary badge image */}
               <div className='hidden sm:block absolute -bottom-8 -left-8 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl aspect-square w-44'>
                 <Image
-                  src='/gallery/foto5.webp'
+                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp'
                   alt='Aksi Relawan'
                   fill
                   sizes='176px'

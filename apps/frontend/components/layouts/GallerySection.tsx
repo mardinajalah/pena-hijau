@@ -6,62 +6,25 @@ import { ChevronRight, ChevronLeft, MoveUpRight } from 'lucide-react';
 
 const galleries = [
   {
-    title: 'Desa Pesisir Hijau',
-    description: 'Jalan Pantai Bersih, kawasan pesisir tempat aksi bersih sampah bersama warga.',
-    image: '/gallery/foto1.webp',
-  },
-  {
-    title: 'Desa Lestari',
-    description: 'Jalan Raya Lestari, area edukasi lingkungan dan pengelolaan sampah warga.',
-    image: '/gallery/foto2.webp',
-  },
-  {
-    title: 'Desa Sukamaju',
-    description: 'Jalan Sukamaju Indah, lokasi kegiatan penghijauan dan gotong royong pemuda.',
-    image: '/gallery/foto3.webp',
-  },
-  {
-    title: 'Desa Cinta Alam',
-    description: 'Jalan Cinta Alam, tempat kampanye peduli lingkungan dan pemilahan sampah.',
-    image: '/gallery/foto4.webp',
-  },
-  {
-    title: 'Desa Harapan Baru',
-    description: 'Jalan Harapan Baru, ruang kolaborasi warga untuk menjaga lingkungan sekitar.',
-    image: '/gallery/foto5.webp',
-  },
-  {
-    title: 'Desa Bumi Asri',
-    description: 'Jalan Bumi Asri, titik edukasi daur ulang dan pemanfaatan sampah rumah tangga.',
-    image: '/gallery/foto6.webp',
-  },
-  {
-    title: 'Desa Tunas Hijau',
-    description: 'Jalan Tunas Hijau, area kegiatan tanam pohon dan perawatan ruang terbuka.',
-    image: '/gallery/foto7.webp',
-  },
-  {
-    title: 'Desa Sejahtera',
-    description: 'Jalan Sejahtera, lokasi pendampingan warga untuk lingkungan yang lebih bersih.',
-    image: '/gallery/foto8.webp',
-  },
-  {
-    title: 'Desa Mekar Sari',
-    description: 'Jalan Mekar Sari, tempat aksi komunitas dalam menjaga kebersihan desa.',
-    image: '/gallery/foto9.webp',
-  },
+    id: 1,
+    title: 'Desa Kotaanyar',
+    description: 'Jembatan kotaanyar, Kecamatan Kotaanyar, Kabupaten Probolinggo.',
+    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+  }
 ];
 
 const GallerySection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<'next' | 'previous'>('next');
   const activeGallery = galleries[activeIndex];
-  const visibleGalleries = [0, 1, 2].map((offset) => {
+  const visibleCount = Math.min(galleries.length, 3);
+  const visibleGalleries = Array.from({ length: visibleCount }, (_, offset) => {
     const galleryIndex = (activeIndex + offset) % galleries.length;
 
     return {
       ...galleries[galleryIndex],
       galleryIndex,
+      slot: offset,
     };
   });
 
@@ -114,7 +77,7 @@ const GallerySection = () => {
 
                 return (
                   <button
-                    key={gallery.title}
+                    key={`slot-${gallery.slot}`}
                     type='button'
                     onClick={() => handleSelectGallery(gallery.galleryIndex)}
                     className={`min-h-75 min-w-full cursor-pointer rounded-3xl p-8 text-left shadow-lg transition-all duration-300 sm:min-w-[calc(50%-10px)] md:min-w-[calc(33.333%-14px)] lg:min-w-75 ${

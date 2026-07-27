@@ -12,14 +12,14 @@ const AboutHero = () => {
   return (
     <section className='relative flex min-h-svh w-full items-center justify-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       <Image
-        src='/gallery/foto1.webp'
+        src='/bannerAboutHero.webp'
         alt='Tentang Pena Hijau'
         fill
         className='object-cover'
         priority
       />
 
-      <div className='absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-950/75 to-slate-900/80' />
+      <div className='absolute inset-0 bg-linear-to-r from-emerald-950/90 via-emerald-950/75 to-slate-900/80' />
 
       <div className='relative mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8 text-center sm:text-left z-10'>
         {/* Breadcrumb */}

@@ -13,7 +13,7 @@ const HeroSection = () => {
     <section className='relative flex min-h-svh w-full items-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       {/* Background Image */}
       <Image
-        src='/hero.webp'
+        src='/bannerHeroSection.webp'
         alt='Hero Pena Hijau'
         fill
         className='object-cover object-center scale-105 transition-transform duration-1000'
@@ -21,8 +21,8 @@ const HeroSection = () => {
       />
 
       {/* Modern Gradient Overlays */}
-      <div className='absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/80 to-slate-950/60' />
-      <div className='absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-black/40' />
+      <div className='absolute inset-0 bg-linear-to-r from-emerald-950/95 via-emerald-950/80 to-slate-950/60' />
+      <div className='absolute inset-0 bg-linear-to-t from-emerald-950/90 via-transparent to-black/40' />
 
       {/* Decorative Glows */}
       <div className='pointer-events-none absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-green-500/20 blur-3xl' />
@@ -43,7 +43,7 @@ const HeroSection = () => {
                 textShadow: '0 4px 24px rgba(0,0,0,0.6)',
               }}
             >
-              Ayo Gabung <span className='text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-300 to-teal-200'>Bersama Kami</span>
+              Ayo Gabung <span className='text-transparent bg-clip-text bg-linear-to-r from-green-400 via-emerald-300 to-teal-200'>Bersama Kami</span>
             </h1>
 
             <p className='mt-6 text-base sm:text-xl leading-relaxed text-emerald-100/90 font-normal max-w-xl'>
@@ -87,27 +87,27 @@ const HeroSection = () => {
             <div className='relative rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-xl shadow-2xl shadow-emerald-950/50'>
               <div className='relative h-80 w-full overflow-hidden rounded-2xl'>
                 <Image
-                  src='/gallery/foto1.webp'
+                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp'
                   alt='Aksi Pena Hijau'
                   fill
                   sizes='400px'
                   className='object-cover'
                 />
-                <div className='absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent' />
+                <div className='absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent' />
                 <div className='absolute bottom-4 left-4 right-4 text-white'>
                   <span className='rounded-full bg-green-600 px-3 py-1 text-xs font-semibold uppercase tracking-wider'>
-                    Aksi Clean-Up Pesisir
+                    Aksi Clean-Up river
                   </span>
-                  <h3 className='mt-2 text-lg font-bold'>Aksi Bersih Sampah Bersama Warga</h3>
-                  <p className='text-xs text-slate-200/90 mt-1'>Desa Pesisir Hijau • 2026</p>
+                  <h3 className='mt-2 text-lg font-bold'>Aksi Bersih Sampah Sungai</h3>
+                  <p className='text-xs text-slate-200/90 mt-1'>Desa Kotaanyar • 2026</p>
                 </div>
               </div>
 
               {/* Floating Stat Widget */}
               <div className='mt-4 flex items-center justify-between rounded-xl bg-emerald-900/60 p-4 border border-emerald-700/50 text-white'>
                 <div>
-                  <p className='text-xs text-emerald-200'>Total Pohon Ditanam</p>
-                  <p className='text-2xl font-extrabold text-green-400'>5.000+ Bibit</p>
+                  <p className='text-xs text-emerald-200'>Total Sungai Yang Dibersihkan</p>
+                  <p className='text-2xl font-extrabold text-green-400'>1 Sungai</p>
                 </div>
                 <div className='flex -space-x-2 overflow-hidden'>
                   <Image src='/profile.webp' alt='Avatar 1' width={36} height={36} className='inline-block h-9 w-9 rounded-full ring-2 ring-emerald-500 object-cover' />

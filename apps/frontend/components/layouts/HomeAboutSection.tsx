@@ -17,22 +17,22 @@ const HomeAboutSection = () => {
           {/* Left Visual Column */}
           <div className='lg:col-span-6 relative'>
             <div className='relative mx-auto max-w-md lg:max-w-none'>
-              <div className='relative overflow-hidden rounded-3xl bg-slate-100 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-[4/3]'>
+              <div className='relative overflow-hidden rounded-3xl bg-slate-100 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-4/3'>
                 <Image
-                  src='/gallery/foto2.webp'
+                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp'
                   alt='Tentang Gerakan Pena Hijau'
                   fill
                   sizes='(max-width: 1024px) 100vw, 50vw'
                   className='object-cover'
                 />
-                <div className='absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent' />
+                <div className='absolute inset-0 bg-linear-to-t from-slate-950/70 via-transparent to-transparent' />
                 <div className='absolute bottom-6 left-6 right-6 text-white'>
                   <div className='inline-flex items-center gap-2 rounded-full bg-green-600/90 px-3.5 py-1 text-xs font-semibold backdrop-blur'>
                     <Leaf className='h-3.5 w-3.5' />
                     <span>Pemuda Peduli Lingkungan</span>
                   </div>
                   <h4 className='mt-2 text-xl font-bold'>Aksi Nyata di Lapangan</h4>
-                  <p className='text-xs text-slate-200 mt-1'>Kolaborasi aktif bersama masyarakat desa & generasi muda.</p>
+                  <p className='text-xs text-slate-200 mt-1'>Pembersian Sampah Di Bawah Jembatan Kotaanayar</p>
                 </div>
               </div>
 
