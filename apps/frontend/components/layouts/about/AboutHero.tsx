@@ -10,7 +10,7 @@ const montserrat = Montserrat({
 
 const AboutHero = () => {
   return (
-    <section className='relative flex min-h-[60vh] w-full items-center justify-center overflow-hidden pt-20'>
+    <section className='relative flex min-h-svh w-full items-center justify-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       <Image
         src='/gallery/foto1.webp'
         alt='Tentang Pena Hijau'
@@ -21,7 +21,7 @@ const AboutHero = () => {
 
       <div className='absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-950/75 to-slate-900/80' />
 
-      <div className='relative mx-auto w-full max-w-7xl px-5 py-20 sm:px-6 lg:px-8 text-center sm:text-left'>
+      <div className='relative mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8 text-center sm:text-left z-10'>
         {/* Breadcrumb */}
         <nav className='mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-emerald-100 backdrop-blur-md border border-white/15'>
           <Link href='/' className='transition-colors hover:text-white'>Beranda</Link>

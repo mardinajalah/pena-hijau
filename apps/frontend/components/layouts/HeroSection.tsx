@@ -10,7 +10,7 @@ const montserrat = Montserrat({
 
 const HeroSection = () => {
   return (
-    <section className='relative flex min-h-[92vh] w-full items-center overflow-hidden pt-20 pb-16'>
+    <section className='relative flex min-h-svh w-full items-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       {/* Background Image */}
       <Image
         src='/hero.webp'
