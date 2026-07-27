@@ -32,7 +32,7 @@ const galleryData: GalleryItem[] = [
       '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
       '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
     ],
-    description: 'Relawan Pena Hijau bersama warga bergotong-royong membersihkan sampah plastik di aliran sungai Kotaanyar, Kabupaten Probolinggo.',
+    description: 'Relawan Pena Hijau bergotong-royong membersihkan sampah plastik di aliran sungai Kotaanyar, Kabupaten Probolinggo.',
   },
   // Tambahkan event berikutnya di sini ↓
 ];
