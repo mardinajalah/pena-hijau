@@ -6,25 +6,25 @@ const members = [
     id: 1,
     name: 'Tidak ada Nama',
     role: 'Koordinator Lapangan',
-    image: '/profile.png',
+    image: '/profile.webp',
   },
   {
     id: 2,
     name: 'Tidak ada Nama',
     role: 'Ketua Edukasi',
-    image: '/profile.png',
+    image: '/profile.webp',
   },
   {
     id: 3,
     name: 'Tidak ada Nama',
     role: 'Penggerak Komunitas',
-    image: '/profile.png',
+    image: '/profile.webp',
   },
   {
     id: 4,
     name: 'Tidak ada Nama',
     role: 'Relawan Lingkungan',
-    image: '/profile.png',
+    image: '/profile.webp',
   },
 ];
 
