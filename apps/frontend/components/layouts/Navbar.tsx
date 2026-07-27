@@ -174,7 +174,7 @@ const Navbar = () => {
             <li key={nav.id}>
               <Link
                 className='block rounded-2xl px-4 py-3 transition-colors hover:bg-green-50 hover:text-green-600'
-                href='#'
+                href={nav.href}
                 onClick={closeMenu}
               >
                 {nav.name}
