@@ -92,6 +92,7 @@ const HeroSection = () => {
                   fill
                   sizes='400px'
                   className='object-cover'
+                  loading="lazy"
                 />
                 <div className='absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent' />
                 <div className='absolute bottom-4 left-4 right-4 text-white'>
