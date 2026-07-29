@@ -43,3 +43,6 @@ Thumbs.db
 
 *.rest
 **/.rest
+
+# agents skill
+.agents
