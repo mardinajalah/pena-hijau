@@ -127,11 +127,11 @@ const MembersPage = () => {
   const loadMembers = async () => {
     try {
       const res = await dashboardApi.getMembers();
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      if (res.data && Array.isArray(res.data)) {
         setMembers(res.data as any);
       }
     } catch (err) {
-      // Fallback
+      setMembers([]);
     }
   };
 

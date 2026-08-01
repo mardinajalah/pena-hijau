@@ -66,7 +66,7 @@ const GalleryPage = () => {
   const loadGalleries = async () => {
     try {
       const res = await dashboardApi.getGalleries();
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      if (res.data && Array.isArray(res.data)) {
         const mapped: GalleryEvent[] = res.data.map((g: any) => ({
           id: g.id,
           title: g.title,
@@ -80,7 +80,7 @@ const GalleryPage = () => {
         setEvents(mapped);
       }
     } catch (err) {
-      // Fallback
+      setEvents([]);
     }
   };
 

@@ -73,11 +73,11 @@ const JoinRequestsPage = () => {
     async function loadRequests() {
       try {
         const res = await dashboardApi.getJoinRequests();
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        if (res.data && Array.isArray(res.data)) {
           setRequests(res.data);
         }
       } catch (err) {
-        // Fallback to initial data if backend not reachable
+        setRequests([]);
       }
     }
     loadRequests();
