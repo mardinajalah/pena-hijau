@@ -114,7 +114,7 @@ const DashboardHomePage = () => {
   return (
     <div className='space-y-8 p-6 sm:p-8'>
       {/* ── Welcome Banner ── */}
-      <div className='relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 p-8 sm:p-10 text-white shadow-xl border border-emerald-800/60'>
+      <div className='relative overflow-hidden rounded-3xl bg-linear-to-r from-emerald-950 via-emerald-900 to-slate-900 p-8 sm:p-10 text-white shadow-xl border border-emerald-800/60'>
         <div className='pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-green-500/20 blur-3xl' />
 
         <div className='relative z-10 max-w-3xl'>
@@ -237,7 +237,7 @@ const DashboardHomePage = () => {
                     <td className='py-4 px-4 text-xs text-slate-600'>
                       <div className='flex items-center gap-1.5'>
                         <MapPin className='h-3.5 w-3.5 text-green-600 shrink-0' />
-                        <span className='truncate max-w-[140px]'>{member.address}</span>
+                        <span className='truncate max-w-35'>{member.address}</span>
                       </div>
                     </td>
                     <td className='py-4 px-4 text-xs text-slate-600'>
@@ -286,7 +286,7 @@ const DashboardHomePage = () => {
                 sizes='400px'
                 className='object-cover'
               />
-              <div className='absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent' />
+              <div className='absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent' />
               <div className='absolute bottom-3 left-3 right-3 text-white'>
                 <p className='text-[10px] text-emerald-300 font-bold uppercase tracking-wider flex items-center gap-1'>
                   <MapPin className='h-3 w-3' /> Kec. Kotaanyar, Probolinggo
