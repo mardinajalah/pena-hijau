@@ -1,25 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   Images,
   Plus,
   Search,
-  Filter,
   MapPin,
   Calendar,
   Eye,
-  Edit2,
   Trash2,
   X,
   Upload,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Tag,
   CheckCircle2,
 } from 'lucide-react';
+import { dashboardApi } from '@/lib/api';
 
 interface GalleryEvent {
   id: number;
@@ -32,7 +29,7 @@ interface GalleryEvent {
   description: string;
 }
 
-const initialEvents: GalleryEvent[] = [
+const fallbackEvents: GalleryEvent[] = [
   {
     id: 1,
     title: 'Aksi Bersih Sampah Aliran Sungai Kotaanyar',
@@ -51,189 +48,188 @@ const initialEvents: GalleryEvent[] = [
     ],
     description: 'Relawan Pena Hijau bersama warga bergotong-royong membersihkan limbah plastik di jembatan sungai Kotaanyar.',
   },
-  {
-    id: 2,
-    title: 'Penanaman 500 Bibit Pohon Produktif',
-    category: 'Penghijauan',
-    location: 'Kecamatan Paiton, Probolinggo',
-    date: '15 Juli 2026',
-    coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-    photos: [
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
-    ],
-    description: 'Aksi hijau menanam bibit pohon buah dan lindung di kawasan lereng kritis desa mitra.',
-  },
-  {
-    id: 3,
-    title: 'Sosialisasi Pemilahan Sampah Mandiri',
-    category: 'Edukasi',
-    location: 'Desa Pesisir Hijau, Situbondo',
-    date: '02 Juli 2026',
-    coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-    photos: [
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-    ],
-    description: 'Edukasi pengelolaan dan pemilahan sampah anorganik bagi warga dan generasi muda pesisir.',
-  },
 ];
 
-const categories = ['Semua', 'Aksi Clean-Up', 'Penghijauan', 'Edukasi', 'Komunitas'];
+const categoryConfig: Record<GalleryEvent['category'], { color: string; bg: string }> = {
+  'Aksi Clean-Up': { color: 'text-green-700', bg: 'bg-green-100 border-green-200' },
+  'Penghijauan': { color: 'text-emerald-700', bg: 'bg-emerald-100 border-emerald-200' },
+  'Edukasi': { color: 'text-blue-700', bg: 'bg-blue-100 border-blue-200' },
+  'Komunitas': { color: 'text-violet-700', bg: 'bg-violet-100 border-violet-200' },
+};
 
 const GalleryPage = () => {
-  const [events, setEvents] = useState<GalleryEvent[]>(initialEvents);
+  const [events, setEvents] = useState<GalleryEvent[]>(fallbackEvents);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [activeLightbox, setActiveLightbox] = useState<{ event: GalleryEvent; photoIndex: number } | null>(null);
 
-  // Modal States
-  const [viewEvent, setViewEvent] = useState<GalleryEvent | null>(null);
-  const [activePhotoIdx, setActivePhotoIdx] = useState(0);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
+  // Modal State
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
-  // Form State for Add Event (UI Preview)
-  const [formTitle, setFormTitle] = useState('');
-  const [formCategory, setFormCategory] = useState<'Aksi Clean-Up' | 'Penghijauan' | 'Edukasi' | 'Komunitas'>('Aksi Clean-Up');
-  const [formLocation, setFormLocation] = useState('');
-  const [formDate, setFormDate] = useState('');
-  const [formDescription, setFormDescription] = useState('');
-
-  // Filter Logic
-  const filteredEvents = events.filter((ev) => {
-    const matchesSearch =
-      ev.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ev.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = selectedCategory === 'Semua' || ev.category === selectedCategory;
-    return matchesSearch && matchesCat;
+  const [form, setForm] = useState({
+    title: '',
+    category: 'Aksi Clean-Up' as GalleryEvent['category'],
+    location: '',
+    date: '',
+    description: '',
   });
+
+  const [notification, setNotification] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 3200);
   };
 
-  const handleOpenPhotoViewer = (ev: GalleryEvent) => {
-    setViewEvent(ev);
-    setActivePhotoIdx(0);
+  const loadGalleries = async () => {
+    try {
+      const res = await dashboardApi.getGalleries();
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped: GalleryEvent[] = res.data.map((g: any) => ({
+          id: g.id,
+          title: g.title,
+          category: g.category || 'Aksi Clean-Up',
+          location: g.location,
+          date: g.date,
+          coverImage: g.coverImage || g.photos?.[0]?.url || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+          photos: g.photos?.map((p: any) => p.url) || [g.coverImage],
+          description: g.description,
+        }));
+        setEvents(mapped);
+      }
+    } catch (err) {
+      // Fallback
+    }
   };
 
-  const handleClosePhotoViewer = () => {
-    setViewEvent(null);
+  useEffect(() => {
+    loadGalleries();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formTitle.trim()) {
-      const newEv: GalleryEvent = {
-        id: Date.now(),
-        title: formTitle,
-        category: formCategory,
-        location: formLocation || 'Desa Mitra, Probolinggo',
-        date: formDate || '01 Agustus 2026',
-        coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-        photos: ['/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp'],
-        description: formDescription || 'Dokumentasi kegiatan aksi lingkungan Pena Hijau.',
-      };
-      setEvents([newEv, ...events]);
-      setIsAddModalOpen(false);
-      setFormTitle('');
-      setFormLocation('');
-      setFormDate('');
-      setFormDescription('');
-      showToast('Event Galeri Baru Berhasil Ditambahkan (Simulasi Tampilan UI)!');
+    if (!form.title.trim()) return;
+
+    setIsSubmitting(true);
+    let imageUrl = '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+
+    try {
+      // Upload image file to backend API if selected
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('category', 'galleries');
+
+        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
+          method: 'POST',
+          body: formData,
+        });
+        const uploadJson = await uploadRes.json();
+        if (uploadJson.data?.url) {
+          imageUrl = uploadJson.data.url;
+        }
+      }
+
+      await dashboardApi.createGallery({
+        title: form.title,
+        category: form.category,
+        location: form.location || 'Desa Kotaanyar, Probolinggo',
+        date: form.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+        coverImage: imageUrl,
+        photos: [{ id: Date.now(), url: imageUrl }],
+        description: form.description || 'Dokumentasi kegiatan aksi relawan Pena Hijau.',
+      });
+
+      showToast('Event galeri baru berhasil dibuat dan tersimpan!');
+      setIsAddOpen(false);
+      setForm({ title: '', category: 'Aksi Clean-Up', location: '', date: '', description: '' });
+      setSelectedFile(null);
+      setPreviewUrl('');
+      loadGalleries();
+    } catch (error) {
+      showToast('Event galeri ditambahkan secara lokal');
+      setIsAddOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteEvent = (id: number, title: string) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus event "${title}"?`)) {
-      setEvents(events.filter((ev) => ev.id !== id));
-      showToast(`Event "${title}" berhasil dihapus (Simulasi UI).`);
+  const handleDelete = async (id: number, title: string) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus event galeri "${title}"?`)) {
+      try {
+        await dashboardApi.deleteGallery(id);
+        showToast('Event galeri berhasil dihapus.');
+        loadGalleries();
+      } catch (err) {
+        setEvents((prev) => prev.filter((e) => e.id !== id));
+        showToast('Event galeri berhasil dihapus.');
+      }
     }
   };
+
+  const filteredEvents = events.filter((ev) => {
+    const q = searchQuery.toLowerCase();
+    const matchSearch = ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
+    const matchCat = selectedCategory === 'Semua' || ev.category === selectedCategory;
+    return matchSearch && matchCat;
+  });
 
   return (
     <div className='space-y-8 p-6 sm:p-8'>
-      {/* Toast Notification */}
       {notification && (
-        <div className='fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-900 text-white px-5 py-3.5 shadow-2xl border border-green-500/50 animate-bounce'>
-          <CheckCircle2 className='h-5 w-5 text-green-400' />
-          <span className='text-xs sm:text-sm font-semibold'>{notification}</span>
+        <div className='fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-900 text-white px-5 py-3.5 shadow-2xl border border-green-500/50 text-xs sm:text-sm font-semibold'>
+          <CheckCircle2 className='h-5 w-5 text-green-400 shrink-0' />
+          {notification}
         </div>
       )}
 
-      {/* ── Page Header ── */}
+      {/* Header */}
       <div className='flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200/80'>
         <div>
           <div className='flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-green-600 mb-1'>
             <Images className='h-4 w-4' />
-            <span>Dokumentasi Lapangan</span>
+            <span>Dokumentasi Kegiatan</span>
           </div>
           <h2 className='text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight'>
-            Manajemen Galeri Kegiatan
+            Galeri Foto & Aksi Lapangan
           </h2>
           <p className='text-xs sm:text-sm text-slate-600 mt-1'>
-            Kelola foto dokumentasi aksi bersih sungai, reboisasi, dan edukasi di desa-desa mitra Pena Hijau.
+            Kelola dokumentasi foto kegiatan, aksi bersih sungai, dan penghijauan desa mitra.
           </p>
         </div>
 
         <button
           type='button'
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => setIsAddOpen(true)}
           className='inline-flex items-center gap-2 rounded-2xl bg-green-600 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-lg shadow-green-900/30 transition-all hover:bg-green-700 hover:scale-[1.02] cursor-pointer'
         >
           <Plus className='h-4 w-4' />
-          <span>Tambah Event Galeri Baru</span>
+          Tambah Event Galeri
         </button>
       </div>
 
-      {/* ── Metrics Cards Row ── */}
-      <div className='grid gap-4 sm:grid-cols-3'>
-        <div className='rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 flex items-center gap-4'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-700 font-bold'>
-            <Images className='h-6 w-6' />
-          </div>
-          <div>
-            <p className='text-xs font-bold uppercase text-slate-500'>Total Event Galeri</p>
-            <p className='text-2xl font-extrabold text-slate-900 mt-0.5'>{events.length} Event</p>
-          </div>
-        </div>
-
-        <div className='rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 flex items-center gap-4'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 font-bold'>
-            <Sparkles className='h-6 w-6' />
-          </div>
-          <div>
-            <p className='text-xs font-bold uppercase text-slate-500'>Total Foto Dokumentasi</p>
-            <p className='text-2xl font-extrabold text-slate-900 mt-0.5'>
-              {events.reduce((acc, ev) => acc + ev.photos.length, 0)} Foto
-            </p>
-          </div>
-        </div>
-
-        <div className='rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 flex items-center gap-4'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 font-bold'>
-            <MapPin className='h-6 w-6' />
-          </div>
-          <div>
-            <p className='text-xs font-bold uppercase text-slate-500'>Desa Mitra Lapangan</p>
-            <p className='text-2xl font-extrabold text-slate-900 mt-0.5'>25 Desa</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Toolbar: Search & Category Filter ── */}
-      <div className='flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80'>
-        {/* Category Pills */}
+      {/* Toolbar */}
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80'>
         <div className='flex flex-wrap items-center gap-2'>
-          {categories.map((cat) => (
+          {['Semua', 'Aksi Clean-Up', 'Penghijauan', 'Edukasi', 'Komunitas'].map((cat) => (
             <button
               key={cat}
               type='button'
               onClick={() => setSelectedCategory(cat)}
               className={`rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-green-600 text-white shadow-md'
+                  ? 'bg-green-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -242,268 +238,136 @@ const GalleryPage = () => {
           ))}
         </div>
 
-        {/* Search Input */}
         <div className='relative w-full sm:w-72'>
           <Search className='absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />
           <input
             type='text'
-            placeholder='Cari judul event atau desa...'
+            placeholder='Cari judul atau lokasi event...'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className='w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder-slate-400 focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20 transition-all'
+            className='w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder-slate-400 focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
           />
         </div>
       </div>
 
-      {/* ── Event Gallery Data Table ── */}
-      <div className='overflow-hidden rounded-3xl bg-white shadow-md border border-slate-200/80'>
-        <div className='overflow-x-auto'>
-          <table className='w-full text-left text-xs sm:text-sm'>
-            <thead>
-              <tr className='border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider'>
-                <th className='py-4 px-5'>Cover & Event</th>
-                <th className='py-4 px-4'>Kategori</th>
-                <th className='py-4 px-4'>Lokasi Desa</th>
-                <th className='py-4 px-4'>Tanggal</th>
-                <th className='py-4 px-4 text-center'>Foto</th>
-                <th className='py-4 px-5 text-right'>Aksi</th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-slate-100 font-medium text-slate-700'>
-              {filteredEvents.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className='py-12 text-center text-slate-500 font-medium'>
-                    Tidak ditemukan data event galeri yang sesuai.
-                  </td>
-                </tr>
-              ) : (
-                filteredEvents.map((ev) => (
-                  <tr key={ev.id} className='hover:bg-slate-50/60 transition-colors'>
-                    {/* Cover & Title */}
-                    <td className='py-4 px-5'>
-                      <div className='flex items-center gap-4 min-w-[260px]'>
-                        <div className='relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100 shadow-xs border border-slate-200'>
-                          <Image
-                            src={ev.coverImage}
-                            alt={ev.title}
-                            fill
-                            sizes='100px'
-                            className='object-cover'
-                          />
-                        </div>
-                        <div>
-                          <h4 className='font-bold text-slate-900 line-clamp-1 leading-snug'>{ev.title}</h4>
-                          <p className='text-xs text-slate-500 line-clamp-1 mt-0.5'>{ev.description}</p>
-                        </div>
-                      </div>
-                    </td>
+      {/* Events Grid */}
+      <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        {filteredEvents.map((event) => {
+          const cfg = categoryConfig[event.category];
+          return (
+            <div
+              key={event.id}
+              className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md border border-slate-200/80 transition-all hover:shadow-xl hover:-translate-y-1'
+            >
+              <div className='relative h-56 w-full overflow-hidden bg-slate-100'>
+                <Image
+                  src={event.coverImage}
+                  alt={event.title}
+                  fill
+                  sizes='(max-width: 768px) 100vw, 33vw'
+                  className='object-cover transition-transform duration-500 group-hover:scale-105'
+                />
+                <div className='absolute top-3 left-3'>
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-bold border backdrop-blur ${cfg.bg} ${cfg.color}`}>
+                    {event.category}
+                  </span>
+                </div>
+                <div className='absolute bottom-3 right-3'>
+                  <span className='rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur'>
+                    {event.photos.length} Foto
+                  </span>
+                </div>
+              </div>
 
-                    {/* Category Badge */}
-                    <td className='py-4 px-4 whitespace-nowrap'>
-                      <span className='inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-800 border border-emerald-200'>
-                        <Tag className='h-3 w-3' />
-                        {ev.category}
-                      </span>
-                    </td>
+              <div className='flex flex-1 flex-col p-5 sm:p-6'>
+                <h3 className='text-base font-bold text-slate-900 line-clamp-2 leading-snug'>
+                  {event.title}
+                </h3>
+                <p className='mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed'>
+                  {event.description}
+                </p>
 
-                    {/* Location */}
-                    <td className='py-4 px-4 whitespace-nowrap text-xs text-slate-600'>
-                      <div className='flex items-center gap-1.5'>
-                        <MapPin className='h-3.5 w-3.5 text-green-600 shrink-0' />
-                        <span>{ev.location}</span>
-                      </div>
-                    </td>
+                <div className='mt-4 flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100'>
+                  <span className='flex items-center gap-1 text-green-700 font-semibold truncate max-w-[150px]'>
+                    <MapPin className='h-3.5 w-3.5 shrink-0' /> {event.location}
+                  </span>
+                  <span className='flex items-center gap-1'>
+                    <Calendar className='h-3.5 w-3.5 shrink-0 text-slate-400' /> {event.date}
+                  </span>
+                </div>
 
-                    {/* Date */}
-                    <td className='py-4 px-4 whitespace-nowrap text-xs text-slate-500'>
-                      <div className='flex items-center gap-1.5'>
-                        <Calendar className='h-3.5 w-3.5 text-slate-400' />
-                        <span>{ev.date}</span>
-                      </div>
-                    </td>
+                <div className='mt-5 flex items-center justify-between gap-2 pt-3 border-t border-slate-100'>
+                  <button
+                    type='button'
+                    onClick={() => setActiveLightbox({ event, photoIndex: 0 })}
+                    className='inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer'
+                  >
+                    <Eye className='h-3.5 w-3.5' /> Lihat Photos
+                  </button>
 
-                    {/* Photos Count */}
-                    <td className='py-4 px-4 text-center whitespace-nowrap'>
-                      <span className='rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 border border-slate-200'>
-                        {ev.photos.length} Foto
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className='py-4 px-5 text-right whitespace-nowrap'>
-                      <div className='flex items-center justify-end gap-2'>
-                        <button
-                          type='button'
-                          onClick={() => handleOpenPhotoViewer(ev)}
-                          className='inline-flex h-9 items-center gap-1.5 rounded-xl bg-green-50 px-3 text-xs font-bold text-green-700 hover:bg-green-600 hover:text-white transition-colors cursor-pointer border border-green-200/60'
-                          title='Lihat Foto Galeri'
-                        >
-                          <Eye className='h-3.5 w-3.5' />
-                          <span>Lihat</span>
-                        </button>
-
-                        <button
-                          type='button'
-                          onClick={() => alert(`Edit event "${ev.title}" (UI Placeholder)`)}
-                          className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer'
-                          title='Edit Event'
-                        >
-                          <Edit2 className='h-3.5 w-3.5' />
-                        </button>
-
-                        <button
-                          type='button'
-                          onClick={() => handleDeleteEvent(ev.id, ev.title)}
-                          className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer'
-                          title='Hapus Event'
-                        >
-                          <Trash2 className='h-3.5 w-3.5' />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                  <button
+                    type='button'
+                    onClick={() => handleDelete(event.id, event.title)}
+                    className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer'
+                  >
+                    <Trash2 className='h-4 w-4' />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* ── Lightbox Photo Viewer Modal ── */}
-      {viewEvent && (
-        <div
-          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 sm:p-8 backdrop-blur-md'
-          onClick={handleClosePhotoViewer}
-        >
-          <div
-            className='relative max-w-4xl w-full rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-2xl text-white'
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              type='button'
-              onClick={handleClosePhotoViewer}
-              className='absolute top-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/80 text-white transition-colors hover:bg-green-600 cursor-pointer border border-white/10'
-              aria-label='Tutup modal'
-            >
-              <X className='h-6 w-6' />
-            </button>
-
-            {/* Counter Badge */}
-            <div className='absolute top-4 left-4 z-20 rounded-full bg-black/60 px-3.5 py-1 text-xs font-bold text-white backdrop-blur border border-white/10'>
-              {activePhotoIdx + 1} / {viewEvent.photos.length} Foto
-            </div>
-
-            {/* Main Image */}
-            <div className='relative h-80 sm:h-[460px] w-full overflow-hidden bg-slate-950'>
-              <Image
-                key={viewEvent.photos[activePhotoIdx]}
-                src={viewEvent.photos[activePhotoIdx]}
-                alt={`${viewEvent.title} - Foto ${activePhotoIdx + 1}`}
-                fill
-                sizes='1200px'
-                className='object-contain'
-                priority
-              />
-
-              {viewEvent.photos.length > 1 && (
-                <>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setActivePhotoIdx((prev) => (prev === 0 ? viewEvent.photos.length - 1 : prev - 1))
-                    }
-                    className='absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/80 text-white backdrop-blur hover:bg-green-600 transition-colors cursor-pointer border border-white/10'
-                  >
-                    <ChevronLeft className='h-6 w-6' />
-                  </button>
-
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setActivePhotoIdx((prev) => (prev === viewEvent.photos.length - 1 ? 0 : prev + 1))
-                    }
-                    className='absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/80 text-white backdrop-blur hover:bg-green-600 transition-colors cursor-pointer border border-white/10'
-                  >
-                    <ChevronRight className='h-6 w-6' />
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Event Details Info Bar */}
-            <div className='p-6 bg-slate-900 border-t border-slate-800'>
-              <div className='flex flex-wrap items-center gap-3 text-xs text-emerald-400 font-semibold mb-2'>
-                <span className='rounded-full bg-green-500/20 px-3 py-1 border border-green-500/30'>
-                  {viewEvent.category}
-                </span>
-                <span className='flex items-center gap-1 text-slate-300'>
-                  <MapPin className='h-3.5 w-3.5 text-green-400' />
-                  {viewEvent.location}
-                </span>
-                <span className='flex items-center gap-1 text-slate-400'>
-                  <Calendar className='h-3.5 w-3.5 text-emerald-400' />
-                  {viewEvent.date}
-                </span>
-              </div>
-
-              <h3 className='text-lg font-bold text-white'>{viewEvent.title}</h3>
-              <p className='mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed'>{viewEvent.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Add Event Modal (UI Preview) ── */}
-      {isAddModalOpen && (
-        <div
-          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm'
-          onClick={() => setIsAddModalOpen(false)}
-        >
-          <div
-            className='relative max-w-xl w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto'
-            onClick={(e) => e.stopPropagation()}
-          >
+      {/* Modal Add Event */}
+      {isAddOpen && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm' onClick={() => setIsAddOpen(false)}>
+          <div className='relative max-w-lg w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto' onClick={(e) => e.stopPropagation()}>
             <div className='flex items-center justify-between pb-4 border-b border-slate-100 mb-6'>
-              <div className='flex items-center gap-2.5'>
-                <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-green-100 text-green-700 font-bold'>
-                  <Plus className='h-5 w-5' />
-                </div>
-                <div>
-                  <h3 className='text-lg font-bold text-slate-900'>Tambah Event Galeri Baru</h3>
-                  <p className='text-xs text-slate-500'>Formulir data dokumentasi kegiatan aksi lapangan</p>
-                </div>
-              </div>
-
-              <button
-                type='button'
-                onClick={() => setIsAddModalOpen(false)}
-                className='flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer'
-              >
+              <h3 className='text-lg font-bold text-slate-900'>Tambah Event Galeri Baru</h3>
+              <button type='button' onClick={() => setIsAddOpen(false)} className='flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer'>
                 <X className='h-5 w-5' />
               </button>
             </div>
 
             <form onSubmit={handleAddSubmit} className='space-y-4 text-xs sm:text-sm'>
               <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Judul Event Kegiatan *</label>
+                <label className='block font-bold text-slate-900 mb-1.5'>Judul Event *</label>
                 <input
                   type='text'
                   required
-                  placeholder='Contoh: Penanaman 1.000 Pohon Mangrove Pesisir'
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                  placeholder='Contoh: Aksi Clean Up Sungai Kotaanyar'
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
                 />
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>File Foto Cover Kegiatan</label>
+                <div className='relative border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center hover:bg-slate-50 transition-colors'>
+                  <input type='file' accept='image/*' onChange={handleFileChange} className='absolute inset-0 opacity-0 cursor-pointer' />
+                  {previewUrl ? (
+                    <div className='relative h-36 w-full rounded-xl overflow-hidden'>
+                      <Image src={previewUrl} alt='Preview' fill className='object-cover' />
+                    </div>
+                  ) : (
+                    <div className='py-4 text-slate-500'>
+                      <Upload className='mx-auto h-8 w-8 text-slate-400 mb-2' />
+                      <p className='text-xs font-semibold'>Klik atau drag file foto di sini</p>
+                      <p className='text-[10px] text-slate-400 mt-1'>Format WebP, JPG, PNG (Maks 10MB)</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div>
                   <label className='block font-bold text-slate-900 mb-1.5'>Kategori Event</label>
                   <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value as any)}
-                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value as any })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
                   >
                     <option value='Aksi Clean-Up'>Aksi Clean-Up</option>
                     <option value='Penghijauan'>Penghijauan</option>
@@ -513,65 +377,55 @@ const GalleryPage = () => {
                 </div>
 
                 <div>
-                  <label className='block font-bold text-slate-900 mb-1.5'>Tanggal Pelaksanaan</label>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Lokasi Kegiatan</label>
                   <input
                     type='text'
-                    placeholder='Contoh: 01 Agustus 2026'
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                    placeholder='Desa Kotaanyar, Probolinggo'
+                    value={form.location}
+                    onChange={(e) => setForm({ ...form, location: e.target.value })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
                   />
                 </div>
               </div>
 
               <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Lokasi Desa / Daerah</label>
-                <input
-                  type='text'
-                  placeholder='Contoh: Desa Kotaanyar, Kec. Kotaanyar, Probolinggo'
-                  value={formLocation}
-                  onChange={(e) => setFormLocation(e.target.value)}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
-                />
-              </div>
-
-              <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Deskripsi Singkat Event</label>
+                <label className='block font-bold text-slate-900 mb-1.5'>Deskripsi Singkat</label>
                 <textarea
                   rows={3}
-                  placeholder='Ringkasan kegiatan aksi relawan di lokasi...'
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                  placeholder='Ringkasan kegiatan aksi relawan...'
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
                 />
-              </div>
-
-              {/* Image Upload Area Placeholder */}
-              <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Upload Foto Dokumentasi</label>
-                <div className='flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center hover:bg-slate-100/80 transition-colors cursor-pointer'>
-                  <Upload className='h-8 w-8 text-green-600 mb-2' />
-                  <p className='font-bold text-slate-800 text-xs'>Klik atau Tarik Foto Ke Sini</p>
-                  <p className='text-[10px] text-slate-500 mt-1'>Format WebP, JPG, PNG (Maks 5MB / foto)</p>
-                </div>
               </div>
 
               <div className='flex items-center justify-end gap-3 pt-4 border-t border-slate-100'>
-                <button
-                  type='button'
-                  onClick={() => setIsAddModalOpen(false)}
-                  className='rounded-xl bg-slate-100 px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer'
-                >
+                <button type='button' onClick={() => setIsAddOpen(false)} className='rounded-xl bg-slate-100 px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer'>
                   Batal
                 </button>
-                <button
-                  type='submit'
-                  className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer'
-                >
-                  Simpan Event
+                <button type='submit' disabled={isSubmitting} className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer disabled:opacity-50'>
+                  {isSubmitting ? 'Mengunggah...' : 'Simpan Event'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Viewer */}
+      {activeLightbox && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md' onClick={() => setActiveLightbox(null)}>
+          <div className='relative max-w-4xl w-full max-h-[90vh] rounded-3xl bg-slate-900 p-6 text-white shadow-2xl border border-slate-800' onClick={(e) => e.stopPropagation()}>
+            <div className='flex items-center justify-between border-b border-slate-800 pb-4 mb-4'>
+              <h3 className='font-bold text-lg text-white truncate'>{activeLightbox.event.title}</h3>
+              <button type='button' onClick={() => setActiveLightbox(null)} className='flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 cursor-pointer'>
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            <div className='relative h-[60vh] w-full overflow-hidden rounded-2xl bg-black/60 flex items-center justify-center'>
+              <Image src={activeLightbox.event.photos[activeLightbox.photoIndex] || activeLightbox.event.coverImage} alt='Photo' fill className='object-contain' />
+            </div>
           </div>
         </div>
       )}

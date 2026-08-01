@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowUpRight, X, Calendar, MapPin, ExternalLink, User, Share2 } from 'lucide-react';
+import { frontendApi } from '@/lib/api';
 
 interface ArticleData {
+  id?: number;
   title: string;
+  category?: string;
   date: string;
   location: string;
   author: string;
@@ -20,64 +23,55 @@ interface ArticleData {
   }[];
 }
 
-interface PillarItem {
-  id: number;
-  title: string;
-  subtitle: string;
-  description: string;
-  image: string;
-  tag: string;
-  article?: ArticleData;
-}
-
-const pillars: PillarItem[] = [
-  {
-    id: 1,
-    title: 'Aksi Bersih Lingkungan',
-    subtitle: 'Clean-Up Day',
-    description: 'Aksi nyata komunitas pemuda membersihkan tumpukan sampah limbah plastik di aliran sungai Kotaanyar Probolinggo.',
-    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-    tag: 'Aksi Bersih',
-    article: {
-      title: 'Peduli Lingkungan, Komunitas PENA HIJAU Gelar Aksi Clean Up River di Kotaanyar Probolinggo',
-      date: '27 Juli 2026',
-      location: 'Kecamatan Kotaanyar, Kabupaten Probolinggo',
-      author: 'Taufiqur Rohim (Koordinator PENA HIJAU)',
-      image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-      galleryImages: [
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-        '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-      ],
-      excerpt: 'Kelompok pemuda Komunitas PENA HIJAU menggelar aksi bersih-bersih sungai di Kotaanyar Probolinggo sebagai langkah konkrit mencegah pencemaran dan bencana banjir.',
-      paragraphs: [
-        'PROBOLINGGO — Kelompok pemuda yang tergabung dalam Komunitas Pemuda Nusantara Peduli Lingkungan Hijau (PENA HIJAU) menggelar aksi clean up river (bersih-bersih sungai) di wilayah Kecamatan Kotaanyar, Kabupaten Probolinggo, Senin sore (27/07/2026).',
-        'Aksi tanggap lingkungan ini dilakukan sebagai bentuk kepedulian nyata para generasi muda terhadap kondisi sungai yang kian tertutup tumpukan sampah plastik, limbah rumah tangga, dan kotoran liar yang mengganggu kelancaran aliran air.',
-        'Dengan menggunakan peralatan lengkap seperti karung sampah, sepatu boots, dan sarung tangan, para relawan muda Pena Hijau secara langsung menyusuri dan mengangkat berbagai material sampah dari dasar serta pinggiran sungai.',
-        'Langkah ini diharapkan tidak hanya dapat mengembalikan kebersihan dan kelancaran fungsi aliran sungai Kotaanyar, melainkan juga mengedukasi dan menggugah kesadaran masyarakat sekitar agar menghentikan kebiasaan membuang sampah sembarangan ke sungai.',
-      ],
-      quote: 'Kami melihat tumpukan sampah di aliran sungai ini sudah sangat mengkhawatirkan. Jika dibiarkan, saat musim hujan bisa memicu banjir dan pencemaran air. Oleh karena itu, kami bersama teman-teman relawan tergerak untuk turun langsung bersihkan sungai.',
-      sources: [
-        {
-          name: 'Berdampak.net',
-          url: 'https://berdampak.net/peduli-lingkungan-komunitas-pena-hijau-gelar-aksi-clean-up-river-di-kotaanyar-probolinggo/',
-        },
-        {
-          name: 'HarianJatim.com',
-          url: 'https://www.harianjatim.com/2026/07/27/aksi-nyata-komunitas-pena-hijau-bersihkan-tumpukan-sampah-di-sungai-kotaanyar-probolinggo/',
-        },
-      ],
-    },
-  },
-];
+const fallbackArticle: ArticleData = {
+  id: 1,
+  title: 'Peduli Lingkungan, Komunitas PENA HIJAU Gelar Aksi Clean Up River di Kotaanyar Probolinggo',
+  category: 'Aksi Clean-Up',
+  date: '27 Juli 2026',
+  location: 'Kecamatan Kotaanyar, Kabupaten Probolinggo',
+  author: 'Taufiqur Rohim (Koordinator PENA HIJAU)',
+  image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+  galleryImages: [
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
+    '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
+  ],
+  excerpt: 'Kelompok pemuda Komunitas PENA HIJAU menggelar aksi bersih-bersih sungai di Kotaanyar Probolinggo sebagai langkah konkrit mencegah pencemaran dan bencana banjir.',
+  paragraphs: [
+    'PROBOLINGGO — Kelompok pemuda yang tergabung dalam Komunitas Pemuda Nusantara Peduli Lingkungan Hijau (PENA HIJAU) menggelar aksi clean up river (bersih-bersih sungai) di wilayah Kecamatan Kotaanyar, Kabupaten Probolinggo, Senin sore (27/07/2026).',
+    'Aksi tanggap lingkungan ini dilakukan sebagai bentuk kepedulian nyata para generasi muda terhadap kondisi sungai yang kian tertutup tumpukan sampah plastik, limbah rumah tangga, dan kotoran liar yang mengganggu kelancaran aliran air.',
+    'Dengan menggunakan peralatan lengkap seperti karung sampah, sepatu boots, dan sarung tangan, para relawan muda Pena Hijau secara langsung menyusuri dan mengangkat berbagai material sampah dari dasar serta pinggiran sungai.',
+    'Langkah ini diharapkan tidak hanya dapat mengembalikan kebersihan dan kelancaran fungsi aliran sungai Kotaanyar, melainkan juga mengedukasi dan menggugah kesadaran masyarakat sekitar agar menghentikan kebiasaan membuang sampah sembarangan ke sungai.',
+  ],
+  quote: 'Kami melihat tumpukan sampah di aliran sungai ini sudah sangat mengkhawatirkan. Jika dibiarkan, saat musim hujan bisa memicu banjir dan pencemaran air.',
+  sources: [
+    { name: 'Berdampak.net', url: 'https://berdampak.net/peduli-lingkungan-komunitas-pena-hijau-gelar-aksi-clean-up-river-di-kotaanyar-probolinggo/' },
+    { name: 'HarianJatim.com', url: 'https://www.harianjatim.com/2026/07/27/aksi-nyata-komunitas-pena-hijau-bersihkan-tumpukan-sampah-di-sungai-kotaanyar-probolinggo/' },
+  ],
+};
 
 const AboutPillars = () => {
+  const [articles, setArticles] = useState<ArticleData[]>([fallbackArticle]);
   const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+
+  useEffect(() => {
+    async function loadArticles() {
+      try {
+        const res = await frontendApi.getArticles();
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setArticles(res.data);
+        }
+      } catch (err) {
+        // Keep fallback article if API offline
+      }
+    }
+    loadArticles();
+  }, []);
 
   const handleOpenArticle = (article?: ArticleData) => {
     if (article) {
@@ -100,29 +94,31 @@ const AboutPillars = () => {
         </div>
 
         <div className='mt-16 grid gap-8 md:grid-cols-3'>
-          {pillars.map((item) => (
+          {articles.map((item) => (
             <article
-              key={item.id}
-              onClick={() => handleOpenArticle(item.article)}
+              key={item.id || item.title}
+              onClick={() => handleOpenArticle(item)}
               className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 cursor-pointer border border-slate-100'
             >
               <div className='relative h-60 w-full overflow-hidden bg-slate-100'>
                 <Image
-                  src={item.image}
+                  src={item.image || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp'}
                   alt={item.title}
                   fill
                   sizes='(max-width: 768px) 100vw, 33vw'
                   className='object-cover transition-transform duration-500 group-hover:scale-105'
                 />
                 <div className='absolute top-4 left-4'>
-                  <span className='rounded-full bg-emerald-950/80 px-3.5 py-1.5 text-xs font-semibold text-emerald-100 backdrop-blur border border-white/20'>{item.tag}</span>
+                  <span className='rounded-full bg-emerald-950/80 px-3.5 py-1.5 text-xs font-semibold text-emerald-100 backdrop-blur border border-white/20'>
+                    {item.category || 'Pilar Aksi'}
+                  </span>
                 </div>
               </div>
 
               <div className='flex flex-1 flex-col p-6 sm:p-8'>
-                <p className='text-xs font-bold uppercase tracking-wider text-green-600'>{item.subtitle}</p>
-                <h3 className='mt-2 text-xl font-bold text-slate-900 group-hover:text-green-700 transition-colors'>{item.title}</h3>
-                <p className='mt-3 flex-1 text-sm leading-7 text-slate-600'>{item.description}</p>
+                <p className='text-xs font-bold uppercase tracking-wider text-green-600'>{item.category || 'Berita & Laporan'}</p>
+                <h3 className='mt-2 text-xl font-bold text-slate-900 group-hover:text-green-700 transition-colors line-clamp-2'>{item.title}</h3>
+                <p className='mt-3 flex-1 text-sm leading-7 text-slate-600 line-clamp-3'>{item.excerpt}</p>
 
                 <div className='mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-sm font-semibold text-green-600 group-hover:text-green-700'>
                   <span>Pelajari Selengkapnya</span>
@@ -144,7 +140,6 @@ const AboutPillars = () => {
             className='relative max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white text-slate-900 shadow-2xl border border-slate-200 my-auto'
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Close Button */}
             <button
               type='button'
               onClick={handleCloseArticle}
@@ -155,17 +150,14 @@ const AboutPillars = () => {
             </button>
 
             <div className='p-6 sm:p-10 -mt-10'>
-              {/* Category Tag */}
               <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-green-700'>
-                <span>Berita & Aksi Lapangan</span>
+                <span>{selectedArticle.category || 'Berita & Aksi Lapangan'}</span>
               </div>
 
-              {/* Title */}
               <h2 className='text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight'>
                 {selectedArticle.title}
               </h2>
 
-              {/* Meta Info */}
               <div className='mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-500 pt-4 border-t border-slate-100'>
                 <div className='flex items-center gap-1.5'>
                   <Calendar className='h-4 w-4 text-green-600' />
@@ -181,19 +173,17 @@ const AboutPillars = () => {
                 </div>
               </div>
 
-              {/* Main Featured Image / Photo Preview */}
               <div className='relative mt-6 h-72 sm:h-96 w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md'>
                 <Image
                   src={selectedArticle.galleryImages ? selectedArticle.galleryImages[activePhotoIdx] : selectedArticle.image}
                   alt={selectedArticle.title}
                   fill
-                  sizes='(max-width: 768px) 100vw, 800px'
+                  sizes='800px'
                   className='object-cover'
                   priority
                 />
               </div>
 
-              {/* Gallery Thumbnails (if any) */}
               {selectedArticle.galleryImages && selectedArticle.galleryImages.length > 1 && (
                 <div className='mt-3 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin'>
                   {selectedArticle.galleryImages.map((img, idx) => (
@@ -211,21 +201,18 @@ const AboutPillars = () => {
                 </div>
               )}
 
-              {/* Article Content Paragraphs */}
               <div className='mt-8 space-y-5 text-base leading-8 text-slate-700'>
                 {selectedArticle.paragraphs.map((p, idx) => (
                   <p key={idx}>{p}</p>
                 ))}
 
-                {/* Quote Highlight Box */}
                 {selectedArticle.quote && (
                   <blockquote className='my-6 rounded-2xl bg-green-50/80 p-6 border-l-4 border-green-600 text-slate-800 italic font-medium leading-relaxed'>
-                    "{selectedArticle.quote}"
+                    &ldquo;{selectedArticle.quote}&rdquo;
                   </blockquote>
                 )}
               </div>
 
-              {/* External Sources Links */}
               {selectedArticle.sources && selectedArticle.sources.length > 0 && (
                 <div className='mt-10 pt-6 border-t border-slate-200'>
                   <p className='text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5'>

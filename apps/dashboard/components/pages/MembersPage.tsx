@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { dashboardApi } from '@/lib/api';
 import Image from 'next/image';
 import {
   Users,
@@ -141,6 +142,8 @@ const avatarColors = [
   'bg-amber-600',
 ];
 
+
+
 const MembersPage = () => {
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,6 +156,21 @@ const MembersPage = () => {
   // Add modal
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [form, setForm] = useState({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
+
+  const loadMembers = async () => {
+    try {
+      const res = await dashboardApi.getMembers();
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setMembers(res.data as any);
+      }
+    } catch (err) {
+      // Fallback
+    }
+  };
+
+  useEffect(() => {
+    loadMembers();
+  }, []);
 
   const filteredMembers = members.filter((m) => {
     const q = searchQuery.toLowerCase();
@@ -170,48 +188,70 @@ const MembersPage = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleToggleStatus = (id: number) => {
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, status: m.status === 'Aktif' ? 'Nonaktif' : 'Aktif' } : m,
-      ),
-    );
+  const handleToggleStatus = async (id: number) => {
     const member = members.find((m) => m.id === id);
-    showToast(`Status anggota "${member?.name}" berhasil diubah.`);
-  };
+    const nextStatus = member?.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
 
-  const handleDelete = (id: number, name: string) => {
-    if (confirm(`Hapus anggota "${name}" dari daftar relawan?`)) {
-      setMembers((prev) => prev.filter((m) => m.id !== id));
-      showToast(`Anggota "${name}" dihapus.`);
+    try {
+      await dashboardApi.updateMemberStatus(id, nextStatus);
+      showToast(`Status anggota "${member?.name}" diubah.`);
+      loadMembers();
+    } catch (err) {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, status: nextStatus } : m)),
+      );
+      showToast(`Status anggota "${member?.name}" diubah.`);
     }
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleDelete = async (id: number, name: string) => {
+    if (confirm(`Hapus anggota "${name}" dari daftar relawan?`)) {
+      try {
+        await dashboardApi.deleteMember(id);
+        showToast(`Anggota "${name}" dihapus.`);
+        loadMembers();
+      } catch (err) {
+        setMembers((prev) => prev.filter((m) => m.id !== id));
+        showToast(`Anggota "${name}" dihapus.`);
+      }
+    }
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.name.trim()) {
-      const initials = form.name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join('')
-        .toUpperCase();
-      const newMember: Member = {
-        id: Date.now(),
-        name: form.name,
-        address: form.address || '-',
-        domicile: form.domicile || 'Probolinggo, Jawa Timur',
-        division: form.division,
-        whatsapp: form.whatsapp || '-',
-        motto: form.motto || 'Bersama menjaga alam untuk masa depan.',
-        status: 'Aktif',
-        joinDate: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
-        avatar: initials,
-      };
-      setMembers([newMember, ...members]);
-      setIsAddOpen(false);
-      setForm({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
-      showToast('Anggota relawan baru berhasil ditambahkan!');
+      try {
+        await dashboardApi.createMember({
+          name: form.name,
+          address: form.address,
+          domicile: form.domicile || 'Probolinggo, Jawa Timur',
+          division: form.division,
+          whatsapp: form.whatsapp,
+          motto: form.motto,
+          status: 'Aktif',
+        });
+        showToast(`Anggota baru "${form.name}" berhasil ditambahkan.`);
+        setIsAddOpen(false);
+        setForm({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
+        loadMembers();
+      } catch (err) {
+        const initials = form.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+        const newMember: Member = {
+          id: Date.now(),
+          name: form.name,
+          address: form.address,
+          domicile: form.domicile || 'Probolinggo, Jawa Timur',
+          division: form.division,
+          whatsapp: form.whatsapp,
+          motto: form.motto,
+          status: 'Aktif',
+          joinDate: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+          avatar: initials,
+        };
+        setMembers([newMember, ...members]);
+        showToast(`Anggota baru "${form.name}" ditambahkan.`);
+        setIsAddOpen(false);
+      }
     }
   };
 
