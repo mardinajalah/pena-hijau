@@ -315,7 +315,7 @@ const JoinFormSection = () => {
                       <Image src={avatarPreview} alt={name || 'Avatar'} fill className='object-cover' />
                     </div>
                     <div>
-                      <h4 className='text-base font-extrabold text-white truncate max-w-[170px]'>{name || 'Nama Relawan'}</h4>
+                      <h4 className='text-base font-extrabold text-white truncate max-w-42.5'>{name || 'Nama Relawan'}</h4>
                       <p className='text-[10px] text-emerald-300 uppercase tracking-widest'>Kartu Anggota Digital</p>
                     </div>
                   </div>
