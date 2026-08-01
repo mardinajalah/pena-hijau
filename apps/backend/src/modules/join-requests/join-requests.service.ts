@@ -90,13 +90,6 @@ export class JoinRequestsService {
     let newMember = null;
     // Auto-create official member if accepted!
     if (status === 'Diterima') {
-      const initials = existing.name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join('')
-        .toUpperCase();
-
       newMember = await this.membersRepository.create({
         name: existing.name,
         address: existing.address,
@@ -106,7 +99,7 @@ export class JoinRequestsService {
         motto: existing.motto,
         status: 'Aktif',
         joinDate: new Date().toISOString(),
-        avatar: initials,
+        avatar: (existing as any).avatarUrl || (existing as any).avatar || '/profile.webp',
       });
     }
 

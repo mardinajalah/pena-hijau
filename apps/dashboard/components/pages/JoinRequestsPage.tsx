@@ -105,8 +105,8 @@ const JoinRequestsPage = () => {
       // Local fallback state update
     }
     setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Diterima' } : r)));
-    if (viewRequest?.id === id) setViewRequest((prev) => prev ? { ...prev, status: 'Diterima' } : null);
-    showToast(`✅ Pendaftaran "${name}" berhasil DITERIMA sebagai anggota Pena Hijau!`);
+    if (viewRequest?.id === id) setViewRequest((prev) => (prev ? { ...prev, status: 'Diterima' } : null));
+    showToast(`✅ Pendaftaran "${name}" berhasil DITERIMA & ditambahkan ke anggota aktif!`);
   };
 
   const handleReject = async (id: number, name: string) => {
@@ -117,8 +117,8 @@ const JoinRequestsPage = () => {
         // Local fallback
       }
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Ditolak' } : r)));
-      if (viewRequest?.id === id) setViewRequest((prev) => prev ? { ...prev, status: 'Ditolak' } : null);
-      showToast(`Pendaftaran "${name}" ditolak.`, 'error');
+      if (viewRequest?.id === id) setViewRequest((prev) => (prev ? { ...prev, status: 'Ditolak' } : null));
+      showToast(`Pendaftaran "${name}" telah diubah menjadi Ditolak.`, 'error');
     }
   };
 

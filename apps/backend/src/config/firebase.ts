@@ -77,6 +77,9 @@ export const db = {
           async set(data: any, options?: { merge?: boolean }) {
             await webSetDoc(docRef, data, { merge: options?.merge ?? false });
           },
+          async update(data: any) {
+            await webSetDoc(docRef, data, { merge: true });
+          },
           async delete() {
             await webDeleteDoc(docRef);
           },

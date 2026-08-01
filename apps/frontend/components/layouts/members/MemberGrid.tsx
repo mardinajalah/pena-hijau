@@ -32,7 +32,7 @@ const MemberGrid = () => {
             role: m.division || 'Anggota Relawan',
             division: m.division || 'Relawan',
             location: m.domicile || m.address || 'Jawa Timur',
-            image: m.avatarUrl || '/profile.webp',
+            image: m.avatarUrl || m.avatar || '/profile.webp',
             quote: m.motto || 'Bersama menjaga kelestarian alam.',
             whatsapp: m.whatsapp,
           }));
@@ -73,14 +73,14 @@ const MemberGrid = () => {
                 className='group flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-8 shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 border border-slate-100'
               >
                 <div className='flex items-center gap-5 mb-6'>
-                  <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-green-600 to-emerald-800 text-white font-extrabold flex items-center justify-center shadow-md'>
-                    {member.image && member.image.startsWith('/') && !member.image.includes('profile') ? (
-                      <Image src={member.image} alt={member.name} fill sizes='64px' className='object-cover' />
-                    ) : (
-                      <span className='text-xl'>
-                        {member.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
-                      </span>
-                    )}
+                  <div className='relative h-18 w-18 shrink-0 overflow-hidden rounded-2xl bg-slate-100 shadow-md border-2 border-emerald-500/30'>
+                    <Image
+                      src={member.image || '/profile.webp'}
+                      alt={member.name}
+                      fill
+                      sizes='80px'
+                      className='object-cover group-hover:scale-105 transition-transform duration-300'
+                    />
                   </div>
                   <div>
                     <h3 className='text-lg font-bold text-slate-900 leading-snug group-hover:text-green-700 transition-colors'>

@@ -81,4 +81,14 @@ export class JoinRequestsRepository {
     const doc = await this.findById(id);
     return doc ? { ...doc, ...updatePayload } : null;
   }
+
+  async delete(id: number): Promise<boolean> {
+    try {
+      await this.collection.doc(String(id)).delete();
+    } catch (error) {
+      // Fallback
+    }
+    this.inMemoryStore = this.inMemoryStore.filter((r) => r.id !== id);
+    return true;
+  }
 }
