@@ -372,7 +372,7 @@ const MembersPage = () => {
                   <tr key={member.id} className='hover:bg-slate-50/60 transition-colors group'>
                     {/* Name & Avatar */}
                     <td className='py-4 px-5'>
-                      <div className='flex items-center gap-3 min-w-[200px]'>
+                      <div className='flex items-center gap-3 min-w-50'>
                         <div
                           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white font-extrabold text-xs shadow-sm ${
                             avatarColors[idx % avatarColors.length]
@@ -510,7 +510,7 @@ const MembersPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Banner */}
-            <div className='relative bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 px-8 py-8 text-white'>
+            <div className='relative bg-linear-to-r from-emerald-950 via-emerald-900 to-slate-900 px-8 py-8 text-white'>
               <button
                 type='button'
                 onClick={() => setViewMember(null)}
