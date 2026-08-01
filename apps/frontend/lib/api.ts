@@ -1,8 +1,19 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return '/api/v1';
+  }
+  return 'http://localhost:4000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function fetchFrontendApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const res = await fetch(`${API_BASE_URL}${formattedEndpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
@@ -30,6 +41,8 @@ export const frontendApi = {
     divisionInterest?: string;
     whatsapp: string;
     motto?: string;
+    avatarUrl?: string;
+    avatar?: string;
   }) => fetchFrontendApi<{ data: any }>('/join-requests', { method: 'POST', body: JSON.stringify(data) }),
 
   // Public Galleries & Photos
