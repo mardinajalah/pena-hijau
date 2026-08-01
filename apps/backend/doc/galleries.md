@@ -6,7 +6,7 @@ Dokumentasi spesifikasi API dan kontrak data untuk dokumentasi foto kegiatan aks
 
 ## Base URL
 ```
-http://localhost:5000/api/v1/galleries
+http://localhost:4000/api/v1/galleries
 ```
 
 ---

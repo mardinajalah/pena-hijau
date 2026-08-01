@@ -6,7 +6,7 @@ Dokumentasi spesifikasi API dan kontrak data untuk artikel berita, laporan aksi 
 
 ## Base URL
 ```
-http://localhost:5000/api/v1/articles
+http://localhost:4000/api/v1/articles
 ```
 
 ---

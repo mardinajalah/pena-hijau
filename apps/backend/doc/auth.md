@@ -6,7 +6,7 @@ Dokumentasi spesifikasi API dan kontrak data untuk autentikasi admin dashboard k
 
 ## Base URL
 ```
-http://localhost:5000/api/v1/auth
+http://localhost:4000/api/v1/auth
 ```
 
 ---

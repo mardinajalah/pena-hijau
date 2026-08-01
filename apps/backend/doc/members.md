@@ -6,7 +6,7 @@ Dokumentasi spesifikasi API dan kontrak data untuk pengelolaan data anggota rela
 
 ## Base URL
 ```
-http://localhost:5000/api/v1/members
+http://localhost:4000/api/v1/members
 ```
 
 ---
