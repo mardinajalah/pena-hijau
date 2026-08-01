@@ -8,8 +8,9 @@
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
     "build": "pnpm --recursive --filter \"./apps/*\" build",
     "lint": "pnpm --recursive --filter \"./apps/*\" lint",
-    "frontend": "pnpm --filter frontend dev",
-    "backend": "pnpm --filter backend dev"
+    "backend": "pnpm --filter backend dev",
+    "dashboard": "pnpm --filter dashboard dev",
+    "frontend": "pnpm --filter frontend dev"
 
   },
   "keywords": [],
