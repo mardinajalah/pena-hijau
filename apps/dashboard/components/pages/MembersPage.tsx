@@ -44,9 +44,17 @@ interface Member {
   avatarUrl?: string;
 }
 
-const isValidImageUrl = (url?: string): boolean => {
-  if (!url || typeof url !== 'string') return false;
-  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
+    return '/profile.webp';
+  }
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:4000${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/profile.webp';
 };
 
 const formatDate = (dateStr?: string): string => {
@@ -137,17 +145,14 @@ const MembersPage = () => {
     });
     setEditAvatarFile(null);
     const currentAvatar = member.avatarUrl || member.avatar;
-    setEditAvatarPreview(isValidImageUrl(currentAvatar) ? currentAvatar! : '/profile.webp');
+    setEditAvatarPreview(resolveImageUrl(currentAvatar));
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingMember || !editForm.name.trim()) return;
 
-    let finalAvatarUrl = editingMember.avatarUrl || editingMember.avatar || '/profile.webp';
-    if (!isValidImageUrl(finalAvatarUrl)) {
-      finalAvatarUrl = '/profile.webp';
-    }
+    let finalAvatarUrl = resolveImageUrl(editingMember.avatarUrl || editingMember.avatar);
 
     try {
       if (editAvatarFile) {
@@ -477,9 +482,7 @@ const MembersPage = () => {
                 </tr>
               ) : (
                 filteredMembers.map((member) => {
-                  const avatarSrc = isValidImageUrl(member.avatarUrl || member.avatar)
-                    ? (member.avatarUrl || member.avatar)
-                    : '/profile.webp';
+                  const avatarSrc = resolveImageUrl(member.avatarUrl || member.avatar);
 
                   return (
                     <tr key={member.id} className='hover:bg-slate-50/60 transition-colors group'>
@@ -634,7 +637,7 @@ const MembersPage = () => {
               <div className='flex items-center gap-5'>
                 <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
                   <Image
-                    src={isValidImageUrl(viewMember.avatarUrl || viewMember.avatar) ? (viewMember.avatarUrl || viewMember.avatar)! : '/profile.webp'}
+                    src={resolveImageUrl(viewMember.avatarUrl || viewMember.avatar)}
                     alt={viewMember.name}
                     fill
                     sizes='64px'

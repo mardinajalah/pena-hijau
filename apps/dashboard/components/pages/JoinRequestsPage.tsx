@@ -35,9 +35,17 @@ interface JoinRequest {
   avatar?: string;
 }
 
-const isValidImageUrl = (url?: string): boolean => {
-  if (!url || typeof url !== 'string') return false;
-  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
+    return '/profile.webp';
+  }
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:4000${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/profile.webp';
 };
 
 const formatDate = (dateStr?: string): string => {
@@ -300,9 +308,7 @@ const JoinRequestsPage = () => {
                 filteredRequests.map((req) => {
                   const cfg = statusConfig[req.status];
                   const StatusIcon = cfg.icon;
-                  const avatarSrc = isValidImageUrl(req.avatarUrl || req.avatar)
-                    ? (req.avatarUrl || req.avatar)
-                    : '/profile.webp';
+                  const avatarSrc = resolveImageUrl(req.avatarUrl || req.avatar);
 
                   return (
                     <tr key={req.id} className='hover:bg-slate-50/60 transition-colors'>
@@ -310,7 +316,7 @@ const JoinRequestsPage = () => {
                       <td className='py-4 px-4 text-center'>
                         <div className='relative h-11 w-11 mx-auto overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-xs'>
                           <Image
-                            src={avatarSrc!}
+                            src={avatarSrc}
                             alt={req.name}
                             fill
                             sizes='44px'
@@ -461,7 +467,7 @@ const JoinRequestsPage = () => {
               <div className='flex items-center gap-5'>
                 <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
                   <Image
-                    src={isValidImageUrl(viewRequest.avatarUrl || viewRequest.avatar) ? (viewRequest.avatarUrl || viewRequest.avatar)! : '/profile.webp'}
+                    src={resolveImageUrl(viewRequest.avatarUrl || viewRequest.avatar)}
                     alt={viewRequest.name}
                     fill
                     sizes='64px'

@@ -12,6 +12,8 @@ export interface JoinRequestDocument {
   motto: string;
   registeredDate: string;
   status: RequestStatus;
+  avatarUrl?: string;
+  avatar?: string;
   adminNote?: string;
   createdAt: string;
   verifiedAt?: string;

@@ -42,8 +42,8 @@ const JoinFormSection = () => {
             body: formData,
           });
           const uploadJson = await uploadRes.json();
-          if (uploadJson.data?.url) {
-            uploadedAvatarUrl = uploadJson.data.url;
+          if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
+            uploadedAvatarUrl = uploadJson.data.fullUrl || uploadJson.data.url;
           }
         }
 
@@ -55,6 +55,7 @@ const JoinFormSection = () => {
           whatsapp: phone.trim() || '082200001111',
           motto: quote.trim(),
           avatarUrl: uploadedAvatarUrl,
+          avatar: uploadedAvatarUrl,
         } as any);
 
         setIsSubmitted(true);

@@ -53,6 +53,8 @@ export class JoinRequestsService {
       throw { statusCode: 400, message: 'Nama lengkap wajib diisi' };
     }
 
+    const avatarUrl = (data as any).avatarUrl || (data as any).avatar || '/profile.webp';
+
     const newRequestData: Omit<JoinRequestDocument, 'id' | 'createdAt'> = {
       name: data.name,
       address: data.address || '-',
@@ -62,6 +64,8 @@ export class JoinRequestsService {
       motto: data.motto || 'Bersama menjaga kebersihan dan kelestarian alam.',
       registeredDate: new Date().toISOString(),
       status: 'Menunggu',
+      avatarUrl,
+      avatar: avatarUrl,
     };
 
     const created = await this.joinRequestsRepository.create(newRequestData);
@@ -72,6 +76,7 @@ export class JoinRequestsService {
       divisionInterest: created.divisionInterest,
       status: created.status,
       registeredDate: created.registeredDate,
+      avatarUrl: created.avatarUrl,
       memberCardPreview: {
         cardId: `PH-${new Date().getFullYear()}-${created.id}`,
         qrCodeUrl: `/qr/PH-${created.id}.png`,
@@ -90,6 +95,7 @@ export class JoinRequestsService {
     let newMember = null;
     // Auto-create official member if accepted!
     if (status === 'Diterima') {
+      const memberAvatar = existing.avatarUrl || existing.avatar || '/profile.webp';
       newMember = await this.membersRepository.create({
         name: existing.name,
         address: existing.address,
@@ -99,7 +105,8 @@ export class JoinRequestsService {
         motto: existing.motto,
         status: 'Aktif',
         joinDate: new Date().toISOString(),
-        avatar: (existing as any).avatarUrl || (existing as any).avatar || '/profile.webp',
+        avatarUrl: memberAvatar,
+        avatar: memberAvatar,
       });
     }
 

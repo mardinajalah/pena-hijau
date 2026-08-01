@@ -25,9 +25,17 @@ const divisions = [
   'Media & Kampanye Digital',
 ] as const;
 
-const isValidImageUrl = (url?: string): boolean => {
-  if (!url || typeof url !== 'string') return false;
-  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
+    return '/profile.webp';
+  }
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:4000${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/profile.webp';
 };
 
 const MemberGrid = () => {
@@ -43,7 +51,7 @@ const MemberGrid = () => {
         if (res.data && Array.isArray(res.data)) {
           const mapped: TeamMember[] = res.data.map((m: any) => {
             const rawImage = m.avatarUrl || m.avatar;
-            const validImage = isValidImageUrl(rawImage) ? rawImage : '/profile.webp';
+            const validImage = resolveImageUrl(rawImage);
 
             return {
               id: m.id,
@@ -138,7 +146,7 @@ const MemberGrid = () => {
                   <div className='relative mx-auto h-36 w-36 sm:h-40 sm:w-40 overflow-hidden rounded-full border-[5px] border-green-600 p-1.5 shadow-md shadow-green-900/10 transition-transform duration-500 group-hover:scale-105'>
                     <div className='relative h-full w-full overflow-hidden rounded-full bg-emerald-50'>
                       <Image
-                        src={isValidImageUrl(member.image) && member.image !== 'AH' && member.image !== 'SN' && member.image !== 'BS' && member.image !== 'DL' && member.image !== 'RR' ? member.image : '/profile.webp'}
+                        src={resolveImageUrl(member.image)}
                         alt={member.name}
                         fill
                         sizes='160px'
