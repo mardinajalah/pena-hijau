@@ -66,7 +66,7 @@ export class GalleriesRepository {
     try {
       const snapshot = await this.collection.get();
       if (snapshot.empty) return this.inMemoryStore;
-      return snapshot.docs.map((doc) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as GalleryDocument));
+      return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as GalleryDocument));
     } catch (error) {
       return this.inMemoryStore;
     }

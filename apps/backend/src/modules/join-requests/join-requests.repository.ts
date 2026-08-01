@@ -88,7 +88,7 @@ export class JoinRequestsRepository {
     try {
       const snapshot = await this.collection.get();
       if (snapshot.empty) return this.inMemoryStore;
-      return snapshot.docs.map((doc) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as JoinRequestDocument));
+      return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as JoinRequestDocument));
     } catch (error) {
       return this.inMemoryStore;
     }

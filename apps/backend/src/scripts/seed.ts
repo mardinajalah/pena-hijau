@@ -1,5 +1,4 @@
 import { db } from '../config/firebase';
-import { doc, setDoc, collection } from 'firebase/firestore';
 
 const admins = [
   {
@@ -170,38 +169,28 @@ export async function seedDatabase() {
   console.log('🌱 Starting Firebase Cloud Firestore Seeding...');
 
   try {
-    // Helper write method supporting both Firestore Admin SDK & Web SDK
-    const writeDoc = async (colName: string, id: number | string, data: any) => {
-      if (typeof db.collection === 'function') {
-        await db.collection(colName).doc(String(id)).set(data);
-      } else {
-        const docRef = doc(db, colName, String(id));
-        await setDoc(docRef, data);
-      }
-    };
-
     for (const item of admins) {
-      await writeDoc('admins', item.id, item);
+      await db.collection('admins').doc(String(item.id)).set(item);
     }
     console.log('✅ Seeded admins collection');
 
     for (const item of members) {
-      await writeDoc('members', item.id, item);
+      await db.collection('members').doc(String(item.id)).set(item);
     }
     console.log('✅ Seeded members collection');
 
     for (const item of joinRequests) {
-      await writeDoc('join_requests', item.id, item);
+      await db.collection('join_requests').doc(String(item.id)).set(item);
     }
     console.log('✅ Seeded join_requests collection');
 
     for (const item of galleries) {
-      await writeDoc('galleries', item.id, item);
+      await db.collection('galleries').doc(String(item.id)).set(item);
     }
     console.log('✅ Seeded galleries collection');
 
     for (const item of articles) {
-      await writeDoc('articles', item.id, item);
+      await db.collection('articles').doc(String(item.id)).set(item);
     }
     console.log('✅ Seeded articles collection');
 
