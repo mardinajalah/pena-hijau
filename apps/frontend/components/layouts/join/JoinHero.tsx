@@ -1,19 +1,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Montserrat } from 'next/font/google';
-import { ChevronRight, Users, ShieldCheck, Heart, Award } from 'lucide-react';
+import { ChevronRight, UserPlus, Heart, Sparkles, ShieldCheck } from 'lucide-react';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['700', '800'],
 });
 
-const MemberHero = () => {
+const JoinHero = () => {
   return (
     <section className='relative flex min-h-svh w-full items-center justify-start overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       <Image
-        src='/bannerMemberHero.webp'
-        alt='Anggota & Relawan Pena Hijau'
+        src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp'
+        alt='Gabung Relawan Pena Hijau'
         fill
         className='object-cover object-center scale-105'
         priority
@@ -27,13 +27,13 @@ const MemberHero = () => {
         <nav className='mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-emerald-100 backdrop-blur-md border border-white/15'>
           <Link href='/' className='transition-colors hover:text-white'>Beranda</Link>
           <ChevronRight className='h-3.5 w-3.5 text-emerald-300' />
-          <span className='text-emerald-300 font-semibold'>Anggota & Relawan</span>
+          <span className='text-emerald-300 font-semibold'>Gabung Relawan</span>
         </nav>
 
         <div className='max-w-3xl'>
           <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-green-500/20 px-4 py-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-green-300 border border-green-400/30 backdrop-blur'>
-            <Users className='h-4 w-4' />
-            Tim & Penggerak Komunitas
+            <UserPlus className='h-4 w-4' />
+            Formulir Keanggotaan Relawan
           </div>
 
           <h1
@@ -42,26 +42,26 @@ const MemberHero = () => {
               textShadow: '0 4px 24px rgba(0,0,0,0.6)',
             }}
           >
-            Orang-Orang Hebat Di Balik Pena Hijau
+            Mari Bergabung & Ambil Peran Hijau
           </h1>
 
           <p className='mt-6 max-w-2xl text-base sm:text-lg leading-8 text-emerald-100/90'>
-            Mengenal tim penggerak, koordinator lapangan, dan relawan muda yang mendedikasikan waktu serta tenaga demi terwujudnya lingkungan Nusantara yang bersih dan lestari.
+            Isikan data nama, domisili alamat, serta motto atau kata-kata inspiratif Anda. Jadilah bagian dari gerakan pemuda peduli lingkungan hidup di seluruh Indonesia.
           </p>
 
           {/* Quick Metrics Badges */}
           <div className='mt-8 flex flex-wrap items-center gap-4 pt-6 border-t border-white/15 text-xs sm:text-sm font-semibold text-emerald-200'>
             <div className='flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur border border-white/10'>
               <ShieldCheck className='h-4 w-4 text-green-400' />
-              <span>1.200+ Relawan Terdaftar</span>
+              <span>Proses Cepat & Gratis</span>
             </div>
             <div className='flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur border border-white/10'>
-              <Award className='h-4 w-4 text-emerald-400' />
-              <span>4 Divisi Utama</span>
+              <Sparkles className='h-4 w-4 text-emerald-400' />
+              <span>Kartu Relawan Digital</span>
             </div>
             <div className='flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur border border-white/10'>
               <Heart className='h-4 w-4 text-teal-400' />
-              <span>25+ Koordinator Lapangan</span>
+              <span>1.200+ Pemuda Terdaftar</span>
             </div>
           </div>
         </div>
@@ -70,4 +70,4 @@ const MemberHero = () => {
   );
 };
 
-export default MemberHero;
+export default JoinHero;

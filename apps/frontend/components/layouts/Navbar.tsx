@@ -29,7 +29,7 @@ const navigation = [
   {
     id: 5,
     name: 'Gabung',
-    href: '#',
+    href: '/join',
   },
 ];
 
