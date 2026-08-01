@@ -248,7 +248,7 @@ const JoinRequestsPage = () => {
 
       {/* ── Banner Perlu Tindakan ── */}
       {counts.waiting > 0 && (
-        <div className='flex flex-wrap items-center gap-4 rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 p-5 border border-amber-200/80 shadow-sm'>
+        <div className='flex flex-wrap items-center gap-4 rounded-3xl bg-linear-to-r from-amber-50 to-orange-50 p-5 border border-amber-200/80 shadow-sm'>
           <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-md'>
             <Clock className='h-6 w-6' />
           </div>
@@ -365,7 +365,7 @@ const JoinRequestsPage = () => {
                     <tr key={req.id} className='hover:bg-slate-50/60 transition-colors'>
                       {/* Name */}
                       <td className='py-4 px-5'>
-                        <div className='flex items-center gap-3 min-w-[190px]'>
+                        <div className='flex items-center gap-3 min-w-47.5'>
                           <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white font-extrabold text-xs shadow-sm ${avatarColors[idx % avatarColors.length]}`}>
                             {getInitials(req.name)}
                           </div>
@@ -377,7 +377,7 @@ const JoinRequestsPage = () => {
                             >
                               {req.name}
                             </button>
-                            <p className='text-[11px] text-slate-400 mt-0.5 truncate max-w-[160px]'>{req.address}</p>
+                            <p className='text-[11px] text-slate-400 mt-0.5 truncate max-w-40'>{req.address}</p>
                           </div>
                         </div>
                       </td>
@@ -498,7 +498,7 @@ const JoinRequestsPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Banner */}
-            <div className='relative bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 px-8 py-8 text-white'>
+            <div className='relative bg-linear-to-r from-emerald-950 via-emerald-900 to-slate-900 px-8 py-8 text-white'>
               <button
                 type='button'
                 onClick={() => setViewRequest(null)}
