@@ -3,16 +3,14 @@ import path from 'path';
 import fs from 'fs';
 import { Request } from 'express';
 
-// Ensure upload directories exist
-const createFolderIfNotExist = (folderPath: string) => {
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
-  }
-};
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_REGION);
 
-const storage = multer.diskStorage({
+// Memory storage for Serverless / Vercel (read-only filesystem)
+const memoryStorage = multer.memoryStorage();
+
+// Disk storage for local development
+const diskStorage = multer.diskStorage({
   destination: (req: Request, _file: Express.Multer.File, cb) => {
-    // Determine category subfolder from req.body.category or req.query.category (default: 'galleries')
     const category = (req.body.category || req.query.category || 'galleries').toString().toLowerCase();
     let subfolder = 'galleries';
 
@@ -23,8 +21,14 @@ const storage = multer.diskStorage({
     }
 
     const uploadPath = path.join(__dirname, '../../public/uploads', subfolder);
-    createFolderIfNotExist(uploadPath);
-    cb(null, uploadPath);
+    try {
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
+    } catch {
+      cb(null, '');
+    }
   },
 
   filename: (_req: Request, file: Express.Multer.File, cb) => {
@@ -35,12 +39,14 @@ const storage = multer.diskStorage({
   },
 });
 
+const storage = isServerless ? memoryStorage : diskStorage;
+
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedExtensions = /jpeg|jpg|png|webp|gif/;
   const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
   const mimeType = allowedExtensions.test(file.mimetype);
 
-  if (allowedExtensions.test(ext) && mimeType) {
+  if (allowedExtensions.test(ext) || mimeType) {
     cb(null, true);
   } else {
     cb(new Error('Format file tidak didukung! Hanya diperbolehkan format WebP, JPG, PNG, GIF.'));
