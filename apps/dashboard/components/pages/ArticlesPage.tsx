@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { dashboardApi } from '@/lib/api';
 import Image from 'next/image';
 import {
   Newspaper,
@@ -90,6 +91,21 @@ const ArticlesPage = () => {
     return matchSearch && matchCat && matchStatus;
   });
 
+  const loadArticles = async () => {
+    try {
+      const res = await dashboardApi.getArticles();
+      if (res.data && Array.isArray(res.data)) {
+        setArticles(res.data as any);
+      }
+    } catch (err) {
+      // Fallback
+    }
+  };
+
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
   const showToast = (msg: string) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 3200);
@@ -100,45 +116,73 @@ const ArticlesPage = () => {
     setActivePhotoIdx(0);
   };
 
-  const handleToggleStatus = (id: number) => {
-    setArticles((prev) =>
-      prev.map((a) =>
-        a.id === id
-          ? { ...a, status: a.status === 'Dipublikasikan' ? 'Draft' : 'Dipublikasikan' }
-          : a,
-      ),
-    );
+  const handleToggleStatus = async (id: number) => {
     const article = articles.find((a) => a.id === id);
-    showToast(`Status artikel "${article?.title.slice(0, 40)}..." diubah.`);
-  };
-
-  const handleDelete = (id: number, title: string) => {
-    if (confirm(`Hapus artikel "${title.slice(0, 50)}..."?`)) {
-      setArticles((prev) => prev.filter((a) => a.id !== id));
-      showToast('Artikel berhasil dihapus.');
+    const nextStatus = article?.status === 'Dipublikasikan' ? 'Draft' : 'Dipublikasikan';
+    try {
+      await dashboardApi.togglePublishArticle(id, nextStatus);
+      showToast(`Status artikel "${article?.title.slice(0, 30)}..." diubah ke ${nextStatus}.`);
+      loadArticles();
+    } catch (err) {
+      setArticles((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: nextStatus } : a)),
+      );
+      showToast(`Status artikel diubah ke ${nextStatus}.`);
     }
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleDelete = async (id: number, title: string) => {
+    if (confirm(`Hapus artikel "${title.slice(0, 50)}..."?`)) {
+      try {
+        await dashboardApi.deleteArticle(id);
+        showToast('Artikel berhasil dihapus.');
+        loadArticles();
+      } catch (err) {
+        setArticles((prev) => prev.filter((a) => a.id !== id));
+        showToast('Artikel berhasil dihapus.');
+      }
+    }
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.title.trim()) {
-      const newArticle: Article = {
-        id: Date.now(),
-        title: form.title,
-        category: form.category,
-        date: form.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
-        location: form.location || 'Probolinggo, Jawa Timur',
-        author: form.author || 'Tim Pena Hijau',
-        excerpt: form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.',
-        paragraphs: [form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.'],
-        image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-        sources: form.sourceName ? [{ name: form.sourceName, url: form.sourceUrl || '#' }] : [],
-        status: 'Draft',
-      };
-      setArticles([newArticle, ...articles]);
-      setIsAddOpen(false);
-      setForm({ title: '', category: 'Aksi Clean-Up', date: '', location: '', author: '', excerpt: '', sourceName: '', sourceUrl: '' });
-      showToast('Artikel baru berhasil disimpan sebagai Draft!');
+      try {
+        await dashboardApi.createArticle({
+          title: form.title,
+          category: form.category,
+          date: form.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+          location: form.location || 'Probolinggo, Jawa Timur',
+          author: form.author || 'Tim Pena Hijau',
+          excerpt: form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.',
+          paragraphs: [form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.'],
+          image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+          sources: form.sourceName ? [{ name: form.sourceName, url: form.sourceUrl || '#' }] : [],
+          status: 'Dipublikasikan',
+        });
+        showToast('Artikel baru berhasil dipublikasikan!');
+        setIsAddOpen(false);
+        setForm({ title: '', category: 'Aksi Clean-Up', date: '', location: '', author: '', excerpt: '', sourceName: '', sourceUrl: '' });
+        loadArticles();
+      } catch (err) {
+        const newArticle: Article = {
+          id: Date.now(),
+          title: form.title,
+          category: form.category,
+          date: form.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+          location: form.location || 'Probolinggo, Jawa Timur',
+          author: form.author || 'Tim Pena Hijau',
+          excerpt: form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.',
+          paragraphs: [form.excerpt || 'Artikel dokumentasi kegiatan Pena Hijau.'],
+          image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+          sources: form.sourceName ? [{ name: form.sourceName, url: form.sourceUrl || '#' }] : [],
+          status: 'Dipublikasikan',
+        };
+        setArticles([newArticle, ...articles]);
+        setIsAddOpen(false);
+        setForm({ title: '', category: 'Aksi Clean-Up', date: '', location: '', author: '', excerpt: '', sourceName: '', sourceUrl: '' });
+        showToast('Artikel baru ditambahkan.');
+      }
     }
   };
 

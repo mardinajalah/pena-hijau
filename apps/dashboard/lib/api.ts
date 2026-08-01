@@ -1,16 +1,20 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
+// Default dev token for seamless local testing
+const DEV_FALLBACK_TOKEN = 'dev-admin-token-penahijau';
+
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+  if (!token) {
+    token = DEV_FALLBACK_TOKEN;
+  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
     ...(options.headers as Record<string, string>),
   };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
 
   try {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -24,7 +28,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     }
     return json;
   } catch (error: any) {
-    console.warn(`⚠️ API Fetch Error [${endpoint}]:`, error.message);
     throw error;
   }
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import { Bell, Search, Globe, Sparkles } from 'lucide-react';
+import { Bell, Search, Globe, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface TopbarProps {
   title?: string;
@@ -9,6 +10,16 @@ interface TopbarProps {
 }
 
 const Topbar = ({ title = 'Dashboard Overview', breadcrumb = 'Ringkasan Utama' }: TopbarProps) => {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (confirm('Apakah Anda yakin ingin keluar dari Dashboard Admin?')) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('adminUser');
+      router.push('/login');
+    }
+  };
+
   return (
     <header className='sticky top-0 z-30 flex h-20 w-full items-center justify-between bg-white/90 px-6 sm:px-8 shadow-xs backdrop-blur-md border-b border-slate-200/80'>
       {/* Title & Breadcrumb */}
@@ -50,28 +61,33 @@ const Topbar = ({ title = 'Dashboard Overview', breadcrumb = 'Ringkasan Utama' }
         {/* Notification Bell Badge */}
         <button
           type='button'
-          className='relative flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-green-50 hover:text-green-600 transition-colors cursor-pointer border border-slate-200/60'
-          title='Notifikasi Baru'
-          onClick={() => alert('Belum ada notifikasi baru')}
+          className='relative flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer'
+          title='Notifikasi Admin'
         >
           <Bell className='h-4 w-4' />
-          <span className='absolute top-2 right-2 flex h-2 w-2'>
-            <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75' />
-            <span className='relative inline-flex h-2 w-2 rounded-full bg-green-600' />
-          </span>
+          <span className='absolute top-2 right-2 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white' />
         </button>
 
-        {/* Admin Quick Avatar */}
-        <div className='flex items-center gap-2.5 pl-2 border-l border-slate-200'>
-          <div className='flex h-9 w-9 items-center justify-center rounded-xl bg-green-600 text-white font-bold text-xs shadow-sm'>
-            TR
+        {/* Admin Profile & Logout Button */}
+        <div className='flex items-center gap-3 pl-3 border-l border-slate-200'>
+          <div className='flex items-center gap-2.5'>
+            <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-green-600 to-emerald-700 text-white font-extrabold text-xs shadow-sm'>
+              AD
+            </div>
+            <div className='hidden xl:block text-left text-xs'>
+              <p className='font-bold text-slate-900 leading-tight'>Admin Pena Hijau</p>
+              <p className='text-[10px] text-slate-500'>admin@penahijau.org</p>
+            </div>
           </div>
-          <div className='hidden lg:block text-left'>
-            <p className='text-xs font-bold text-slate-900 leading-tight'>Taufiqur Rohim</p>
-            <p className='text-[10px] text-green-600 font-semibold flex items-center gap-1'>
-              <Sparkles className='h-2.5 w-2.5' /> Admin Active
-            </p>
-          </div>
+
+          <button
+            type='button'
+            onClick={handleLogout}
+            className='flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer'
+            title='Keluar / Logout'
+          >
+            <LogOut className='h-4 w-4' />
+          </button>
         </div>
       </div>
     </header>
