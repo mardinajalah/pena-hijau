@@ -14,13 +14,15 @@ try {
           clientEmail: ENV.FIREBASE_CLIENT_EMAIL,
           privateKey: ENV.FIREBASE_PRIVATE_KEY,
         }),
+        storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
       });
       console.log('⚡ Firebase Admin SDK initialized with Service Account Credentials.');
     } else {
       app = initializeApp({
         projectId: ENV.FIREBASE_PROJECT_ID,
+        storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
       });
-      console.log('⚡ Firebase Admin SDK initialized with Default Project ID:', ENV.FIREBASE_PROJECT_ID);
+      console.log('⚡ Firebase Admin SDK initialized with Project ID:', ENV.FIREBASE_PROJECT_ID);
     }
   } else {
     app = getApps()[0];
@@ -29,8 +31,7 @@ try {
   db = getFirestore(app);
 } catch (error) {
   console.warn('⚠️ Firebase Admin SDK initialization warning:', error);
-  // Fallback instance to prevent server crash
-  app = getApps()[0] || initializeApp({ projectId: 'pena-hijau-fallback' });
+  app = getApps()[0] || initializeApp({ projectId: ENV.FIREBASE_PROJECT_ID || 'penahijau-6c1ba' });
   db = getFirestore(app);
 }
 
