@@ -44,6 +44,9 @@ const resolveImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
     return '/profile.webp';
   }
+  if (url.startsWith('data:')) {
+    return url;
+  }
   if (url.startsWith('/uploads/')) {
     return `${getBackendHost()}${url}`;
   }

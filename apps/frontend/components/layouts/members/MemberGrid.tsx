@@ -29,6 +29,9 @@ const resolveImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
     return '/profile.webp';
   }
+  if (url.startsWith('data:')) {
+    return url;
+  }
   if (url.startsWith('/uploads/')) {
     if (process.env.NEXT_PUBLIC_API_URL) {
       const host = process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '');
