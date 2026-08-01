@@ -33,15 +33,7 @@ const JoinFormSection = () => {
       try {
         // Upload profile photo to backend server if user attached a file
         if (avatarFile) {
-          const formData = new FormData();
-          formData.append('image', avatarFile);
-          formData.append('category', 'avatars');
-
-          const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
-            method: 'POST',
-            body: formData,
-          });
-          const uploadJson = await uploadRes.json();
+          const uploadJson = await frontendApi.uploadSingleImage(avatarFile, 'avatars');
           if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
             uploadedAvatarUrl = uploadJson.data.fullUrl || uploadJson.data.url;
           }

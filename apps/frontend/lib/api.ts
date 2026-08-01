@@ -8,7 +8,7 @@ const getApiBaseUrl = (): string => {
   return 'http://localhost:4000/api/v1';
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 async function fetchFrontendApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
@@ -33,6 +33,23 @@ async function fetchFrontendApi<T>(endpoint: string, options: RequestInit = {}):
 }
 
 export const frontendApi = {
+  // Upload photo
+  uploadSingleImage: async (file: File, category = 'avatars') => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('category', category);
+
+    const res = await fetch(`${API_BASE_URL}/uploads/single`, {
+      method: 'POST',
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.message || 'Gagal mengunggah foto');
+    }
+    return json;
+  },
+
   // Public Join Form Submission
   submitJoinForm: (data: {
     name: string;
