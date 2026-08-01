@@ -29,27 +29,6 @@ interface GalleryEvent {
   description: string;
 }
 
-const fallbackEvents: GalleryEvent[] = [
-  {
-    id: 1,
-    title: 'Aksi Bersih Sampah Aliran Sungai Kotaanyar',
-    category: 'Aksi Clean-Up',
-    location: 'Desa Kotaanyar, Probolinggo',
-    date: '27 Juli 2026',
-    coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-    photos: [
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-    ],
-    description: 'Relawan Pena Hijau bersama warga bergotong-royong membersihkan limbah plastik di jembatan sungai Kotaanyar.',
-  },
-];
-
 const categoryConfig: Record<GalleryEvent['category'], { color: string; bg: string }> = {
   'Aksi Clean-Up': { color: 'text-green-700', bg: 'bg-green-100 border-green-200' },
   'Penghijauan': { color: 'text-emerald-700', bg: 'bg-emerald-100 border-emerald-200' },
@@ -58,7 +37,7 @@ const categoryConfig: Record<GalleryEvent['category'], { color: string; bg: stri
 };
 
 const GalleryPage = () => {
-  const [events, setEvents] = useState<GalleryEvent[]>(fallbackEvents);
+  const [events, setEvents] = useState<GalleryEvent[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [activeLightbox, setActiveLightbox] = useState<{ event: GalleryEvent; photoIndex: number } | null>(null);
@@ -288,7 +267,7 @@ const GalleryPage = () => {
                 </p>
 
                 <div className='mt-4 flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100'>
-                  <span className='flex items-center gap-1 text-green-700 font-semibold truncate max-w-[150px]'>
+                  <span className='flex items-center gap-1 text-green-700 font-semibold truncate max-w-37.5'>
                     <MapPin className='h-3.5 w-3.5 shrink-0' /> {event.location}
                   </span>
                   <span className='flex items-center gap-1'>

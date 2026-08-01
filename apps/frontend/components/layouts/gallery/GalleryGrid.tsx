@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Maximize2, Tag } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Maximize2, Tag, Images } from 'lucide-react';
 import { frontendApi } from '@/lib/api';
 
 export interface GalleryItem {
@@ -16,32 +16,12 @@ export interface GalleryItem {
   description: string;
 }
 
-const fallbackGallery: GalleryItem[] = [
-  {
-    id: 1,
-    title: 'Aksi Bersih Sampah Aliran Sungai Kotaanyar',
-    category: 'Aksi Clean-Up',
-    location: 'Desa Kotaanyar, Kabupaten Probolinggo',
-    date: '27 Juli 2026',
-    banner: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-    images: [
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-    ],
-    description: 'Relawan Pena Hijau bergotong-royong membersihkan sampah plastik di aliran sungai Kotaanyar, Kabupaten Probolinggo.',
-  },
-];
-
 const categories = ['Semua', 'Penghijauan', 'Aksi Clean-Up', 'Edukasi', 'Komunitas'] as const;
 
 const GalleryGrid = () => {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(fallbackGallery);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [isLoading, setIsLoading] = useState(true);
 
   const [modalEvent, setModalEvent] = useState<GalleryItem | null>(null);
   const [modalPhotoIndex, setModalPhotoIndex] = useState(0);
@@ -49,8 +29,9 @@ const GalleryGrid = () => {
   useEffect(() => {
     async function loadGalleries() {
       try {
+        setIsLoading(true);
         const res = await frontendApi.getGalleries();
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        if (res.data && Array.isArray(res.data)) {
           const mapped: GalleryItem[] = res.data.map((g: any) => ({
             id: g.id,
             title: g.title,
@@ -64,7 +45,9 @@ const GalleryGrid = () => {
           setGalleryItems(mapped);
         }
       } catch (err) {
-        // Fallback
+        setGalleryItems([]);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadGalleries();
@@ -114,60 +97,70 @@ const GalleryGrid = () => {
           ))}
         </div>
 
-        {/* Gallery Event Cards Grid */}
-        <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredItems.map((item) => (
-            <article
-              key={item.id}
-              onClick={() => handleOpenModal(item)}
-              className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 cursor-pointer border border-slate-100'
-            >
-              <div className='relative h-64 w-full overflow-hidden bg-slate-100'>
-                <Image
-                  src={item.banner}
-                  alt={item.title}
-                  fill
-                  sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                  className='object-cover transition-transform duration-500 group-hover:scale-105'
-                />
-                <div className='absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40' />
+        {/* Empty State */}
+        {filteredItems.length === 0 ? (
+          <div className='text-center py-16 rounded-3xl bg-white border border-slate-200/80 max-w-md mx-auto'>
+            <Images className='mx-auto h-10 w-10 text-slate-300 mb-3' />
+            <p className='text-slate-500 font-medium text-sm'>
+              {isLoading ? 'Memuat data galeri...' : 'Belum ada foto galeri kegiatan yang diunggah.'}
+            </p>
+          </div>
+        ) : (
+          /* Gallery Event Cards Grid */
+          <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
+            {filteredItems.map((item) => (
+              <article
+                key={item.id}
+                onClick={() => handleOpenModal(item)}
+                className='group flex flex-col overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 cursor-pointer border border-slate-100'
+              >
+                <div className='relative h-64 w-full overflow-hidden bg-slate-100'>
+                  <Image
+                    src={item.banner}
+                    alt={item.title}
+                    fill
+                    sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                    className='object-cover transition-transform duration-500 group-hover:scale-105'
+                  />
+                  <div className='absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40' />
 
-                <div className='absolute top-4 left-4'>
-                  <span className='rounded-full bg-emerald-950/80 px-3.5 py-1.5 text-xs font-semibold text-emerald-100 backdrop-blur border border-white/20'>
-                    {item.category}
-                  </span>
-                </div>
-
-                <div className='absolute bottom-4 right-4'>
-                  <span className='inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur'>
-                    <Maximize2 className='h-3.5 w-3.5 text-green-400' />
-                    {item.images.length} Foto
-                  </span>
-                </div>
-              </div>
-
-              <div className='flex flex-1 flex-col p-6 sm:p-7'>
-                <h3 className='text-xl font-bold text-slate-900 group-hover:text-green-700 transition-colors line-clamp-2'>
-                  {item.title}
-                </h3>
-                <p className='mt-2.5 text-sm leading-6 text-slate-600 line-clamp-2'>
-                  {item.description}
-                </p>
-
-                <div className='mt-auto pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-500'>
-                  <div className='flex items-center gap-1.5 text-green-700 font-semibold'>
-                    <MapPin className='h-3.5 w-3.5 shrink-0' />
-                    <span className='truncate max-w-[160px]'>{item.location}</span>
+                  <div className='absolute top-4 left-4'>
+                    <span className='rounded-full bg-emerald-950/80 px-3.5 py-1.5 text-xs font-semibold text-emerald-100 backdrop-blur border border-white/20'>
+                      {item.category}
+                    </span>
                   </div>
-                  <div className='flex items-center gap-1.5'>
-                    <Calendar className='h-3.5 w-3.5 shrink-0 text-slate-400' />
-                    <span>{item.date}</span>
+
+                  <div className='absolute bottom-4 right-4'>
+                    <span className='inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur'>
+                      <Maximize2 className='h-3.5 w-3.5 text-green-400' />
+                      {item.images.length} Foto
+                    </span>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
+
+                <div className='flex flex-1 flex-col p-6 sm:p-7'>
+                  <h3 className='text-xl font-bold text-slate-900 group-hover:text-green-700 transition-colors line-clamp-2'>
+                    {item.title}
+                  </h3>
+                  <p className='mt-2.5 text-sm leading-6 text-slate-600 line-clamp-2'>
+                    {item.description}
+                  </p>
+
+                  <div className='mt-auto pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-500'>
+                    <div className='flex items-center gap-1.5 text-green-700 font-semibold'>
+                      <MapPin className='h-3.5 w-3.5 shrink-0' />
+                      <span className='truncate max-w-40'>{item.location}</span>
+                    </div>
+                    <div className='flex items-center gap-1.5'>
+                      <Calendar className='h-3.5 w-3.5 shrink-0 text-slate-400' />
+                      <span>{item.date}</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Lightbox Modal */}
@@ -204,7 +197,7 @@ const GalleryGrid = () => {
               </button>
             </div>
 
-            <div className='relative flex flex-1 items-center justify-center bg-black/60 min-h-[320px] sm:min-h-[480px]'>
+            <div className='relative flex flex-1 items-center justify-center bg-black/60 min-h-80 sm:min-h-120'>
               <div className='relative h-full w-full p-4 flex items-center justify-center'>
                 <div className='relative h-[50vh] sm:h-[65vh] w-full'>
                   <Image
@@ -238,7 +231,6 @@ const GalleryGrid = () => {
               )}
             </div>
 
-            {/* Thumbnail selector */}
             {modalEvent.images.length > 1 && (
               <div className='flex items-center gap-2 overflow-x-auto border-t border-slate-800 p-4 scrollbar-thin bg-slate-950/40'>
                 {modalEvent.images.map((img, idx) => (

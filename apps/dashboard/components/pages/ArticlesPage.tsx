@@ -48,76 +48,6 @@ interface Article {
   status: ArticleStatus;
 }
 
-const initialArticles: Article[] = [
-  {
-    id: 1,
-    title: 'Peduli Lingkungan, Komunitas PENA HIJAU Gelar Aksi Clean Up River di Kotaanyar Probolinggo',
-    category: 'Aksi Clean-Up',
-    date: '27 Juli 2026',
-    location: 'Kecamatan Kotaanyar, Kabupaten Probolinggo',
-    author: 'Taufiqur Rohim',
-    excerpt: 'Kelompok pemuda Komunitas PENA HIJAU menggelar aksi bersih-bersih sungai di Kotaanyar Probolinggo sebagai langkah konkrit mencegah pencemaran dan bencana banjir.',
-    paragraphs: [
-      'PROBOLINGGO — Kelompok pemuda yang tergabung dalam Komunitas Pemuda Nusantara Peduli Lingkungan Hijau (PENA HIJAU) menggelar aksi clean up river (bersih-bersih sungai) di wilayah Kecamatan Kotaanyar, Kabupaten Probolinggo, Senin sore (27/07/2026).',
-      'Aksi tanggap lingkungan ini dilakukan sebagai bentuk kepedulian nyata para generasi muda terhadap kondisi sungai yang kian tertutup tumpukan sampah plastik, limbah rumah tangga, dan kotoran liar yang mengganggu kelancaran aliran air.',
-      'Dengan menggunakan peralatan lengkap seperti karung sampah, sepatu boots, dan sarung tangan, para relawan muda Pena Hijau secara langsung menyusuri dan mengangkat berbagai material sampah dari dasar serta pinggiran sungai.',
-      'Langkah ini diharapkan tidak hanya dapat mengembalikan kebersihan dan kelancaran fungsi aliran sungai Kotaanyar, melainkan juga mengedukasi dan menggugah kesadaran masyarakat sekitar agar menghentikan kebiasaan membuang sampah sembarangan ke sungai.',
-    ],
-    quote: 'Kami melihat tumpukan sampah di aliran sungai ini sudah sangat mengkhawatirkan. Jika dibiarkan, saat musim hujan bisa memicu banjir dan pencemaran air.',
-    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-    galleryImages: [
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-      '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
-    ],
-    sources: [
-      { name: 'Berdampak.net', url: 'https://berdampak.net/peduli-lingkungan-komunitas-pena-hijau-gelar-aksi-clean-up-river-di-kotaanyar-probolinggo/' },
-      { name: 'HarianJatim.com', url: 'https://www.harianjatim.com/2026/07/27/aksi-nyata-komunitas-pena-hijau-bersihkan-tumpukan-sampah-di-sungai-kotaanyar-probolinggo/' },
-    ],
-    status: 'Dipublikasikan',
-  },
-  {
-    id: 2,
-    title: 'Tanam 500 Bibit Pohon Produktif, Pena Hijau Hijaukan Lereng Desa Paiton',
-    category: 'Penghijauan',
-    date: '15 Juli 2026',
-    location: 'Kecamatan Paiton, Kabupaten Probolinggo',
-    author: 'Budi Santoso',
-    excerpt: 'Relawan Pena Hijau bersama petani desa menanam 500 bibit pohon buah dan pohon lindung di kawasan lereng kritis desa mitra Paiton, Probolinggo.',
-    paragraphs: [
-      'PROBOLINGGO — Ratusan relawan muda Komunitas Pena Hijau turun gunung ke Kecamatan Paiton untuk menggelar aksi penanaman massal 500 bibit pohon produktif dan pohon lindung.',
-      'Kegiatan yang melibatkan warga setempat ini merupakan bagian dari program penghijauan berkala Pena Hijau yang menyasar kawasan lereng kritis dan lahan tidur desa mitra.',
-    ],
-    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
-    sources: [
-      { name: 'Media Lokal Probolinggo', url: '#' },
-    ],
-    status: 'Dipublikasikan',
-  },
-  {
-    id: 3,
-    title: 'Sosialisasi Pemilahan Sampah Mandiri di Desa Pesisir Hijau Situbondo',
-    category: 'Edukasi',
-    date: '02 Juli 2026',
-    location: 'Desa Pesisir Hijau, Kabupaten Situbondo',
-    author: 'Siti Nurhaliza',
-    excerpt: 'Tim edukasi Pena Hijau melakukan sosialisasi pemilahan sampah anorganik bagi warga dan generasi muda pesisir desa mitra Situbondo.',
-    paragraphs: [
-      'SITUBONDO — Tim edukasi Komunitas Pena Hijau menggelar sosialisasi pengelolaan dan pemilahan sampah mandiri di Desa Pesisir Hijau, Kabupaten Situbondo.',
-      'Kegiatan ini disambut antusias oleh warga, terutama kelompok ibu rumah tangga dan generasi muda pesisir yang selama ini minim pengetahuan pengelolaan sampah.',
-    ],
-    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp',
-    sources: [
-      { name: 'Media Lokal Situbondo', url: '#' },
-    ],
-    status: 'Draft',
-  },
-];
-
 const categoryConfig: Record<PillarCategory, { color: string; bg: string }> = {
   'Aksi Clean-Up': { color: 'text-green-700', bg: 'bg-green-100 border-green-200' },
   'Penghijauan': { color: 'text-emerald-700', bg: 'bg-emerald-100 border-emerald-200' },
@@ -128,7 +58,7 @@ const categoryConfig: Record<PillarCategory, { color: string; bg: string }> = {
 const categories: PillarCategory[] = ['Aksi Clean-Up', 'Penghijauan', 'Edukasi', 'Komunitas'];
 
 const ArticlesPage = () => {
-  const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedStatus, setSelectedStatus] = useState('Semua');
@@ -360,7 +290,7 @@ const ArticlesPage = () => {
                     <tr key={article.id} className='hover:bg-slate-50/60 transition-colors'>
                       {/* Cover + Title */}
                       <td className='py-4 px-5'>
-                        <div className='flex items-center gap-4 min-w-[270px]'>
+                        <div className='flex items-center gap-4 min-w-67.5'>
                           <div className='relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100 shadow-xs border border-slate-200'>
                             <Image
                               src={article.image}

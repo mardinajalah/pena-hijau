@@ -42,81 +42,6 @@ interface Member {
   avatar: string;
 }
 
-const initialMembers: Member[] = [
-  {
-    id: 1,
-    name: 'Ahmad Hidayat, S.P.',
-    address: 'Jl. Melati No. 12, Desa Kotaanyar',
-    domicile: 'Probolinggo, Jawa Timur',
-    division: 'Koordinator Lapangan & Clean-Up',
-    whatsapp: '082233441122',
-    motto: 'Alam yang sehat adalah warisan terbaik untuk generasi mendatang.',
-    status: 'Aktif',
-    joinDate: '12 Maret 2024',
-    avatar: 'AH',
-  },
-  {
-    id: 2,
-    name: 'Siti Nurhaliza',
-    address: 'Jl. Anggrek No. 5, Kec. Kraksaan',
-    domicile: 'Probolinggo, Jawa Timur',
-    division: 'Tim Edukasi & Bank Sampah',
-    whatsapp: '085678901234',
-    motto: 'Edukasi adalah kunci perubahan lingkungan yang berkelanjutan.',
-    status: 'Aktif',
-    joinDate: '28 Juni 2024',
-    avatar: 'SN',
-  },
-  {
-    id: 3,
-    name: 'Budi Santoso',
-    address: 'Jl. Kenanga No. 7, Desa Pesisir Hijau',
-    domicile: 'Situbondo, Jawa Timur',
-    division: 'Penghijauan & Bibit Pohon',
-    whatsapp: '081234567890',
-    motto: 'Setiap pohon yang kita tanam hari ini adalah nafas anak cucu esok hari.',
-    status: 'Aktif',
-    joinDate: '05 Januari 2025',
-    avatar: 'BS',
-  },
-  {
-    id: 4,
-    name: 'Dewi Lestari',
-    address: 'Jl. Flamboyan No. 3, Kec. Kotaanyar',
-    domicile: 'Probolinggo, Jawa Timur',
-    division: 'Media & Kampanye Digital',
-    whatsapp: '089876543210',
-    motto: 'Satu konten viral bisa menggerakkan ribuan tangan untuk alam.',
-    status: 'Aktif',
-    joinDate: '17 Agustus 2024',
-    avatar: 'DL',
-  },
-  {
-    id: 5,
-    name: 'Rahmat Ramadhan',
-    address: 'Jl. Padi No. 21, Kec. Paiton',
-    domicile: 'Probolinggo, Jawa Timur',
-    division: 'Koordinator Lapangan & Clean-Up',
-    whatsapp: '083344556677',
-    motto: 'Turun ke lapangan adalah bentuk cinta paling nyata pada lingkungan.',
-    status: 'Nonaktif',
-    joinDate: '03 Februari 2024',
-    avatar: 'RR',
-  },
-  {
-    id: 6,
-    name: 'Fajar Nugroho',
-    address: 'Jl. Cemara No. 9, Kec. Kraksaan',
-    domicile: 'Probolinggo, Jawa Timur',
-    division: 'Logistik & Operasional',
-    whatsapp: '087788990011',
-    motto: 'Di balik setiap aksi besar, ada tim logistik yang bekerja keras.',
-    status: 'Aktif',
-    joinDate: '22 April 2024',
-    avatar: 'FN',
-  },
-];
-
 const divisionOptions: Division[] = [
   'Koordinator Lapangan & Clean-Up',
   'Tim Edukasi & Bank Sampah',
@@ -142,10 +67,8 @@ const avatarColors = [
   'bg-amber-600',
 ];
 
-
-
 const MembersPage = () => {
-  const [members, setMembers] = useState<Member[]>(initialMembers);
+  const [members, setMembers] = useState<Member[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('Semua');
   const [selectedStatus, setSelectedStatus] = useState('Semua');

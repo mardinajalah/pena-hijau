@@ -32,86 +32,6 @@ interface JoinRequest {
   status: RequestStatus;
 }
 
-const initialRequests: JoinRequest[] = [
-  {
-    id: 1,
-    name: 'Rizky Firmansyah',
-    address: 'Jl. Merpati No. 4, Kec. Kotaanyar',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Koordinator Lapangan & Clean-Up',
-    whatsapp: '082211223344',
-    motto: 'Sungai bersih dimulai dari tangan kita sendiri.',
-    registeredDate: '01 Agustus 2026',
-    status: 'Menunggu',
-  },
-  {
-    id: 2,
-    name: 'Nur Aini Rahayu',
-    address: 'Jl. Bougenville No. 8, Kec. Kraksaan',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Tim Edukasi & Bank Sampah',
-    whatsapp: '085599887766',
-    motto: 'Ilmu tanpa aksi adalah sia-sia, aksi tanpa ilmu berbahaya.',
-    registeredDate: '31 Juli 2026',
-    status: 'Menunggu',
-  },
-  {
-    id: 3,
-    name: 'Hendra Prasetyo',
-    address: 'Jl. Mawar No. 17, Desa Paiton',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Penghijauan & Bibit Pohon',
-    whatsapp: '081345678901',
-    motto: 'Menanam satu pohon berarti menitipkan oksigen untuk anak cucu.',
-    registeredDate: '30 Juli 2026',
-    status: 'Diterima',
-  },
-  {
-    id: 4,
-    name: 'Ayu Setyowati',
-    address: 'Jl. Cempaka No. 2, Desa Pesisir Hijau',
-    domicile: 'Situbondo, Jawa Timur',
-    divisionInterest: 'Media & Kampanye Digital',
-    whatsapp: '089900112233',
-    motto: 'Satu video viral bisa mengubah cara pandang seribu orang.',
-    registeredDate: '29 Juli 2026',
-    status: 'Menunggu',
-  },
-  {
-    id: 5,
-    name: 'Bagas Kurniawan',
-    address: 'Jl. Rambutan No. 11, Kec. Paiton',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Logistik & Operasional',
-    whatsapp: '083366778899',
-    motto: 'Di balik aksi besar, ada tim support yang solid.',
-    registeredDate: '28 Juli 2026',
-    status: 'Ditolak',
-  },
-  {
-    id: 6,
-    name: 'Fika Amalia',
-    address: 'Jl. Melati No. 33, Kec. Besuk',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Tim Edukasi & Bank Sampah',
-    whatsapp: '082255443322',
-    motto: 'Perubahan besar dimulai dari langkah kecil di sekitar kita.',
-    registeredDate: '27 Juli 2026',
-    status: 'Diterima',
-  },
-  {
-    id: 7,
-    name: 'Deni Setiawan',
-    address: 'Jl. Duku No. 6, Kec. Gending',
-    domicile: 'Probolinggo, Jawa Timur',
-    divisionInterest: 'Koordinator Lapangan & Clean-Up',
-    whatsapp: '087711223300',
-    motto: 'Tangan yang kotor karena bersih-bersih adalah tangan yang mulia.',
-    registeredDate: '26 Juli 2026',
-    status: 'Menunggu',
-  },
-];
-
 const statusConfig: Record<RequestStatus, { label: string; icon: React.ElementType; class: string; dot: string }> = {
   Menunggu: {
     label: 'Menunggu',
@@ -142,7 +62,7 @@ const avatarColors = [
 
 
 const JoinRequestsPage = () => {
-  const [requests, setRequests] = useState<JoinRequest[]>(initialRequests);
+  const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'Semua' | RequestStatus>('Semua');
   const [viewRequest, setViewRequest] = useState<JoinRequest | null>(null);

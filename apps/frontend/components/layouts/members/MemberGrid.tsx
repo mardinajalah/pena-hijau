@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Mail, MapPin, Quote, User } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
 import { frontendApi } from '@/lib/api';
 
 export interface TeamMember {
@@ -16,37 +16,16 @@ export interface TeamMember {
   whatsapp?: string;
 }
 
-const fallbackMembers: TeamMember[] = [
-  {
-    id: 1,
-    name: 'Ahmad Hidayat, S.P.',
-    role: 'Koordinator Lapangan',
-    division: 'Koordinator Lapangan & Clean-Up',
-    location: 'Probolinggo, Jawa Timur',
-    image: '/profile.webp',
-    quote: 'Alam yang sehat adalah warisan terbaik untuk generasi mendatang.',
-    whatsapp: '082233441122',
-  },
-  {
-    id: 2,
-    name: 'Siti Nurhaliza',
-    role: 'Tim Edukasi & Bank Sampah',
-    division: 'Tim Edukasi & Bank Sampah',
-    location: 'Probolinggo, Jawa Timur',
-    image: '/profile.webp',
-    quote: 'Edukasi adalah kunci perubahan lingkungan yang berkelanjutan.',
-    whatsapp: '085678901234',
-  },
-];
-
 const MemberGrid = () => {
-  const [members, setMembers] = useState<TeamMember[]>(fallbackMembers);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadMembers() {
       try {
+        setIsLoading(true);
         const res = await frontendApi.getMembers();
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        if (res.data && Array.isArray(res.data)) {
           const mapped: TeamMember[] = res.data.map((m: any) => ({
             id: m.id,
             name: m.name,
@@ -60,7 +39,9 @@ const MemberGrid = () => {
           setMembers(mapped);
         }
       } catch (err) {
-        // Fallback
+        setMembers([]);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadMembers();
@@ -77,45 +58,54 @@ const MemberGrid = () => {
           </p>
         </div>
 
-        <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className='group flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-8 shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 border border-slate-100'
-            >
-              <div className='flex items-center gap-5 mb-6'>
-                <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-emerald-800 text-white font-extrabold flex items-center justify-center shadow-md'>
-                  {member.image && member.image.startsWith('/') && !member.image.includes('profile') ? (
-                    <Image src={member.image} alt={member.name} fill sizes='64px' className='object-cover' />
-                  ) : (
-                    <span className='text-xl'>
-                      {member.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+        {members.length === 0 ? (
+          <div className='text-center py-16 rounded-3xl bg-white border border-slate-200/80 max-w-md mx-auto'>
+            <Users className='mx-auto h-10 w-10 text-slate-300 mb-3' />
+            <p className='text-slate-500 font-medium text-sm'>
+              {isLoading ? 'Memuat data relawan...' : 'Belum ada data anggota relawan aktif.'}
+            </p>
+          </div>
+        ) : (
+          <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
+            {members.map((member) => (
+              <div
+                key={member.id}
+                className='group flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-8 shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-green-900/10 border border-slate-100'
+              >
+                <div className='flex items-center gap-5 mb-6'>
+                  <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-green-600 to-emerald-800 text-white font-extrabold flex items-center justify-center shadow-md'>
+                    {member.image && member.image.startsWith('/') && !member.image.includes('profile') ? (
+                      <Image src={member.image} alt={member.name} fill sizes='64px' className='object-cover' />
+                    ) : (
+                      <span className='text-xl'>
+                        {member.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className='text-lg font-bold text-slate-900 leading-snug group-hover:text-green-700 transition-colors'>
+                      {member.name}
+                    </h3>
+                    <span className='mt-1 inline-flex items-center rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200'>
+                      {member.role}
                     </span>
-                  )}
-                </div>
-                <div>
-                  <h3 className='text-lg font-bold text-slate-900 leading-snug group-hover:text-green-700 transition-colors'>
-                    {member.name}
-                  </h3>
-                  <span className='mt-1 inline-flex items-center rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200'>
-                    {member.role}
-                  </span>
-                </div>
-              </div>
-
-              <div className='flex-1 space-y-4 text-xs sm:text-sm text-slate-600'>
-                <div className='flex items-center gap-2 text-green-700 font-semibold'>
-                  <MapPin className='h-4 w-4 shrink-0' />
-                  <span>{member.location}</span>
+                  </div>
                 </div>
 
-                <blockquote className='border-l-4 border-green-500 pl-3 italic text-slate-700 leading-relaxed'>
-                  &ldquo;{member.quote}&rdquo;
-                </blockquote>
+                <div className='flex-1 space-y-4 text-xs sm:text-sm text-slate-600'>
+                  <div className='flex items-center gap-2 text-green-700 font-semibold'>
+                    <MapPin className='h-4 w-4 shrink-0' />
+                    <span>{member.location}</span>
+                  </div>
+
+                  <blockquote className='border-l-4 border-green-500 pl-3 italic text-slate-700 leading-relaxed'>
+                    &ldquo;{member.quote}&rdquo;
+                  </blockquote>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
