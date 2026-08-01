@@ -68,7 +68,7 @@ const ArticlesPage = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Form state
+  // Add Article form state
   const [form, setForm] = useState({
     title: '',
     category: 'Aksi Clean-Up' as PillarCategory,
@@ -79,6 +79,58 @@ const ArticlesPage = () => {
     sourceName: '',
     sourceUrl: '',
   });
+
+  // Edit Article state
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [editArticleForm, setEditArticleForm] = useState({
+    title: '',
+    category: 'Aksi Clean-Up' as PillarCategory,
+    date: '',
+    location: '',
+    author: '',
+    excerpt: '',
+    sourceName: '',
+    sourceUrl: '',
+  });
+
+  const handleEditArticleClick = (article: Article) => {
+    setEditingArticle(article);
+    setEditArticleForm({
+      title: article.title,
+      category: article.category,
+      date: article.date || '',
+      location: article.location || '',
+      author: article.author || '',
+      excerpt: article.excerpt || '',
+      sourceName: article.sources?.[0]?.name || '',
+      sourceUrl: article.sources?.[0]?.url || '',
+    });
+  };
+
+  const handleEditArticleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingArticle && editArticleForm.title.trim()) {
+      setArticles((prev) =>
+        prev.map((a) =>
+          a.id === editingArticle.id
+            ? {
+                ...a,
+                title: editArticleForm.title,
+                category: editArticleForm.category,
+                date: editArticleForm.date || a.date,
+                location: editArticleForm.location || a.location,
+                author: editArticleForm.author || a.author,
+                excerpt: editArticleForm.excerpt || a.excerpt,
+                paragraphs: [editArticleForm.excerpt || a.excerpt],
+                sources: editArticleForm.sourceName ? [{ name: editArticleForm.sourceName, url: editArticleForm.sourceUrl || '#' }] : a.sources,
+              }
+            : a,
+        ),
+      );
+      showToast(`Artikel "${editArticleForm.title.slice(0, 30)}..." berhasil diperbarui.`);
+      setEditingArticle(null);
+    }
+  };
 
   const filteredArticles = articles.filter((a) => {
     const q = searchQuery.toLowerCase();
@@ -439,7 +491,7 @@ const ArticlesPage = () => {
 
                           <button
                             type='button'
-                            onClick={() => alert(`Edit artikel "${article.title.slice(0, 30)}..." (UI Placeholder)`)}
+                            onClick={() => handleEditArticleClick(article)}
                             className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer'
                             title='Edit Artikel'
                           >
@@ -715,6 +767,94 @@ const ArticlesPage = () => {
                 </button>
                 <button type='submit' className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer'>
                   Simpan sebagai Draft
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Edit Artikel */}
+      {editingArticle && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm transition-opacity duration-300 overflow-y-auto'
+          onClick={() => setEditingArticle(null)}
+        >
+          <div
+            className='relative max-w-xl w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 my-auto'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='flex items-center justify-between pb-4 border-b border-slate-100 mb-6'>
+              <h3 className='text-lg font-bold text-slate-900'>Edit Artikel & Pilar Gerakan</h3>
+              <button
+                type='button'
+                onClick={() => setEditingArticle(null)}
+                className='flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditArticleSubmit} className='space-y-4 text-xs sm:text-sm'>
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Judul Artikel *</label>
+                <input
+                  type='text'
+                  required
+                  value={editArticleForm.title}
+                  onChange={(e) => setEditArticleForm({ ...editArticleForm, title: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                />
+              </div>
+
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <div>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Kategori Pilar</label>
+                  <select
+                    value={editArticleForm.category}
+                    onChange={(e) => setEditArticleForm({ ...editArticleForm, category: e.target.value as PillarCategory })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  >
+                    {categories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Penulis / Kontributor</label>
+                  <input
+                    type='text'
+                    value={editArticleForm.author}
+                    onChange={(e) => setEditArticleForm({ ...editArticleForm, author: e.target.value })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Ringkasan / Excerpt</label>
+                <textarea
+                  rows={4}
+                  value={editArticleForm.excerpt}
+                  onChange={(e) => setEditArticleForm({ ...editArticleForm, excerpt: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                />
+              </div>
+
+              <div className='flex items-center justify-end gap-3 pt-4 border-t border-slate-100'>
+                <button
+                  type='button'
+                  onClick={() => setEditingArticle(null)}
+                  className='rounded-xl bg-slate-100 px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer'
+                >
+                  Batal
+                </button>
+                <button
+                  type='submit'
+                  className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer'
+                >
+                  Simpan Perubahan
                 </button>
               </div>
             </form>

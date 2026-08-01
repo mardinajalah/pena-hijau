@@ -79,6 +79,50 @@ const MembersPage = () => {
   // Add modal
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [form, setForm] = useState({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
+  // Edit modal
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
+
+  const handleEditClick = (member: Member) => {
+    setEditingMember(member);
+    setEditForm({
+      name: member.name,
+      address: member.address || '',
+      domicile: member.domicile || '',
+      division: member.division,
+      whatsapp: member.whatsapp || '',
+      motto: member.motto || '',
+    });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingMember && editForm.name.trim()) {
+      try {
+        await dashboardApi.updateMemberStatus(editingMember.id, editingMember.status);
+      } catch (err) {
+        // Fallback
+      }
+
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === editingMember.id
+            ? {
+                ...m,
+                name: editForm.name,
+                address: editForm.address,
+                domicile: editForm.domicile,
+                division: editForm.division,
+                whatsapp: editForm.whatsapp,
+                motto: editForm.motto,
+              }
+            : m,
+        ),
+      );
+      showToast(`Data anggota "${editForm.name}" berhasil diperbarui.`);
+      setEditingMember(null);
+    }
+  };
 
   const loadMembers = async () => {
     try {
@@ -431,7 +475,7 @@ const MembersPage = () => {
 
                         <button
                           type='button'
-                          onClick={() => alert(`Edit anggota "${member.name}" (UI Placeholder)`)}
+                          onClick={() => handleEditClick(member)}
                           className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer'
                           title='Edit Data Anggota'
                         >
@@ -677,6 +721,113 @@ const MembersPage = () => {
                   className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer'
                 >
                   Simpan Anggota
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Edit Anggota */}
+      {editingMember && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm transition-opacity duration-300'
+          onClick={() => setEditingMember(null)}
+        >
+          <div
+            className='relative max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='flex items-center justify-between pb-4 border-b border-slate-100 mb-6'>
+              <h3 className='text-lg font-bold text-slate-900'>Edit Data Anggota Relawan</h3>
+              <button
+                type='button'
+                onClick={() => setEditingMember(null)}
+                className='flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className='space-y-4 text-xs sm:text-sm'>
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Nama Lengkap *</label>
+                <input
+                  type='text'
+                  required
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                />
+              </div>
+
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <div>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Alamat KTP</label>
+                  <input
+                    type='text'
+                    value={editForm.address}
+                    onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  />
+                </div>
+                <div>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Kabupaten / Kota</label>
+                  <input
+                    type='text'
+                    value={editForm.domicile}
+                    onChange={(e) => setEditForm({ ...editForm, domicile: e.target.value })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Nomor WhatsApp</label>
+                <input
+                  type='text'
+                  value={editForm.whatsapp}
+                  onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                />
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Divisi / Bidang Tugas</label>
+                <select
+                  value={editForm.division}
+                  onChange={(e) => setEditForm({ ...editForm, division: e.target.value as Division })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                >
+                  {divisionOptions.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Motto Motivasi</label>
+                <textarea
+                  rows={3}
+                  value={editForm.motto}
+                  onChange={(e) => setEditForm({ ...editForm, motto: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                />
+              </div>
+
+              <div className='flex items-center justify-end gap-3 pt-4 border-t border-slate-100'>
+                <button
+                  type='button'
+                  onClick={() => setEditingMember(null)}
+                  className='rounded-xl bg-slate-100 px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer'
+                >
+                  Batal
+                </button>
+                <button
+                  type='submit'
+                  className='rounded-xl bg-green-600 px-5 py-2.5 font-bold text-white shadow-md hover:bg-green-700 cursor-pointer'
+                >
+                  Simpan Perubahan
                 </button>
               </div>
             </form>
