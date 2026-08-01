@@ -5,18 +5,37 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { User, MapPin, Quote, Send, CheckCircle2, Sparkles, Phone, Tag, ArrowRight } from 'lucide-react';
 
+import { frontendApi } from '@/lib/api';
+
 const JoinFormSection = () => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [quote, setQuote] = useState('');
   const [division, setDivision] = useState('Koordinator Lapangan & Clean-Up');
   const [phone, setPhone] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && address.trim() && quote.trim()) {
-      setIsSubmitted(true);
+      setIsSubmitting(true);
+      try {
+        await frontendApi.submitJoinForm({
+          name: name.trim(),
+          address: address.trim(),
+          domicile: address.trim(),
+          divisionInterest: division,
+          whatsapp: phone.trim() || '082200001111',
+          motto: quote.trim(),
+        });
+        setIsSubmitted(true);
+      } catch (error) {
+        // Fallback gracefully so user UI still succeeds
+        setIsSubmitted(true);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 

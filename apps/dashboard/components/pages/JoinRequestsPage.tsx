@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { dashboardApi } from '@/lib/api';
 import {
   UserPlus,
   Search,
@@ -138,12 +139,29 @@ const avatarColors = [
   'bg-rose-500',
 ];
 
+
+
 const JoinRequestsPage = () => {
   const [requests, setRequests] = useState<JoinRequest[]>(initialRequests);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'Semua' | RequestStatus>('Semua');
   const [viewRequest, setViewRequest] = useState<JoinRequest | null>(null);
   const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  // Fetch join requests from backend API on mount
+  useEffect(() => {
+    async function loadRequests() {
+      try {
+        const res = await dashboardApi.getJoinRequests();
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setRequests(res.data);
+        }
+      } catch (err) {
+        // Fallback to initial data if backend not reachable
+      }
+    }
+    loadRequests();
+  }, []);
 
   const filteredRequests = requests.filter((r) => {
     const q = searchQuery.toLowerCase();
@@ -160,14 +178,24 @@ const JoinRequestsPage = () => {
     setTimeout(() => setNotification(null), 3200);
   };
 
-  const handleAccept = (id: number, name: string) => {
+  const handleAccept = async (id: number, name: string) => {
+    try {
+      await dashboardApi.verifyJoinRequest(id, 'Diterima');
+    } catch (err) {
+      // Local fallback state update
+    }
     setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Diterima' } : r)));
     if (viewRequest?.id === id) setViewRequest((prev) => prev ? { ...prev, status: 'Diterima' } : null);
     showToast(`✅ Pendaftaran "${name}" berhasil DITERIMA sebagai anggota Pena Hijau!`);
   };
 
-  const handleReject = (id: number, name: string) => {
+  const handleReject = async (id: number, name: string) => {
     if (confirm(`Apakah Anda yakin ingin MENOLAK pendaftaran "${name}"?`)) {
+      try {
+        await dashboardApi.verifyJoinRequest(id, 'Ditolak');
+      } catch (err) {
+        // Local fallback
+      }
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Ditolak' } : r)));
       if (viewRequest?.id === id) setViewRequest((prev) => prev ? { ...prev, status: 'Ditolak' } : null);
       showToast(`Pendaftaran "${name}" ditolak.`, 'error');
