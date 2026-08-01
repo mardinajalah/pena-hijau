@@ -35,12 +35,17 @@ interface JoinRequest {
   avatar?: string;
 }
 
+const getBackendHost = (): string => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  return apiUrl.replace(/\/api\/v1\/?$/, '');
+};
+
 const resolveImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
     return '/profile.webp';
   }
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:4000${url}`;
+    return `${getBackendHost()}${url}`;
   }
   if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
     return url;
