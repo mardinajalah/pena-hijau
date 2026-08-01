@@ -12,6 +12,27 @@ export interface GalleryItem {
   image: string;
 }
 
+const getBackendHost = (): string => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  return apiUrl.replace(/\/api\/v1\/?$/, '');
+};
+
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string') {
+    return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+  }
+  if (url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    return `${getBackendHost()}${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+};
+
 const GallerySection = () => {
   const [galleries, setGalleries] = useState<GalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +49,7 @@ const GallerySection = () => {
             id: g.id,
             title: g.title,
             description: g.description || (g.location ? `Lokasi: ${g.location}` : ''),
-            image: g.coverImage || g.photos?.[0]?.url || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+            image: resolveImageUrl(g.coverImage || g.photos?.[0]?.url),
           }));
           setGalleries(mapped);
         } else {

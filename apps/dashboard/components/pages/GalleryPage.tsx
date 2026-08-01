@@ -36,6 +36,27 @@ const categoryConfig: Record<GalleryEvent['category'], { color: string; bg: stri
   'Komunitas': { color: 'text-violet-700', bg: 'bg-violet-100 border-violet-200' },
 };
 
+const getBackendHost = (): string => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  return apiUrl.replace(/\/api\/v1\/?$/, '');
+};
+
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string') {
+    return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+  }
+  if (url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    return `${getBackendHost()}${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+};
+
 const GalleryPage = () => {
   const [events, setEvents] = useState<GalleryEvent[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,8 +94,8 @@ const GalleryPage = () => {
           category: g.category || 'Aksi Clean-Up',
           location: g.location,
           date: g.date,
-          coverImage: g.coverImage || g.photos?.[0]?.url || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-          photos: g.photos?.map((p: any) => p.url) || [g.coverImage],
+          coverImage: resolveImageUrl(g.coverImage || g.photos?.[0]?.url),
+          photos: g.photos?.map((p: any) => resolveImageUrl(typeof p === 'string' ? p : p.url)) || [resolveImageUrl(g.coverImage)],
           description: g.description,
         }));
         setEvents(mapped);
@@ -108,17 +129,9 @@ const GalleryPage = () => {
     try {
       // Upload image file to backend API if selected
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-        formData.append('category', 'galleries');
-
-        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadJson = await uploadRes.json();
-        if (uploadJson.data?.url) {
-          imageUrl = uploadJson.data.url;
+        const uploadJson = await dashboardApi.uploadSingleImage(selectedFile, 'galleries');
+        if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
+          imageUrl = uploadJson.data.fullUrl || uploadJson.data.url;
         }
       }
 
@@ -138,9 +151,8 @@ const GalleryPage = () => {
       setSelectedFile(null);
       setPreviewUrl('');
       loadGalleries();
-    } catch (error) {
-      showToast('Event galeri ditambahkan secara lokal');
-      setIsAddOpen(false);
+    } catch (error: any) {
+      showToast(error?.message || 'Gagal menambahkan event galeri');
     } finally {
       setIsSubmitting(false);
     }

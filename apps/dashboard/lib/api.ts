@@ -1,4 +1,14 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return '/api/v1';
+  }
+  return 'http://localhost:4000/api/v1';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // Default dev token for seamless local testing
 const DEV_FALLBACK_TOKEN = 'dev-admin-token-penahijau';
@@ -10,6 +20,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     token = DEV_FALLBACK_TOKEN;
   }
 
+  const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -17,7 +29,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   };
 
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${formattedEndpoint}`, {
       ...options,
       headers,
     });
@@ -38,6 +50,29 @@ export const dashboardApi = {
   // Auth
   login: (data: any) => fetchApi<{ data: any }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   getProfile: () => fetchApi<{ data: any }>('/auth/me'),
+
+  // Image Upload
+  uploadSingleImage: async (file: File, category = 'galleries') => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('category', category);
+
+    let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) token = DEV_FALLBACK_TOKEN;
+
+    const res = await fetch(`${API_BASE_URL}/uploads/single`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.message || 'Gagal mengunggah foto');
+    }
+    return json;
+  },
 
   // Members
   getMembers: (params: string = '') => fetchApi<{ data: any[]; summary: any }>(`/members?${params}`),

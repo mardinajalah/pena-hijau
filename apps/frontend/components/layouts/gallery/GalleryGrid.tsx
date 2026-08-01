@@ -18,6 +18,27 @@ export interface GalleryItem {
 
 const categories = ['Semua', 'Penghijauan', 'Aksi Clean-Up', 'Edukasi', 'Komunitas'] as const;
 
+const getBackendHost = (): string => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  return apiUrl.replace(/\/api\/v1\/?$/, '');
+};
+
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string') {
+    return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+  }
+  if (url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    return `${getBackendHost()}${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+};
+
 const GalleryGrid = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
@@ -38,8 +59,8 @@ const GalleryGrid = () => {
             category: g.category || 'Aksi Clean-Up',
             location: g.location,
             date: g.date,
-            banner: g.coverImage || g.photos?.[0]?.url || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-            images: g.photos?.map((p: any) => p.url) || [g.coverImage],
+            banner: resolveImageUrl(g.coverImage || g.photos?.[0]?.url),
+            images: g.photos?.map((p: any) => resolveImageUrl(typeof p === 'string' ? p : p.url)) || [resolveImageUrl(g.coverImage)],
             description: g.description,
           }));
           setGalleryItems(mapped);
