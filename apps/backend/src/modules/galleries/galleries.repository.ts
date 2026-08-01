@@ -79,7 +79,12 @@ export class GalleriesRepository {
   async findAll(): Promise<GalleryDocument[]> {
     try {
       const snapshot = await this.collection.get();
-      if (snapshot.empty) return [];
+      if (snapshot.empty) {
+        for (const item of this.inMemoryStore) {
+          await this.collection.doc(String(item.id)).set(item).catch(() => {});
+        }
+        return this.inMemoryStore;
+      }
       return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as GalleryDocument));
     } catch (error) {
       return this.inMemoryStore;
