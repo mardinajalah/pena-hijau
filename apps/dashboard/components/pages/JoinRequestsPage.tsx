@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { dashboardApi } from '@/lib/api';
+import Image from 'next/image';
 import {
   UserPlus,
   Search,
@@ -30,7 +31,25 @@ interface JoinRequest {
   motto: string;
   registeredDate: string;
   status: RequestStatus;
+  avatarUrl?: string;
+  avatar?: string;
 }
+
+const isValidImageUrl = (url?: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+};
+
+const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+};
 
 const statusConfig: Record<RequestStatus, { label: string; icon: React.ElementType; class: string; dot: string }> = {
   Menunggu: {
@@ -259,6 +278,7 @@ const JoinRequestsPage = () => {
           <table className='w-full text-left text-xs sm:text-sm'>
             <thead>
               <tr className='border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider'>
+                <th className='py-4 px-4 text-center w-16'>Gambar</th>
                 <th className='py-4 px-5'>Pendaftar</th>
                 <th className='py-4 px-4'>Domisili</th>
                 <th className='py-4 px-4'>Divisi Minat</th>
@@ -271,34 +291,45 @@ const JoinRequestsPage = () => {
             <tbody className='divide-y divide-slate-100 font-medium text-slate-700'>
               {filteredRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className='py-16 text-center'>
+                  <td colSpan={8} className='py-16 text-center'>
                     <Inbox className='mx-auto h-10 w-10 text-slate-300 mb-3' />
                     <p className='text-slate-500 font-medium'>Tidak ada data pendaftaran yang sesuai.</p>
                   </td>
                 </tr>
               ) : (
-                filteredRequests.map((req, idx) => {
+                filteredRequests.map((req) => {
                   const cfg = statusConfig[req.status];
                   const StatusIcon = cfg.icon;
+                  const avatarSrc = isValidImageUrl(req.avatarUrl || req.avatar)
+                    ? (req.avatarUrl || req.avatar)
+                    : '/profile.webp';
 
                   return (
                     <tr key={req.id} className='hover:bg-slate-50/60 transition-colors'>
+                      {/* Member Profile Image Thumbnail */}
+                      <td className='py-4 px-4 text-center'>
+                        <div className='relative h-11 w-11 mx-auto overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-xs'>
+                          <Image
+                            src={avatarSrc!}
+                            alt={req.name}
+                            fill
+                            sizes='44px'
+                            className='object-cover'
+                          />
+                        </div>
+                      </td>
+
                       {/* Name */}
                       <td className='py-4 px-5'>
-                        <div className='flex items-center gap-3 min-w-47.5'>
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white font-extrabold text-xs shadow-sm ${avatarColors[idx % avatarColors.length]}`}>
-                            {getInitials(req.name)}
-                          </div>
-                          <div>
-                            <button
-                              type='button'
-                              onClick={() => setViewRequest(req)}
-                              className='font-bold text-slate-900 hover:text-green-600 transition-colors text-left leading-snug cursor-pointer'
-                            >
-                              {req.name}
-                            </button>
-                            <p className='text-[11px] text-slate-400 mt-0.5 truncate max-w-40'>{req.address}</p>
-                          </div>
+                        <div>
+                          <button
+                            type='button'
+                            onClick={() => setViewRequest(req)}
+                            className='font-bold text-slate-900 hover:text-green-600 transition-colors text-left leading-snug cursor-pointer'
+                          >
+                            {req.name}
+                          </button>
+                          <p className='text-[11px] text-slate-400 mt-0.5 truncate max-w-40'>{req.address}</p>
                         </div>
                       </td>
 
@@ -336,7 +367,7 @@ const JoinRequestsPage = () => {
                       <td className='py-4 px-4 whitespace-nowrap text-xs text-slate-500'>
                         <div className='flex items-center gap-1.5'>
                           <Calendar className='h-3.5 w-3.5 text-slate-400' />
-                          {req.registeredDate}
+                          {formatDate(req.registeredDate)}
                         </div>
                       </td>
 
@@ -428,10 +459,14 @@ const JoinRequestsPage = () => {
               </button>
 
               <div className='flex items-center gap-5'>
-                <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-white font-extrabold text-xl shadow-lg ${
-                  avatarColors[requests.findIndex((r) => r.id === viewRequest.id) % avatarColors.length]
-                }`}>
-                  {getInitials(viewRequest.name)}
+                <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
+                  <Image
+                    src={isValidImageUrl(viewRequest.avatarUrl || viewRequest.avatar) ? (viewRequest.avatarUrl || viewRequest.avatar)! : '/profile.webp'}
+                    alt={viewRequest.name}
+                    fill
+                    sizes='64px'
+                    className='object-cover'
+                  />
                 </div>
                 <div>
                   <h3 className='text-lg sm:text-xl font-extrabold text-white leading-snug'>{viewRequest.name}</h3>
