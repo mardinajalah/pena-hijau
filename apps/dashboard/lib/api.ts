@@ -42,6 +42,7 @@ export const dashboardApi = {
   // Members
   getMembers: (params: string = '') => fetchApi<{ data: any[]; summary: any }>(`/members?${params}`),
   createMember: (data: any) => fetchApi<{ data: any }>('/members', { method: 'POST', body: JSON.stringify(data) }),
+  updateMember: (id: number, data: any) => fetchApi<{ data: any }>(`/members/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   updateMemberStatus: (id: number, status: string) => fetchApi<{ data: any }>(`/members/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   deleteMember: (id: number) => fetchApi<{ success: boolean }>(`/members/${id}`, { method: 'DELETE' }),
 

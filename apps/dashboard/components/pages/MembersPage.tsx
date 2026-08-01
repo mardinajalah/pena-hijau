@@ -18,6 +18,7 @@ import {
   UserCheck,
   UserX,
   Quote,
+  Upload,
 } from 'lucide-react';
 
 type Division =
@@ -91,6 +92,30 @@ const MembersPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('Semua');
   const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
+  // Add Avatar Upload State
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('/profile.webp');
+
+  // Edit Avatar Upload State
+  const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string>('/profile.webp');
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleEditAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditAvatarFile(file);
+      setEditAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
   // Detail modal
   const [viewMember, setViewMember] = useState<Member | null>(null);
   // Add modal
@@ -110,17 +135,51 @@ const MembersPage = () => {
       whatsapp: member.whatsapp || '',
       motto: member.motto || '',
     });
+    setEditAvatarFile(null);
+    const currentAvatar = member.avatarUrl || member.avatar;
+    setEditAvatarPreview(isValidImageUrl(currentAvatar) ? currentAvatar! : '/profile.webp');
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingMember && editForm.name.trim()) {
-      try {
-        await dashboardApi.updateMemberStatus(editingMember.id, editingMember.status);
-      } catch (err) {
-        // Fallback
+    if (!editingMember || !editForm.name.trim()) return;
+
+    let finalAvatarUrl = editingMember.avatarUrl || editingMember.avatar || '/profile.webp';
+    if (!isValidImageUrl(finalAvatarUrl)) {
+      finalAvatarUrl = '/profile.webp';
+    }
+
+    try {
+      if (editAvatarFile) {
+        const formData = new FormData();
+        formData.append('image', editAvatarFile);
+        formData.append('category', 'avatars');
+
+        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
+          method: 'POST',
+          body: formData,
+        });
+        const uploadJson = await uploadRes.json();
+        if (uploadJson.data?.url) {
+          finalAvatarUrl = uploadJson.data.url;
+        }
       }
 
+      await dashboardApi.updateMember(editingMember.id, {
+        name: editForm.name,
+        address: editForm.address,
+        domicile: editForm.domicile,
+        division: editForm.division,
+        whatsapp: editForm.whatsapp,
+        motto: editForm.motto,
+        avatarUrl: finalAvatarUrl,
+      });
+
+      showToast(`Data anggota "${editForm.name}" berhasil diperbarui.`);
+      setEditingMember(null);
+      setEditAvatarFile(null);
+      loadMembers();
+    } catch (err) {
       setMembers((prev) =>
         prev.map((m) =>
           m.id === editingMember.id
@@ -132,12 +191,14 @@ const MembersPage = () => {
                 division: editForm.division,
                 whatsapp: editForm.whatsapp,
                 motto: editForm.motto,
+                avatarUrl: finalAvatarUrl,
               }
             : m,
         ),
       );
       showToast(`Data anggota "${editForm.name}" berhasil diperbarui.`);
       setEditingMember(null);
+      setEditAvatarFile(null);
     }
   };
 
@@ -203,39 +264,61 @@ const MembersPage = () => {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name.trim()) {
-      try {
-        await dashboardApi.createMember({
-          name: form.name,
-          address: form.address,
-          domicile: form.domicile || 'Probolinggo, Jawa Timur',
-          division: form.division,
-          whatsapp: form.whatsapp,
-          motto: form.motto,
-          status: 'Aktif',
+    if (!form.name.trim()) return;
+
+    let uploadedAvatarUrl = '/profile.webp';
+
+    try {
+      if (selectedAvatarFile) {
+        const formData = new FormData();
+        formData.append('image', selectedAvatarFile);
+        formData.append('category', 'avatars');
+
+        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
+          method: 'POST',
+          body: formData,
         });
-        showToast(`Anggota baru "${form.name}" berhasil ditambahkan.`);
-        setIsAddOpen(false);
-        setForm({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
-        loadMembers();
-      } catch (err) {
-        const initials = form.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-        const newMember: Member = {
-          id: Date.now(),
-          name: form.name,
-          address: form.address,
-          domicile: form.domicile || 'Probolinggo, Jawa Timur',
-          division: form.division,
-          whatsapp: form.whatsapp,
-          motto: form.motto,
-          status: 'Aktif',
-          joinDate: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
-          avatar: initials,
-        };
-        setMembers([newMember, ...members]);
-        showToast(`Anggota baru "${form.name}" ditambahkan.`);
-        setIsAddOpen(false);
+        const uploadJson = await uploadRes.json();
+        if (uploadJson.data?.url) {
+          uploadedAvatarUrl = uploadJson.data.url;
+        }
       }
+
+      await dashboardApi.createMember({
+        name: form.name,
+        address: form.address,
+        domicile: form.domicile || 'Probolinggo, Jawa Timur',
+        division: form.division,
+        whatsapp: form.whatsapp,
+        motto: form.motto,
+        avatarUrl: uploadedAvatarUrl,
+        status: 'Aktif',
+      });
+
+      showToast(`Anggota baru "${form.name}" berhasil ditambahkan.`);
+      setIsAddOpen(false);
+      setForm({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
+      setSelectedAvatarFile(null);
+      setAvatarPreview('/profile.webp');
+      loadMembers();
+    } catch (err) {
+      const newMember: Member = {
+        id: Date.now(),
+        name: form.name,
+        address: form.address,
+        domicile: form.domicile || 'Probolinggo, Jawa Timur',
+        division: form.division,
+        whatsapp: form.whatsapp,
+        motto: form.motto,
+        status: 'Aktif',
+        joinDate: new Date().toISOString(),
+        avatarUrl: uploadedAvatarUrl,
+      };
+      setMembers([newMember, ...members]);
+      showToast(`Anggota baru "${form.name}" ditambahkan.`);
+      setIsAddOpen(false);
+      setSelectedAvatarFile(null);
+      setAvatarPreview('/profile.webp');
     }
   };
 
@@ -549,12 +632,14 @@ const MembersPage = () => {
               </button>
 
               <div className='flex items-center gap-5'>
-                <div
-                  className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-white font-extrabold text-xl shadow-lg ${
-                    avatarColors[members.findIndex((m) => m.id === viewMember.id) % avatarColors.length]
-                  }`}
-                >
-                  {viewMember.avatar}
+                <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
+                  <Image
+                    src={isValidImageUrl(viewMember.avatarUrl || viewMember.avatar) ? (viewMember.avatarUrl || viewMember.avatar)! : '/profile.webp'}
+                    alt={viewMember.name}
+                    fill
+                    sizes='64px'
+                    className='object-cover'
+                  />
                 </div>
                 <div>
                   <h3 className='text-lg sm:text-xl font-extrabold text-white leading-snug'>{viewMember.name}</h3>
@@ -668,6 +753,37 @@ const MembersPage = () => {
                 />
               </div>
 
+              {/* Field: Upload Foto Profil (Opsional) */}
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>
+                  Foto Profil <span className='text-xs font-normal text-slate-500'>(Opsional, default: profile.webp)</span>
+                </label>
+                <div className='flex items-center gap-4 rounded-2xl border border-slate-300 bg-slate-50 p-4'>
+                  <div className='relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-green-600 bg-white shadow-xs'>
+                    <Image src={avatarPreview} alt='Preview' fill className='object-cover' />
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      id='memberAvatarUpload'
+                      onChange={handleAvatarChange}
+                      className='hidden'
+                    />
+                    <label
+                      htmlFor='memberAvatarUpload'
+                      className='inline-flex items-center gap-2 rounded-xl bg-slate-200 px-4 py-2 text-xs font-bold text-slate-800 hover:bg-green-600 hover:text-white transition-colors cursor-pointer'
+                    >
+                      <Upload className='h-3.5 w-3.5' />
+                      Pilih Foto Profil
+                    </label>
+                    <p className='text-[11px] text-slate-500 mt-1 truncate'>
+                      {selectedAvatarFile ? selectedAvatarFile.name : 'Jika tidak diunggah, foto profil otomatis menggunakan profile.webp'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className='block font-bold text-slate-900 mb-1.5'>Alamat Lengkap</label>
                 <input
@@ -750,18 +866,26 @@ const MembersPage = () => {
         </div>
       )}
 
-      {/* Modal Edit Anggota */}
+      {/* ── Modal Edit Anggota ── */}
       {editingMember && (
         <div
           className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 sm:p-6 backdrop-blur-sm transition-opacity duration-300'
           onClick={() => setEditingMember(null)}
         >
           <div
-            className='relative max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200'
+            className='relative max-w-xl w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200'
             onClick={(e) => e.stopPropagation()}
           >
             <div className='flex items-center justify-between pb-4 border-b border-slate-100 mb-6'>
-              <h3 className='text-lg font-bold text-slate-900'>Edit Data Anggota Relawan</h3>
+              <div className='flex items-center gap-2.5'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-green-100 text-green-700'>
+                  <Edit2 className='h-5 w-5' />
+                </div>
+                <div>
+                  <h3 className='text-lg font-bold text-slate-900'>Edit Data Anggota Relawan</h3>
+                  <p className='text-xs text-slate-500'>Perbarui data informasi relawan Pena Hijau</p>
+                </div>
+              </div>
               <button
                 type='button'
                 onClick={() => setEditingMember(null)}
@@ -777,63 +901,103 @@ const MembersPage = () => {
                 <input
                   type='text'
                   required
+                  placeholder='Contoh: Ahmad Hidayat, S.P.'
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                />
+              </div>
+
+              {/* Field: Upload Foto Profil (Opsional) */}
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>
+                  Foto Profil <span className='text-xs font-normal text-slate-500'>(Opsional, default: profile.webp)</span>
+                </label>
+                <div className='flex items-center gap-4 rounded-2xl border border-slate-300 bg-slate-50 p-4'>
+                  <div className='relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-green-600 bg-white shadow-xs'>
+                    <Image src={editAvatarPreview} alt='Preview' fill className='object-cover' />
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      id='editMemberAvatarUpload'
+                      onChange={handleEditAvatarChange}
+                      className='hidden'
+                    />
+                    <label
+                      htmlFor='editMemberAvatarUpload'
+                      className='inline-flex items-center gap-2 rounded-xl bg-slate-200 px-4 py-2 text-xs font-bold text-slate-800 hover:bg-green-600 hover:text-white transition-colors cursor-pointer'
+                    >
+                      <Upload className='h-3.5 w-3.5' />
+                      Pilih Foto Profil
+                    </label>
+                    <p className='text-[11px] text-slate-500 mt-1 truncate'>
+                      {editAvatarFile ? editAvatarFile.name : 'Jika tidak diunggah, foto profil otomatis menggunakan profile.webp'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className='block font-bold text-slate-900 mb-1.5'>Alamat Lengkap</label>
+                <input
+                  type='text'
+                  placeholder='Jl. Melati No. 12, Desa Kotaanyar'
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
                 />
               </div>
 
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div>
-                  <label className='block font-bold text-slate-900 mb-1.5'>Alamat KTP</label>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Kota / Kabupaten Domisili</label>
                   <input
                     type='text'
-                    value={editForm.address}
-                    onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
-                  />
-                </div>
-                <div>
-                  <label className='block font-bold text-slate-900 mb-1.5'>Kabupaten / Kota</label>
-                  <input
-                    type='text'
+                    placeholder='Probolinggo, Jawa Timur'
                     value={editForm.domicile}
                     onChange={(e) => setEditForm({ ...editForm, domicile: e.target.value })}
-                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Nomor WhatsApp</label>
-                <input
-                  type='text'
-                  value={editForm.whatsapp}
-                  onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
-                />
+                <div>
+                  <label className='block font-bold text-slate-900 mb-1.5'>Nomor WhatsApp</label>
+                  <input
+                    type='text'
+                    placeholder='08xxxxxxxxxx'
+                    value={editForm.whatsapp}
+                    onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                    className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
+                  />
+                </div>
               </div>
 
               <div>
                 <label className='block font-bold text-slate-900 mb-1.5'>Divisi / Bidang Tugas</label>
-                <select
-                  value={editForm.division}
-                  onChange={(e) => setEditForm({ ...editForm, division: e.target.value as Division })}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
-                >
-                  {divisionOptions.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
+                <div className='relative'>
+                  <select
+                    value={editForm.division}
+                    onChange={(e) => setEditForm({ ...editForm, division: e.target.value as Division })}
+                    className='w-full appearance-none rounded-xl border border-slate-300 bg-slate-50 py-3 pl-4 pr-8 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20 cursor-pointer'
+                  >
+                    {divisionOptions.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />
+                </div>
               </div>
 
               <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>Motto Motivasi</label>
+                <label className='block font-bold text-slate-900 mb-1.5'>Motto / Kata-Kata Inspiratif</label>
                 <textarea
                   rows={3}
+                  placeholder='Tulis kata-kata motivasi atau semboyan anggota relawan...'
                   value={editForm.motto}
                   onChange={(e) => setEditForm({ ...editForm, motto: e.target.value })}
-                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none'
+                  className='w-full rounded-xl border border-slate-300 bg-slate-50 py-3 px-4 font-medium focus:border-green-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-600/20'
                 />
               </div>
 
