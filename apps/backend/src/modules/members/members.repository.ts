@@ -11,6 +11,7 @@ export interface MemberDocument {
   status: 'Aktif' | 'Nonaktif';
   joinDate: string;
   avatar: string;
+  avatarUrl?: string;
   createdAt: string;
   updatedAt?: string;
 }
