@@ -39,8 +39,25 @@ interface Member {
   motto: string;
   status: Status;
   joinDate: string;
-  avatar: string;
+  avatar?: string;
+  avatarUrl?: string;
 }
+
+const isValidImageUrl = (url?: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+};
+
+const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+};
 
 const divisionOptions: Division[] = [
   'Koordinator Lapangan & Clean-Up',
@@ -357,6 +374,7 @@ const MembersPage = () => {
           <table className='w-full text-left text-xs sm:text-sm'>
             <thead>
               <tr className='border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider'>
+                <th className='py-4 px-4 text-center w-16'>Gambar</th>
                 <th className='py-4 px-5'>Anggota Relawan</th>
                 <th className='py-4 px-4'>Domisili</th>
                 <th className='py-4 px-4'>Divisi</th>
@@ -369,131 +387,135 @@ const MembersPage = () => {
             <tbody className='divide-y divide-slate-100 font-medium text-slate-700'>
               {filteredMembers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className='py-14 text-center text-slate-500 font-medium'>
+                  <td colSpan={8} className='py-14 text-center text-slate-500 font-medium'>
                     <Users className='mx-auto h-10 w-10 text-slate-300 mb-3' />
                     <p>Tidak ada anggota yang sesuai filter.</p>
                   </td>
                 </tr>
               ) : (
-                filteredMembers.map((member, idx) => (
-                  <tr key={member.id} className='hover:bg-slate-50/60 transition-colors group'>
-                    {/* Name & Avatar */}
-                    <td className='py-4 px-5'>
-                      <div className='flex items-center gap-3 min-w-50'>
-                        <div
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white font-extrabold text-xs shadow-sm ${
-                            avatarColors[idx % avatarColors.length]
-                          }`}
-                        >
-                          {member.avatar}
+                filteredMembers.map((member) => {
+                  const avatarSrc = isValidImageUrl(member.avatarUrl || member.avatar)
+                    ? (member.avatarUrl || member.avatar)
+                    : '/profile.webp';
+
+                  return (
+                    <tr key={member.id} className='hover:bg-slate-50/60 transition-colors group'>
+                      {/* Member Profile Image Thumbnail */}
+                      <td className='py-4 px-4 text-center'>
+                        <div className='relative h-11 w-11 mx-auto overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-xs'>
+                          <Image
+                            src={avatarSrc!}
+                            alt={member.name}
+                            fill
+                            sizes='44px'
+                            className='object-cover'
+                          />
                         </div>
-                        <div>
-                          <button
-                            type='button'
-                            onClick={() => setViewMember(member)}
-                            className='font-bold text-slate-900 hover:text-green-600 transition-colors text-left leading-snug cursor-pointer'
-                          >
-                            {member.name}
-                          </button>
-                          <p className='text-[11px] text-slate-400 mt-0.5'>
-                            Bergabung {member.joinDate}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Domicile */}
-                    <td className='py-4 px-4 text-xs whitespace-nowrap'>
-                      <div className='flex items-center gap-1.5 text-slate-600'>
-                        <MapPin className='h-3.5 w-3.5 text-green-600 shrink-0' />
-                        <span>{member.domicile}</span>
-                      </div>
-                    </td>
-
-                    {/* Division */}
-                    <td className='py-4 px-4 whitespace-nowrap'>
-                      <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold border ${divisionColors[member.division]}`}
-                      >
-                        {member.division}
-                      </span>
-                    </td>
-
-                    {/* WhatsApp */}
-                    <td className='py-4 px-4 text-xs text-slate-600 whitespace-nowrap'>
-                      <div className='flex items-center gap-1.5'>
-                        <Phone className='h-3.5 w-3.5 text-green-500 shrink-0' />
-                        <a
-                          href={`https://wa.me/62${member.whatsapp.slice(1)}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='hover:text-green-600 hover:underline font-medium'
-                        >
-                          {member.whatsapp}
-                        </a>
-                      </div>
-                    </td>
-
-                    {/* Join Date */}
-                    <td className='py-4 px-4 text-xs text-slate-500 whitespace-nowrap'>
-                      {member.joinDate}
-                    </td>
-
-                    {/* Status Badge Toggle */}
-                    <td className='py-4 px-4 text-center whitespace-nowrap'>
-                      <button
-                        type='button'
-                        onClick={() => handleToggleStatus(member.id)}
-                        title='Klik untuk ubah status'
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold border transition-all cursor-pointer hover:opacity-80 ${
-                          member.status === 'Aktif'
-                            ? 'bg-green-100 text-green-700 border-green-200'
-                            : 'bg-red-100 text-red-700 border-red-200'
-                        }`}
-                      >
-                        {member.status === 'Aktif' ? (
-                          <CheckCircle2 className='h-3.5 w-3.5' />
-                        ) : (
-                          <XCircle className='h-3.5 w-3.5' />
-                        )}
-                        {member.status}
-                      </button>
-                    </td>
-
-                    {/* Actions */}
-                    <td className='py-4 px-5 text-right whitespace-nowrap'>
-                      <div className='flex items-center justify-end gap-2'>
+                      {/* Name */}
+                      <td className='py-4 px-5'>
                         <button
                           type='button'
                           onClick={() => setViewMember(member)}
-                          className='inline-flex h-9 items-center gap-1.5 rounded-xl bg-green-50 px-3 text-xs font-bold text-green-700 hover:bg-green-600 hover:text-white transition-colors cursor-pointer border border-green-200/60'
-                          title='Lihat Detail Anggota'
+                          className='font-bold text-slate-900 hover:text-green-600 transition-colors text-left leading-snug cursor-pointer'
                         >
-                          <Quote className='h-3.5 w-3.5' />
-                          <span>Detail</span>
+                          {member.name}
                         </button>
+                      </td>
 
+                      {/* Domicile */}
+                      <td className='py-4 px-4 text-xs whitespace-nowrap'>
+                        <div className='flex items-center gap-1.5 text-slate-600'>
+                          <MapPin className='h-3.5 w-3.5 text-green-600 shrink-0' />
+                          <span>{member.domicile}</span>
+                        </div>
+                      </td>
+
+                      {/* Division */}
+                      <td className='py-4 px-4 whitespace-nowrap'>
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold border ${divisionColors[member.division]}`}
+                        >
+                          {member.division}
+                        </span>
+                      </td>
+
+                      {/* WhatsApp */}
+                      <td className='py-4 px-4 text-xs text-slate-600 whitespace-nowrap'>
+                        <div className='flex items-center gap-1.5'>
+                          <Phone className='h-3.5 w-3.5 text-green-500 shrink-0' />
+                          <a
+                            href={`https://wa.me/62${member.whatsapp.slice(1)}`}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='hover:text-green-600 hover:underline font-medium'
+                          >
+                            {member.whatsapp}
+                          </a>
+                        </div>
+                      </td>
+
+                      {/* Join Date */}
+                      <td className='py-4 px-4 text-xs text-slate-500 whitespace-nowrap'>
+                        {formatDate(member.joinDate)}
+                      </td>
+
+                      {/* Status Badge Toggle */}
+                      <td className='py-4 px-4 text-center whitespace-nowrap'>
                         <button
                           type='button'
-                          onClick={() => handleEditClick(member)}
-                          className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer'
-                          title='Edit Data Anggota'
+                          onClick={() => handleToggleStatus(member.id)}
+                          title='Klik untuk ubah status'
+                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold border transition-all cursor-pointer hover:opacity-80 ${
+                            member.status === 'Aktif'
+                              ? 'bg-green-100 text-green-700 border-green-200'
+                              : 'bg-red-100 text-red-700 border-red-200'
+                          }`}
                         >
-                          <Edit2 className='h-3.5 w-3.5' />
+                          {member.status === 'Aktif' ? (
+                            <CheckCircle2 className='h-3.5 w-3.5' />
+                          ) : (
+                            <XCircle className='h-3.5 w-3.5' />
+                          )}
+                          {member.status}
                         </button>
+                      </td>
 
-                        <button
-                          type='button'
-                          onClick={() => handleDelete(member.id, member.name)}
-                          className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer'
-                          title='Hapus Anggota'
-                        >
-                          <Trash2 className='h-3.5 w-3.5' />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      {/* Actions */}
+                      <td className='py-4 px-5 text-right whitespace-nowrap'>
+                        <div className='flex items-center justify-end gap-2'>
+                          <button
+                            type='button'
+                            onClick={() => setViewMember(member)}
+                            className='inline-flex h-9 items-center gap-1.5 rounded-xl bg-green-50 px-3 text-xs font-bold text-green-700 hover:bg-green-600 hover:text-white transition-colors cursor-pointer border border-green-200/60'
+                            title='Lihat Detail Anggota'
+                          >
+                            <span>Detail</span>
+                          </button>
+
+                          <button
+                            type='button'
+                            onClick={() => handleEditClick(member)}
+                            className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer border border-slate-200/60'
+                            title='Edit Data Anggota'
+                          >
+                            <Edit2 className='h-3.5 w-3.5' />
+                          </button>
+
+                          <button
+                            type='button'
+                            onClick={() => handleDelete(member.id, member.name)}
+                            className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer border border-red-200/60'
+                            title='Hapus Anggota'
+                          >
+                            <Trash2 className='h-3.5 w-3.5' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

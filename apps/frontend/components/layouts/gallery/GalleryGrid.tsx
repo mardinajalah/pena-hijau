@@ -31,7 +31,7 @@ const GalleryGrid = () => {
       try {
         setIsLoading(true);
         const res = await frontendApi.getGalleries();
-        if (res.data && Array.isArray(res.data)) {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           const mapped: GalleryItem[] = res.data.map((g: any) => ({
             id: g.id,
             title: g.title,
@@ -43,6 +43,8 @@ const GalleryGrid = () => {
             description: g.description,
           }));
           setGalleryItems(mapped);
+        } else {
+          setGalleryItems([]);
         }
       } catch (err) {
         setGalleryItems([]);

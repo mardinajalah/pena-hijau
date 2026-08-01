@@ -22,7 +22,59 @@ export interface GalleryDocument {
 
 export class GalleriesRepository {
   private collection = db.collection('galleries');
-  private inMemoryStore: GalleryDocument[] = [];
+  private inMemoryStore: GalleryDocument[] = [
+    {
+      id: 1,
+      title: 'Aksi Bersih Sampah Aliran Sungai Kotaanyar',
+      category: 'Aksi Clean-Up',
+      location: 'Desa Kotaanyar, Probolinggo',
+      date: '27 Juli 2026',
+      coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+      photoCount: 7,
+      description: 'Relawan Pena Hijau bersama warga bergotong-royong membersihkan limbah plastik di jembatan sungai Kotaanyar.',
+      photos: [
+        { id: 101, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp', caption: 'Persiapan tim relawan di tepi sungai' },
+        { id: 102, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp', caption: 'Pembersihan material sampah plastik' },
+        { id: 103, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp', caption: 'Pengangkutan sampah ke truk angkut' },
+        { id: 104, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp', caption: 'Gotong royong relawan muda di bawah jembatan' },
+        { id: 105, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp', caption: 'Kondisi aliran air sungai setelah dibersihkan' },
+        { id: 106, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp', caption: 'Foto bersama relawan Pena Hijau' },
+        { id: 107, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp', caption: 'Edukasi singkat kepada warga sekitar' }
+      ],
+      createdAt: '2026-07-27T10:00:00.000Z'
+    },
+    {
+      id: 2,
+      title: 'Penanaman 500 Bibit Pohon Produktif',
+      category: 'Penghijauan',
+      location: 'Kecamatan Paiton, Probolinggo',
+      date: '15 Juli 2026',
+      coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp',
+      photoCount: 3,
+      description: 'Aksi hijau menanam bibit pohon buah dan lindung di kawasan lereng kritis desa mitra.',
+      photos: [
+        { id: 201, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp', caption: 'Penanaman bibit pohon bersama pemuda karang taruna' },
+        { id: 202, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-5.webp', caption: 'Penyiraman dan perawatan bibit hijau' },
+        { id: 203, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp', caption: 'Penyerahan bantuan bibit tanaman' }
+      ],
+      createdAt: '2026-07-15T10:00:00.000Z'
+    },
+    {
+      id: 3,
+      title: 'Edukasi Kelola Sampah Rumah Tangga & Komposting',
+      category: 'Edukasi',
+      location: 'Desa Karanganyar, Probolinggo',
+      date: '02 Juni 2026',
+      coverImage: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp',
+      photoCount: 2,
+      description: 'Pelatihan pemilahan sampah organik dan anorganik dari dapur rumah tangga untuk dijadikan pupuk kompos.',
+      photos: [
+        { id: 301, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-7.webp', caption: 'Sesi sosialisasi dan pemutaran modul edukasi' },
+        { id: 302, url: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp', caption: 'Praktek pemilahan sampah bersama warga' }
+      ],
+      createdAt: '2026-06-02T10:00:00.000Z'
+    }
+  ];
 
   async findAll(): Promise<GalleryDocument[]> {
     try {

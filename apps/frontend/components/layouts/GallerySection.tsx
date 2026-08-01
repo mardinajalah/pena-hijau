@@ -1,44 +1,77 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { ChevronRight, ChevronLeft, MoveUpRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronRight, ChevronLeft, MoveUpRight, Images } from 'lucide-react';
+import { frontendApi } from '@/lib/api';
 
-const galleries = [
-  {
-    id: 1,
-    title: 'Kotaanyar',
-    description: 'Jembatan kotaanyar, Kecamatan Kotaanyar, Kabupaten Probolinggo.',
-    image: '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
-  }
-];
+export interface GalleryItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+}
 
 const GallerySection = () => {
+  const [galleries, setGalleries] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<'next' | 'previous'>('next');
-  const activeGallery = galleries[activeIndex];
-  const visibleCount = Math.min(galleries.length, 3);
-  const visibleGalleries = Array.from({ length: visibleCount }, (_, offset) => {
-    const galleryIndex = (activeIndex + offset) % galleries.length;
 
-    return {
-      ...galleries[galleryIndex],
-      galleryIndex,
-      slot: offset,
-    };
-  });
+  useEffect(() => {
+    async function loadGalleries() {
+      try {
+        setIsLoading(true);
+        const res = await frontendApi.getGalleries();
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped: GalleryItem[] = res.data.map((g: any) => ({
+            id: g.id,
+            title: g.title,
+            description: g.description || (g.location ? `Lokasi: ${g.location}` : ''),
+            image: g.coverImage || g.photos?.[0]?.url || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp',
+          }));
+          setGalleries(mapped);
+        } else {
+          setGalleries([]);
+        }
+      } catch (err) {
+        setGalleries([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadGalleries();
+  }, []);
+
+  const hasData = galleries.length > 0;
+  const activeGallery = hasData ? galleries[activeIndex % galleries.length] : null;
+  const visibleCount = hasData ? Math.min(galleries.length, 3) : 0;
+  const visibleGalleries = hasData
+    ? Array.from({ length: visibleCount }, (_, offset) => {
+        const galleryIndex = (activeIndex + offset) % galleries.length;
+
+        return {
+          ...galleries[galleryIndex],
+          galleryIndex,
+          slot: offset,
+        };
+      })
+    : [];
 
   const handlePrevious = () => {
+    if (!hasData) return;
     setSlideDirection('previous');
     setActiveIndex((currentIndex) => (currentIndex === 0 ? galleries.length - 1 : currentIndex - 1));
   };
 
   const handleNext = () => {
+    if (!hasData) return;
     setSlideDirection('next');
     setActiveIndex((currentIndex) => (currentIndex === galleries.length - 1 ? 0 : currentIndex + 1));
   };
 
   const handleSelectGallery = (galleryIndex: number) => {
+    if (!hasData) return;
     setSlideDirection(galleryIndex > activeIndex ? 'next' : 'previous');
     setActiveIndex(galleryIndex);
   };
@@ -54,70 +87,89 @@ const GallerySection = () => {
           </p>
         </div>
 
-        <div className='grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-0'>
-          <div className='relative z-0 h-90 overflow-hidden rounded-3xl shadow-xl shadow-slate-900/10 sm:h-115 lg:h-130'>
-            <Image
-              src={activeGallery.image}
-              alt={activeGallery.title}
-              fill
-              sizes='(min-width: 1024px) 50vw, 100vw'
-              className='object-cover transition-transform duration-500 ease-out'
-              priority
-            />
-            <div className='absolute inset-0 bg-linear-to-t from-black/25 to-transparent' />
+        {isLoading ? (
+          <div className='flex justify-center py-16 items-center'>
+            <div className='text-center'>
+              <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]'></div>
+              <p className='mt-4 text-sm font-semibold text-slate-500'>Memuat data galeri...</p>
+            </div>
           </div>
+        ) : !hasData || !activeGallery ? (
+          <div className='text-center py-16 rounded-3xl bg-white border border-slate-200/80 max-w-md mx-auto shadow-sm'>
+            <Images className='mx-auto h-10 w-10 text-slate-300 mb-3' />
+            <p className='text-slate-500 font-medium text-sm'>
+              Belum ada foto galeri kegiatan yang diunggah.
+            </p>
+          </div>
+        ) : (
+          <div className='grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-0'>
+            <div className='relative z-0 h-90 overflow-hidden rounded-3xl shadow-xl shadow-slate-900/10 sm:h-115 lg:h-130 bg-slate-200'>
+              <Image
+                src={activeGallery.image}
+                alt={activeGallery.title}
+                fill
+                sizes='(min-width: 1024px) 50vw, 100vw'
+                className='object-cover transition-transform duration-500 ease-out'
+                priority
+              />
+              <div className='absolute inset-0 bg-linear-to-t from-black/25 to-transparent' />
+            </div>
 
-          <div className='relative z-10 min-w-0 lg:-ml-36'>
-            <div
-              key={`${activeIndex}-${slideDirection}`}
-              className={`flex w-full min-w-0 gap-5 overflow-hidden pb-3 ${slideDirection === 'next' ? 'animate-gallery-slide-next' : 'animate-gallery-slide-previous'}`}
-            >
-              {visibleGalleries.map((gallery) => {
-                const isActive = gallery.galleryIndex === activeIndex;
+            <div className='relative z-10 min-w-0 lg:-ml-36'>
+              <div
+                key={`${activeIndex}-${slideDirection}`}
+                className={`flex w-full min-w-0 gap-5 overflow-hidden pb-3 ${slideDirection === 'next' ? 'animate-gallery-slide-next' : 'animate-gallery-slide-previous'}`}
+              >
+                {visibleGalleries.map((gallery) => {
+                  const isActive = gallery.galleryIndex === activeIndex;
 
-                return (
+                  return (
+                    <button
+                      key={`slot-${gallery.slot}`}
+                      type='button'
+                      onClick={() => handleSelectGallery(gallery.galleryIndex)}
+                      className={`min-h-75 min-w-full cursor-pointer rounded-3xl p-8 text-left shadow-lg transition-all duration-300 sm:min-w-[calc(50%-10px)] md:min-w-[calc(33.333%-14px)] lg:min-w-75 ${
+                        isActive ? 'bg-green-600 text-white shadow-green-900/20' : 'bg-white text-slate-900 shadow-slate-900/5 hover:-translate-y-1'
+                      }`}
+                    >
+                      <h3 className='text-2xl font-bold line-clamp-2'>{gallery.title}</h3>
+                      <div className={`mt-7 h-1 w-12 rounded-full ${isActive ? 'bg-white' : 'bg-green-600'}`} />
+                      <p className={`mt-8 text-base leading-8 line-clamp-3 ${isActive ? 'text-green-50' : 'text-slate-600'}`}>{gallery.description}</p>
+                      <span className='mt-10 block text-3xl'>
+                        <MoveUpRight />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {galleries.length > 1 && (
+                <div className='mt-8 flex justify-center gap-3'>
                   <button
-                    key={`slot-${gallery.slot}`}
                     type='button'
-                    onClick={() => handleSelectGallery(gallery.galleryIndex)}
-                    className={`min-h-75 min-w-full cursor-pointer rounded-3xl p-8 text-left shadow-lg transition-all duration-300 sm:min-w-[calc(50%-10px)] md:min-w-[calc(33.333%-14px)] lg:min-w-75 ${
-                      isActive ? 'bg-green-600 text-white shadow-green-900/20' : 'bg-white text-slate-900 shadow-slate-900/5 hover:-translate-y-1'
-                    }`}
+                    onClick={handlePrevious}
+                    aria-label='Galeri sebelumnya'
+                    className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
                   >
-                    <h3 className='text-2xl font-bold'>{gallery.title}</h3>
-                    <div className={`mt-7 h-1 w-12 rounded-full ${isActive ? 'bg-white' : 'bg-green-600'}`} />
-                    <p className={`mt-8 text-base leading-8 ${isActive ? 'text-green-50' : 'text-slate-600'}`}>{gallery.description}</p>
-                    <span className='mt-10 block text-3xl'>
-                      <MoveUpRight />
-                    </span>
+                    <ChevronLeft />
                   </button>
-                );
-              })}
-            </div>
-
-            <div className='mt-8 flex justify-center gap-3'>
-              <button
-                type='button'
-                onClick={handlePrevious}
-                aria-label='Galeri sebelumnya'
-                className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
-              >
-                <ChevronLeft />
-              </button>
-              <button
-                type='button'
-                onClick={handleNext}
-                aria-label='Galeri berikutnya'
-                className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
-              >
-                <ChevronRight />
-              </button>
+                  <button
+                    type='button'
+                    onClick={handleNext}
+                    aria-label='Galeri berikutnya'
+                    className='flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-2xl text-slate-500 shadow-sm transition-colors hover:text-white hover:bg-green-600 cursor-pointer'
+                  >
+                    <ChevronRight />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
 };
 
 export default GallerySection;
+

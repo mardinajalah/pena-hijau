@@ -146,11 +146,13 @@ const ArticlesPage = () => {
   const loadArticles = async () => {
     try {
       const res = await dashboardApi.getArticles();
-      if (res.data && Array.isArray(res.data)) {
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
         setArticles(res.data as any);
+      } else {
+        setArticles([]);
       }
     } catch (err) {
-      // Fallback
+      setArticles([]);
     }
   };
 

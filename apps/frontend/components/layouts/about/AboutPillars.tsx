@@ -32,11 +32,13 @@ const AboutPillars = () => {
     async function loadArticles() {
       try {
         const res = await frontendApi.getArticles();
-        if (res.data && Array.isArray(res.data)) {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           setArticles(res.data);
+        } else {
+          setArticles([]);
         }
       } catch (err) {
-        // Empty state on error
+        setArticles([]);
       }
     }
     loadArticles();
