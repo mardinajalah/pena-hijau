@@ -30,11 +30,15 @@ const resolveImageUrl = (url?: string): string => {
   if (url.startsWith('data:')) {
     return url;
   }
-  if (url.startsWith('/uploads/')) {
-    return `${getBackendHost()}${url}`;
+  let cleanUrl = url;
+  if (url.includes('localhost:4000')) {
+    cleanUrl = url.replace(/https?:\/\/localhost:4000/, '');
   }
-  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
+  if (cleanUrl.startsWith('/uploads/')) {
+    return `${getBackendHost()}${cleanUrl}`;
+  }
+  if (cleanUrl.startsWith('/') || cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+    return cleanUrl;
   }
   return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
 };
