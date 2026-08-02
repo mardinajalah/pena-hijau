@@ -8,6 +8,30 @@ const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTI
 // Memory storage for Serverless / Vercel (read-only filesystem)
 const memoryStorage = multer.memoryStorage();
 
+/**
+ * Menghasilkan nama file dengan format: DD-MM-YYYY-namaoriginal.ext
+ * Contoh: 02-08-2026-foto-sungai.jpg
+ */
+const generateDateFilename = (originalname: string): string => {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  const datePrefix = `${dd}-${mm}-${yyyy}`;
+
+  const ext = path.extname(originalname).toLowerCase() || '.jpg';
+  const baseName = path
+    .basename(originalname, path.extname(originalname))
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  // Tambahkan suffix unik singkat untuk menghindari tumpang tindih nama pada hari yang sama
+  const shortSuffix = Date.now().toString().slice(-4);
+  return `${datePrefix}-${baseName}-${shortSuffix}${ext}`;
+};
+
 // Disk storage for local development
 const diskStorage = multer.diskStorage({
   destination: (req: Request, _file: Express.Multer.File, cb) => {
@@ -32,10 +56,7 @@ const diskStorage = multer.diskStorage({
   },
 
   filename: (_req: Request, file: Express.Multer.File, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname).toLowerCase() || '.webp';
-    const sanitizeName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, '-');
-    cb(null, `${sanitizeName}-${uniqueSuffix}${ext}`);
+    cb(null, generateDateFilename(file.originalname));
   },
 });
 

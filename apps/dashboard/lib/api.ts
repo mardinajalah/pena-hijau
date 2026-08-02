@@ -74,6 +74,30 @@ export const dashboardApi = {
     return json;
   },
 
+  uploadMultipleImages: async (files: File[], category = 'galleries') => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+    formData.append('category', category);
+
+    let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) token = DEV_FALLBACK_TOKEN;
+
+    const res = await fetch(`${API_BASE_URL}/uploads/multiple`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.message || 'Gagal mengunggah foto-foto');
+    }
+    return json;
+  },
+
   // Members
   getMembers: (params: string = '') => fetchApi<{ data: any[]; summary: any }>(`/members?${params}`),
   createMember: (data: any) => fetchApi<{ data: any }>('/members', { method: 'POST', body: JSON.stringify(data) }),

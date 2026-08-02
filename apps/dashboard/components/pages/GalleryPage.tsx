@@ -66,8 +66,9 @@ const GalleryPage = () => {
   // Modal State
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [coverIndex, setCoverIndex] = useState<number>(0);
 
   const [form, setForm] = useState({
     title: '',
@@ -112,11 +113,22 @@ const GalleryPage = () => {
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...files]);
+      const newUrls = files.map((f) => URL.createObjectURL(f));
+      setPreviewUrls((prev) => [...prev, ...newUrls]);
     }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+    setCoverIndex((prevIdx) => {
+      if (prevIdx === index) return 0;
+      if (prevIdx > index) return prevIdx - 1;
+      return prevIdx;
+    });
   };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
@@ -124,15 +136,24 @@ const GalleryPage = () => {
     if (!form.title.trim()) return;
 
     setIsSubmitting(true);
-    let imageUrl = '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+    let defaultCover = '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+    let photoItems: { id: number; url: string; caption?: string }[] = [];
 
     try {
-      // Upload image file to backend API if selected
-      if (selectedFile) {
-        const uploadJson = await dashboardApi.uploadSingleImage(selectedFile, 'galleries');
-        if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
-          imageUrl = uploadJson.data.fullUrl || uploadJson.data.url;
+      if (selectedFiles.length > 0) {
+        const uploadJson = await dashboardApi.uploadMultipleImages(selectedFiles, 'galleries');
+        if (uploadJson.data?.files && Array.isArray(uploadJson.data.files)) {
+          const uploadedUrls = uploadJson.data.files.map((f: any) => f.fullUrl || f.url);
+          photoItems = uploadedUrls.map((url: string, index: number) => ({
+            id: Date.now() + index,
+            url,
+          }));
+          defaultCover = uploadedUrls[coverIndex] || uploadedUrls[0];
         }
+      }
+
+      if (photoItems.length === 0) {
+        photoItems = [{ id: Date.now(), url: defaultCover }];
       }
 
       await dashboardApi.createGallery({
@@ -140,16 +161,17 @@ const GalleryPage = () => {
         category: form.category,
         location: form.location || 'Desa Kotaanyar, Probolinggo',
         date: form.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
-        coverImage: imageUrl,
-        photos: [{ id: Date.now(), url: imageUrl }],
+        coverImage: defaultCover,
+        photos: photoItems,
         description: form.description || 'Dokumentasi kegiatan aksi relawan Pena Hijau.',
       });
 
       showToast('Event galeri baru berhasil dibuat dan tersimpan!');
       setIsAddOpen(false);
       setForm({ title: '', category: 'Aksi Clean-Up', location: '', date: '', description: '' });
-      setSelectedFile(null);
-      setPreviewUrl('');
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+      setCoverIndex(0);
       loadGalleries();
     } catch (error: any) {
       showToast(error?.message || 'Gagal menambahkan event galeri');
@@ -337,21 +359,61 @@ const GalleryPage = () => {
               </div>
 
               <div>
-                <label className='block font-bold text-slate-900 mb-1.5'>File Foto Cover Kegiatan</label>
-                <div className='relative border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center hover:bg-slate-50 transition-colors'>
-                  <input type='file' accept='image/*' onChange={handleFileChange} className='absolute inset-0 opacity-0 cursor-pointer' />
-                  {previewUrl ? (
-                    <div className='relative h-36 w-full rounded-xl overflow-hidden'>
-                      <Image src={previewUrl} alt='Preview' fill className='object-cover' />
-                    </div>
-                  ) : (
-                    <div className='py-4 text-slate-500'>
-                      <Upload className='mx-auto h-8 w-8 text-slate-400 mb-2' />
-                      <p className='text-xs font-semibold'>Klik atau drag file foto di sini</p>
-                      <p className='text-[10px] text-slate-400 mt-1'>Format WebP, JPG, PNG (Maks 10MB)</p>
-                    </div>
+                <div className='flex items-center justify-between mb-1.5'>
+                  <label className='block font-bold text-slate-900'>Dokumentasi Foto Kegiatan ({previewUrls.length} Foto)</label>
+                  {previewUrls.length > 0 && (
+                    <span className='text-xs font-semibold text-green-700'>
+                      Foto sampul: #{coverIndex + 1}
+                    </span>
                   )}
                 </div>
+
+                <div className='relative border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center hover:bg-slate-50 transition-colors'>
+                  <input
+                    type='file'
+                    accept='image/*'
+                    multiple
+                    onChange={handleFileChange}
+                    className='absolute inset-0 opacity-0 cursor-pointer z-10'
+                  />
+                  <div className='py-3 text-slate-500'>
+                    <Upload className='mx-auto h-7 w-7 text-slate-400 mb-1.5' />
+                    <p className='text-xs font-semibold'>Klik atau drag foto-foto di sini (bisa pilih lebih dari 1 foto)</p>
+                    <p className='text-[10px] text-slate-400 mt-0.5'>Format WebP, JPG, PNG (Maks 10 Foto sekaligus)</p>
+                  </div>
+                </div>
+
+                {previewUrls.length > 0 && (
+                  <div className='mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto p-1'>
+                    {previewUrls.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className={`group relative h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                          coverIndex === idx ? 'border-green-600 ring-2 ring-green-600/30' : 'border-slate-200 hover:border-slate-400'
+                        }`}
+                        onClick={() => setCoverIndex(idx)}
+                      >
+                        <Image src={url} alt={`Preview ${idx + 1}`} fill className='object-cover' />
+                        {coverIndex === idx && (
+                          <span className='absolute top-1 left-1 rounded bg-green-600 px-1.5 py-0.5 text-[9px] font-bold text-white shadow z-20'>
+                            Sampul
+                          </span>
+                        )}
+                        <button
+                          type='button'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(idx);
+                          }}
+                          className='absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/80 text-white hover:bg-red-600 transition-colors z-20'
+                          title='Hapus foto ini'
+                        >
+                          <X className='h-3 w-3' />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className='grid gap-4 sm:grid-cols-2'>
