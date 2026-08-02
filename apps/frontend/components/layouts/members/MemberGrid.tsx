@@ -32,15 +32,17 @@ const resolveImageUrl = (url?: string): string => {
   if (url.startsWith('data:')) {
     return url;
   }
-  if (url.startsWith('/uploads/')) {
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      const host = process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '');
-      return `${host}${url}`;
-    }
-    return url;
+  let cleanUrl = url;
+  if (url.includes('localhost:4000')) {
+    cleanUrl = url.replace(/https?:\/\/localhost:4000/, '');
   }
-  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
+  if (cleanUrl.startsWith('/uploads/')) {
+    const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pena-hijau-backend.vercel.app/api/v1';
+    const host = rawApiUrl.replace(/\/api\/v1\/?$/, '');
+    return `${host}${cleanUrl}`;
+  }
+  if (cleanUrl.startsWith('/') || cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+    return cleanUrl;
   }
   return '/profile.webp';
 };
