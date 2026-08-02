@@ -12,7 +12,7 @@ const JoinHero = () => {
   return (
     <section className='relative flex min-h-svh w-full items-center justify-start overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-20 sm:pb-24'>
       <Image
-        src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-3.webp'
+        src='/bannerJoinHero.webp'
         alt='Gabung Relawan Pena Hijau'
         fill
         className='object-cover object-center scale-105'

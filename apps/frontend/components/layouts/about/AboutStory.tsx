@@ -49,7 +49,7 @@ const AboutStory = () => {
             <div className='relative mx-auto max-w-md lg:max-w-none'>
               <div className='overflow-hidden rounded-3xl bg-slate-200 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-4/3 relative'>
                 <Image
-                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-6.webp'
+                  src='/aboutStorieImage.webp'
                   alt='Kegiatan Penghijauan Pena Hijau'
                   fill
                   sizes='(max-width: 1024px) 100vw, 50vw'
@@ -72,7 +72,7 @@ const AboutStory = () => {
               {/* Floating secondary badge image */}
               <div className='hidden sm:block absolute -bottom-8 -left-8 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl aspect-square w-44'>
                 <Image
-                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp'
+                  src='/boxAboutStorieImage.webp'
                   alt='Aksi Relawan'
                   fill
                   sizes='176px'

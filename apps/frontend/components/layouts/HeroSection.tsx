@@ -87,7 +87,7 @@ const HeroSection = () => {
             <div className='relative rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-xl shadow-2xl shadow-emerald-950/50'>
               <div className='relative h-80 w-full overflow-hidden rounded-2xl'>
                 <Image
-                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-2.webp'
+                  src='/bannerMemberHero.webp'
                   alt='Aksi Pena Hijau'
                   fill
                   sizes='400px'

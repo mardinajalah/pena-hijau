@@ -19,7 +19,7 @@ const HomeAboutSection = () => {
             <div className='relative mx-auto max-w-md lg:max-w-none'>
               <div className='relative overflow-hidden rounded-3xl bg-slate-100 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 aspect-4/3'>
                 <Image
-                  src='/gallery/sungai-kotaanyar-2026/sungai-karanganyar-1.webp'
+                  src='bannerAboutHero.webp'
                   alt='Tentang Gerakan Pena Hijau'
                   fill
                   sizes='(max-width: 1024px) 100vw, 50vw'
