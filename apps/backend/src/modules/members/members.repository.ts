@@ -1,4 +1,6 @@
-import { db } from '../../config/firebase';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { members } from '../../db/schema';
 
 export interface MemberDocument {
   id: number;
@@ -17,72 +19,85 @@ export interface MemberDocument {
 }
 
 export class MembersRepository {
-  private collection = db.collection('members');
-  private inMemoryStore: MemberDocument[] = [];
-
   async findAll(): Promise<MemberDocument[]> {
     try {
-      const snapshot = await this.collection.get();
-      if (snapshot.empty) return [];
-      return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as MemberDocument));
+      const rows = await db.select().from(members);
+      return rows.map(this.mapRow);
     } catch (error) {
-      return this.inMemoryStore;
+      console.error('[MembersRepository] findAll error:', error);
+      return [];
     }
   }
 
   async findById(id: number): Promise<MemberDocument | null> {
     try {
-      const doc = await this.collection.doc(String(id)).get();
-      if (!doc.exists) {
-        return this.inMemoryStore.find((m) => m.id === id) || null;
-      }
-      return { id: Number(doc.id), ...doc.data() } as MemberDocument;
+      const rows = await db.select().from(members).where(eq(members.id, id)).limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
-      return this.inMemoryStore.find((m) => m.id === id) || null;
+      console.error('[MembersRepository] findById error:', error);
+      return null;
     }
   }
 
   async create(data: Omit<MemberDocument, 'id' | 'createdAt'>): Promise<MemberDocument> {
-    const newId = Date.now();
-    const newMember: MemberDocument = {
-      id: newId,
-      ...data,
-      createdAt: new Date().toISOString(),
-    };
+    const now = new Date();
+    await db.insert(members).values({
+      name: data.name,
+      address: data.address,
+      domicile: data.domicile,
+      division: data.division,
+      whatsapp: data.whatsapp,
+      motto: data.motto,
+      status: data.status,
+      joinDate: data.joinDate ? new Date(data.joinDate) : now,
+      avatar: data.avatar,
+      avatarUrl: data.avatarUrl,
+      createdAt: now,
+    });
 
-    try {
-      await this.collection.doc(String(newId)).set(newMember);
-    } catch (error) {
-      // In-memory fallback
-    }
-
-    this.inMemoryStore.unshift(newMember);
-    return newMember;
+    const allRows = await db.select().from(members);
+    const lastRow = allRows[allRows.length - 1];
+    return this.mapRow(lastRow);
   }
 
   async update(id: number, data: Partial<MemberDocument>): Promise<MemberDocument | null> {
-    const updatePayload = { ...data, updatedAt: new Date().toISOString() };
-    try {
-      await this.collection.doc(String(id)).update(updatePayload);
-    } catch (error) {
-      // Fallback
-    }
+    const updatePayload: Record<string, any> = { updatedAt: new Date() };
+    if (data.name !== undefined) updatePayload.name = data.name;
+    if (data.address !== undefined) updatePayload.address = data.address;
+    if (data.domicile !== undefined) updatePayload.domicile = data.domicile;
+    if (data.division !== undefined) updatePayload.division = data.division;
+    if (data.whatsapp !== undefined) updatePayload.whatsapp = data.whatsapp;
+    if (data.motto !== undefined) updatePayload.motto = data.motto;
+    if (data.status !== undefined) updatePayload.status = data.status;
+    if (data.joinDate !== undefined) updatePayload.joinDate = new Date(data.joinDate);
+    if (data.avatar !== undefined) updatePayload.avatar = data.avatar;
+    if (data.avatarUrl !== undefined) updatePayload.avatarUrl = data.avatarUrl;
 
-    const index = this.inMemoryStore.findIndex((m) => m.id === id);
-    if (index !== -1) {
-      this.inMemoryStore[index] = { ...this.inMemoryStore[index], ...updatePayload };
-      return this.inMemoryStore[index];
-    }
-    return null;
+    await db.update(members).set(updatePayload).where(eq(members.id, id));
+    return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    try {
-      await this.collection.doc(String(id)).delete();
-    } catch (error) {
-      // Fallback
-    }
-    this.inMemoryStore = this.inMemoryStore.filter((m) => m.id !== id);
+    await db.delete(members).where(eq(members.id, id));
     return true;
+  }
+
+  private mapRow(row: typeof members.$inferSelect): MemberDocument {
+    return {
+      id: row.id,
+      name: row.name ?? '',
+      address: row.address ?? '',
+      domicile: row.domicile ?? '',
+      division: row.division ?? '',
+      whatsapp: row.whatsapp ?? '',
+      motto: row.motto ?? '',
+      status: (row.status as 'Aktif' | 'Nonaktif') ?? 'Aktif',
+      joinDate: row.joinDate?.toISOString() ?? new Date().toISOString(),
+      avatar: row.avatar ?? '',
+      avatarUrl: row.avatarUrl ?? undefined,
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: row.updatedAt?.toISOString() ?? undefined,
+    };
   }
 }

@@ -1,4 +1,6 @@
-import { db } from '../../config/firebase';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { articles } from '../../db/schema';
 
 export interface ArticleSource {
   name: string;
@@ -24,15 +26,10 @@ export interface ArticleDocument {
 }
 
 export class ArticlesRepository {
-  private collection = db.collection('articles');
-
   async findAll(): Promise<ArticleDocument[]> {
     try {
-      const snapshot = await this.collection.get();
-      if (snapshot.empty) {
-        return [];
-      }
-      return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as ArticleDocument));
+      const rows = await db.select().from(articles);
+      return rows.map(this.mapRow);
     } catch (error) {
       console.error('[ArticlesRepository] findAll error:', error);
       return [];
@@ -41,11 +38,9 @@ export class ArticlesRepository {
 
   async findById(id: number): Promise<ArticleDocument | null> {
     try {
-      const doc = await this.collection.doc(String(id)).get();
-      if (!doc.exists) {
-        return null;
-      }
-      return { id: Number(doc.id), ...doc.data() } as ArticleDocument;
+      const rows = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
       console.error('[ArticlesRepository] findById error:', error);
       return null;
@@ -53,25 +48,76 @@ export class ArticlesRepository {
   }
 
   async create(data: Omit<ArticleDocument, 'id' | 'createdAt'>): Promise<ArticleDocument> {
-    const newId = Date.now();
-    const newArticle: ArticleDocument = {
-      id: newId,
-      ...data,
-      createdAt: new Date().toISOString(),
-    };
+    const now = new Date();
+    await db.insert(articles).values({
+      title: data.title,
+      category: data.category,
+      date: data.date,
+      location: data.location,
+      author: data.author,
+      excerpt: data.excerpt,
+      paragraphs: data.paragraphs,
+      quote: data.quote,
+      image: data.image,
+      galleryImages: data.galleryImages,
+      sources: data.sources,
+      status: data.status,
+      createdAt: now,
+    });
 
-    await this.collection.doc(String(newId)).set(newArticle);
-    return newArticle;
+    const rows = await db
+      .select()
+      .from(articles)
+      .orderBy(articles.id)
+      .limit(1);
+
+    // Get the last inserted row
+    const allRows = await db.select().from(articles);
+    const lastRow = allRows[allRows.length - 1];
+    return this.mapRow(lastRow);
   }
 
   async update(id: number, data: Partial<ArticleDocument>): Promise<ArticleDocument | null> {
-    const updatePayload = { ...data, updatedAt: new Date().toISOString() };
-    await this.collection.doc(String(id)).update(updatePayload);
+    const updatePayload: Record<string, any> = { updatedAt: new Date() };
+    if (data.title !== undefined) updatePayload.title = data.title;
+    if (data.category !== undefined) updatePayload.category = data.category;
+    if (data.date !== undefined) updatePayload.date = data.date;
+    if (data.location !== undefined) updatePayload.location = data.location;
+    if (data.author !== undefined) updatePayload.author = data.author;
+    if (data.excerpt !== undefined) updatePayload.excerpt = data.excerpt;
+    if (data.paragraphs !== undefined) updatePayload.paragraphs = data.paragraphs;
+    if (data.quote !== undefined) updatePayload.quote = data.quote;
+    if (data.image !== undefined) updatePayload.image = data.image;
+    if (data.galleryImages !== undefined) updatePayload.galleryImages = data.galleryImages;
+    if (data.sources !== undefined) updatePayload.sources = data.sources;
+    if (data.status !== undefined) updatePayload.status = data.status;
+
+    await db.update(articles).set(updatePayload).where(eq(articles.id, id));
     return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    await this.collection.doc(String(id)).delete();
+    await db.delete(articles).where(eq(articles.id, id));
     return true;
+  }
+
+  private mapRow(row: typeof articles.$inferSelect): ArticleDocument {
+    return {
+      id: row.id,
+      title: row.title ?? '',
+      category: row.category ?? '',
+      date: row.date ?? '',
+      location: row.location ?? '',
+      author: row.author ?? '',
+      excerpt: row.excerpt ?? '',
+      paragraphs: (row.paragraphs as string[]) ?? [],
+      quote: row.quote ?? undefined,
+      image: row.image ?? '',
+      galleryImages: (row.galleryImages as string[]) ?? [],
+      sources: (row.sources as ArticleSource[]) ?? [],
+      status: (row.status as 'Dipublikasikan' | 'Draft') ?? 'Draft',
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: row.updatedAt?.toISOString() ?? undefined,
+    };
   }
 }

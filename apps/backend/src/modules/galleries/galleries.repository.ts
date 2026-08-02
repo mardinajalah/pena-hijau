@@ -1,4 +1,6 @@
-import { db } from '../../config/firebase';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { galleries } from '../../db/schema';
 
 export interface PhotoItem {
   id: number;
@@ -21,21 +23,10 @@ export interface GalleryDocument {
 }
 
 export class GalleriesRepository {
-  private collection = db.collection('galleries');
-
   async findAll(): Promise<GalleryDocument[]> {
     try {
-      const snapshot = await this.collection.get();
-      if (snapshot.empty) {
-        return [];
-      }
-      return snapshot.docs.map(
-        (doc: any) =>
-          ({
-            id: Number(doc.id) || doc.data().id,
-            ...doc.data(),
-          }) as GalleryDocument,
-      );
+      const rows = await db.select().from(galleries);
+      return rows.map(this.mapRow);
     } catch (error) {
       console.error('[GalleriesRepository] findAll error:', error);
       return [];
@@ -44,11 +35,9 @@ export class GalleriesRepository {
 
   async findById(id: number): Promise<GalleryDocument | null> {
     try {
-      const doc = await this.collection.doc(String(id)).get();
-      if (!doc.exists) {
-        return null;
-      }
-      return { id: Number(doc.id), ...doc.data() } as GalleryDocument;
+      const rows = await db.select().from(galleries).where(eq(galleries.id, id)).limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
       console.error('[GalleriesRepository] findById error:', error);
       return null;
@@ -56,28 +45,59 @@ export class GalleriesRepository {
   }
 
   async create(data: Omit<GalleryDocument, 'id' | 'createdAt'>): Promise<GalleryDocument> {
-    const newId = Date.now();
-    const newGallery: GalleryDocument = {
-      id: newId,
-      ...data,
+    const now = new Date();
+    await db.insert(galleries).values({
+      title: data.title,
+      category: data.category,
+      location: data.location,
+      date: data.date,
+      coverImage: data.coverImage,
+      photos: data.photos,
       photoCount: data.photos ? data.photos.length : 0,
-      createdAt: new Date().toISOString(),
-    };
+      description: data.description,
+      createdAt: now,
+    });
 
-    await this.collection.doc(String(newId)).set(newGallery);
-    return newGallery;
+    const allRows = await db.select().from(galleries);
+    const lastRow = allRows[allRows.length - 1];
+    return this.mapRow(lastRow);
   }
 
   async update(id: number, data: Partial<GalleryDocument>): Promise<GalleryDocument | null> {
-    const updatePayload = { ...data, updatedAt: new Date().toISOString() };
-    await this.collection.doc(String(id)).update(updatePayload);
+    const updatePayload: Record<string, any> = { updatedAt: new Date() };
+    if (data.title !== undefined) updatePayload.title = data.title;
+    if (data.category !== undefined) updatePayload.category = data.category;
+    if (data.location !== undefined) updatePayload.location = data.location;
+    if (data.date !== undefined) updatePayload.date = data.date;
+    if (data.coverImage !== undefined) updatePayload.coverImage = data.coverImage;
+    if (data.photos !== undefined) {
+      updatePayload.photos = data.photos;
+      updatePayload.photoCount = data.photos.length;
+    }
+    if (data.description !== undefined) updatePayload.description = data.description;
 
-    const updated = await this.findById(id);
-    return updated;
+    await db.update(galleries).set(updatePayload).where(eq(galleries.id, id));
+    return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    await this.collection.doc(String(id)).delete();
+    await db.delete(galleries).where(eq(galleries.id, id));
     return true;
+  }
+
+  private mapRow(row: typeof galleries.$inferSelect): GalleryDocument {
+    return {
+      id: row.id,
+      title: row.title ?? '',
+      category: (row.category as GalleryDocument['category']) ?? 'Komunitas',
+      location: row.location ?? '',
+      date: row.date ?? '',
+      coverImage: row.coverImage ?? '',
+      photos: (row.photos as PhotoItem[]) ?? [],
+      photoCount: row.photoCount ?? 0,
+      description: row.description ?? '',
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: row.updatedAt?.toISOString() ?? undefined,
+    };
   }
 }

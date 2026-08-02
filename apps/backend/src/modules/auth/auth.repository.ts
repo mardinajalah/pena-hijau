@@ -1,4 +1,6 @@
-import { db } from '../../config/firebase';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { admins } from '../../db/schema';
 
 export interface AdminDocument {
   id: number;
@@ -12,63 +14,57 @@ export interface AdminDocument {
 }
 
 export class AuthRepository {
-  private collection = db.collection('admins');
-
-  // Seed default admin if database is empty
-  private defaultAdmin: AdminDocument = {
-    id: 1,
-    name: 'Taufiqur Rohim',
-    email: 'admin@penahijau.org',
-    // Hash for 'password123'
-    passwordHash: '$2a$10$w3GvA4O2.3R6qD9mX3.09O4cT7dZkL9Y6Pq5mR8vW0t1X2Y3Z4A5B',
-    role: 'Super Admin',
-    avatarUrl: '/avatars/admin.webp',
-    createdAt: new Date().toISOString(),
-  };
-
   async findByEmail(email: string): Promise<AdminDocument | null> {
     try {
-      const snapshot = await this.collection.where('email', '==', email).limit(1).get();
-      if (snapshot.empty) {
-        // Fallback for default admin
-        if (email === this.defaultAdmin.email) {
-          return this.defaultAdmin;
-        }
-        return null;
-      }
-      const doc = snapshot.docs[0];
-      return { id: Number(doc.id) || 1, ...doc.data() } as AdminDocument;
+      const rows = await db
+        .select()
+        .from(admins)
+        .where(eq(admins.email, email))
+        .limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
-      // Return fallback default admin for initial dev setup
-      if (email === this.defaultAdmin.email) {
-        return this.defaultAdmin;
-      }
+      console.error('[AuthRepository] findByEmail error:', error);
       return null;
     }
   }
 
   async findById(id: number): Promise<AdminDocument | null> {
     try {
-      const doc = await this.collection.doc(String(id)).get();
-      if (!doc.exists) {
-        if (id === 1) return this.defaultAdmin;
-        return null;
-      }
-      return { id: Number(doc.id), ...doc.data() } as AdminDocument;
+      const rows = await db
+        .select()
+        .from(admins)
+        .where(eq(admins.id, id))
+        .limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
-      if (id === 1) return this.defaultAdmin;
+      console.error('[AuthRepository] findById error:', error);
       return null;
     }
   }
 
   async updateLastLogin(id: number): Promise<void> {
     try {
-      await this.collection.doc(String(id)).set(
-        { lastLogin: new Date().toISOString() },
-        { merge: true },
-      );
+      await db
+        .update(admins)
+        .set({ lastLogin: new Date() })
+        .where(eq(admins.id, id));
     } catch (error) {
-      // Ignore if firestore offline in local fallback mode
+      console.error('[AuthRepository] updateLastLogin error:', error);
     }
+  }
+
+  private mapRow(row: typeof admins.$inferSelect): AdminDocument {
+    return {
+      id: row.id,
+      name: row.name ?? '',
+      email: row.email ?? '',
+      passwordHash: row.passwordHash ?? '',
+      role: row.role ?? '',
+      avatarUrl: row.avatarUrl ?? '',
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      lastLogin: row.lastLogin?.toISOString() ?? undefined,
+    };
   }
 }

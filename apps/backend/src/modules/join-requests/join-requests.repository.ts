@@ -1,4 +1,6 @@
-import { db } from '../../config/firebase';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { joinRequests } from '../../db/schema';
 
 export type RequestStatus = 'Menunggu' | 'Diterima' | 'Ditolak';
 
@@ -20,77 +22,87 @@ export interface JoinRequestDocument {
 }
 
 export class JoinRequestsRepository {
-  private collection = db.collection('join_requests');
-  private inMemoryStore: JoinRequestDocument[] = [];
-
   async findAll(): Promise<JoinRequestDocument[]> {
     try {
-      const snapshot = await this.collection.get();
-      if (snapshot.empty) return [];
-      return snapshot.docs.map((doc: any) => ({ id: Number(doc.id) || doc.data().id, ...doc.data() } as JoinRequestDocument));
+      const rows = await db.select().from(joinRequests);
+      return rows.map(this.mapRow);
     } catch (error) {
-      return this.inMemoryStore;
+      console.error('[JoinRequestsRepository] findAll error:', error);
+      return [];
     }
   }
 
   async findById(id: number): Promise<JoinRequestDocument | null> {
     try {
-      const doc = await this.collection.doc(String(id)).get();
-      if (!doc.exists) {
-        return this.inMemoryStore.find((r) => r.id === id) || null;
-      }
-      return { id: Number(doc.id), ...doc.data() } as JoinRequestDocument;
+      const rows = await db
+        .select()
+        .from(joinRequests)
+        .where(eq(joinRequests.id, id))
+        .limit(1);
+      if (rows.length === 0) return null;
+      return this.mapRow(rows[0]);
     } catch (error) {
-      return this.inMemoryStore.find((r) => r.id === id) || null;
+      console.error('[JoinRequestsRepository] findById error:', error);
+      return null;
     }
   }
 
   async create(data: Omit<JoinRequestDocument, 'id' | 'createdAt'>): Promise<JoinRequestDocument> {
-    const newId = Date.now();
-    const newRequest: JoinRequestDocument = {
-      id: newId,
-      ...data,
-      createdAt: new Date().toISOString(),
-    };
+    const now = new Date();
+    await db.insert(joinRequests).values({
+      name: data.name,
+      address: data.address,
+      domicile: data.domicile,
+      divisionInterest: data.divisionInterest,
+      whatsapp: data.whatsapp,
+      motto: data.motto,
+      registeredDate: data.registeredDate ? new Date(data.registeredDate) : now,
+      status: data.status,
+      avatarUrl: data.avatarUrl,
+      avatar: data.avatar,
+      adminNote: data.adminNote,
+      createdAt: now,
+    });
 
-    try {
-      await this.collection.doc(String(newId)).set(newRequest);
-    } catch (error) {
-      // In-memory fallback
-    }
-
-    this.inMemoryStore.unshift(newRequest);
-    return newRequest;
+    const allRows = await db.select().from(joinRequests);
+    const lastRow = allRows[allRows.length - 1];
+    return this.mapRow(lastRow);
   }
 
-  async updateStatus(id: number, status: RequestStatus, adminNote?: string): Promise<JoinRequestDocument | null> {
-    const now = new Date().toISOString();
-    const updatePayload: Partial<JoinRequestDocument> = { status, verifiedAt: now };
+  async updateStatus(
+    id: number,
+    status: RequestStatus,
+    adminNote?: string,
+  ): Promise<JoinRequestDocument | null> {
+    const now = new Date();
+    const updatePayload: Record<string, any> = { status, verifiedAt: now };
     if (adminNote) updatePayload.adminNote = adminNote;
 
-    try {
-      await this.collection.doc(String(id)).update(updatePayload);
-    } catch (error) {
-      // Fallback
-    }
-
-    const index = this.inMemoryStore.findIndex((r) => r.id === id);
-    if (index !== -1) {
-      this.inMemoryStore[index] = { ...this.inMemoryStore[index], ...updatePayload };
-      return this.inMemoryStore[index];
-    }
-
-    const doc = await this.findById(id);
-    return doc ? { ...doc, ...updatePayload } : null;
+    await db.update(joinRequests).set(updatePayload).where(eq(joinRequests.id, id));
+    return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    try {
-      await this.collection.doc(String(id)).delete();
-    } catch (error) {
-      // Fallback
-    }
-    this.inMemoryStore = this.inMemoryStore.filter((r) => r.id !== id);
+    await db.delete(joinRequests).where(eq(joinRequests.id, id));
     return true;
+  }
+
+  private mapRow(row: typeof joinRequests.$inferSelect): JoinRequestDocument {
+    return {
+      id: row.id,
+      name: row.name ?? '',
+      address: row.address ?? '',
+      domicile: row.domicile ?? '',
+      divisionInterest: row.divisionInterest ?? '',
+      whatsapp: row.whatsapp ?? '',
+      motto: row.motto ?? '',
+      registeredDate: row.registeredDate?.toISOString() ?? new Date().toISOString(),
+      status: (row.status as RequestStatus) ?? 'Menunggu',
+      avatarUrl: row.avatarUrl ?? undefined,
+      avatar: row.avatar ?? undefined,
+      adminNote: row.adminNote ?? undefined,
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      verifiedAt: row.verifiedAt?.toISOString() ?? undefined,
+    };
   }
 }
