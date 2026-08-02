@@ -58,9 +58,8 @@ export class JoinRequestsRepository {
       motto: data.motto,
       registeredDate: data.registeredDate ? new Date(data.registeredDate) : now,
       status: data.status,
-      avatarUrl: data.avatarUrl,
-      avatar: data.avatar,
-      adminNote: data.adminNote,
+      ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+      ...(data.avatar !== undefined && { avatar: data.avatar }),
       createdAt: now,
     });
 
