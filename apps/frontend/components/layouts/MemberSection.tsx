@@ -1,32 +1,16 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6';
+import { frontendApi } from '@/lib/api';
 
-const members = [
-  {
-    id: 1,
-    name: 'Rizky Pratama, S.Ling.',
-    role: 'Ketua Umum & Founder',
-    image: '/profile.webp',
-  },
-  {
-    id: 2,
-    name: 'Dewi Lestari',
-    role: 'Ketua Divisi Edukasi',
-    image: '/profile.webp',
-  },
-  {
-    id: 3,
-    name: 'Fajar Hidayat',
-    role: 'Koordinator Lapangan Clean-Up',
-    image: '/profile.webp',
-  },
-  {
-    id: 4,
-    name: 'Siti Nurhaliza',
-    role: 'Manajer Media & Komunikasi',
-    image: '/profile.webp',
-  },
-];
+interface MemberItem {
+  id: number;
+  name: string;
+  role: string;
+  image: string;
+}
 
 const socialLinks = [
   {
@@ -43,7 +27,66 @@ const socialLinks = [
   },
 ];
 
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string' || url === 'AH' || url === 'SN' || url === 'BS' || url === 'DL' || url === 'RR') {
+    return '/profile.webp';
+  }
+  if (url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      const host = process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '');
+      return `${host}${url}`;
+    }
+    return url;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/profile.webp';
+};
+
 const MemberSection = () => {
+  const [members, setMembers] = useState<MemberItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMembers() {
+      try {
+        setIsLoading(true);
+        const res = await frontendApi.getMembers();
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const seenCategories = new Set<string>();
+          const filtered: MemberItem[] = [];
+
+          for (const m of res.data) {
+            const category = m.division || m.category || 'Relawan';
+            if (!seenCategories.has(category)) {
+              seenCategories.add(category);
+              filtered.push({
+                id: m.id,
+                name: m.name,
+                role: category,
+                image: resolveImageUrl(m.avatarUrl || m.avatar),
+              });
+            }
+            if (filtered.length >= 4) break;
+          }
+
+          setMembers(filtered);
+        } else {
+          setMembers([]);
+        }
+      } catch (err) {
+        setMembers([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadMembers();
+  }, []);
+
   return (
     <section className='bg-white py-20 sm:py-24'>
       <div className='mx-auto max-w-7xl px-5 sm:px-6 lg:px-8'>
@@ -53,42 +96,57 @@ const MemberSection = () => {
           <p className='mt-5 text-base leading-8 text-slate-600 sm:text-lg'>Orang-orang berdedikasi di balik kegiatan edukasi, aksi bersih lingkungan, dan kolaborasi desa bersama Pena Hijau.</p>
         </div>
 
-        <div className='mt-16 grid gap-12 sm:grid-cols-2 lg:grid-cols-4'>
-          {members.map((member) => (
-            <article
-              key={member.id}
-              className='text-center group'
-            >
-              <div className='mx-auto flex h-48 w-48 items-center justify-center rounded-full border-[6px] border-green-600 p-2 shadow-lg shadow-green-900/10 transition-transform duration-300 group-hover:scale-105'>
-                <div className='relative h-full w-full overflow-hidden rounded-full bg-green-50'>
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    sizes='192px'
-                    className='object-cover'
-                  />
+        {isLoading ? (
+          <div className='flex justify-center py-16 items-center'>
+            <div className='text-center'>
+              <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]'></div>
+              <p className='mt-4 text-sm font-semibold text-slate-500'>Memuat tim penggerak...</p>
+            </div>
+          </div>
+        ) : members.length === 0 ? (
+          <div className='text-center py-12 rounded-3xl bg-slate-50 border border-slate-200/80 max-w-md mx-auto mt-16'>
+            <p className='text-slate-500 font-medium text-sm'>
+              Belum ada data tim penggerak yang tersedia.
+            </p>
+          </div>
+        ) : (
+          <div className='mt-16 grid gap-12 sm:grid-cols-2 lg:grid-cols-4'>
+            {members.map((member) => (
+              <article
+                key={member.id}
+                className='text-center group'
+              >
+                <div className='mx-auto flex h-48 w-48 items-center justify-center rounded-full border-[6px] border-green-600 p-2 shadow-lg shadow-green-900/10 transition-transform duration-300 group-hover:scale-105'>
+                  <div className='relative h-full w-full overflow-hidden rounded-full bg-green-50'>
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      sizes='192px'
+                      className='object-cover'
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <h3 className='mt-6 text-xl font-bold text-slate-950 group-hover:text-green-600 transition-colors'>{member.name}</h3>
-              <p className='mt-2 text-sm text-slate-600 font-medium'>{member.role}</p>
+                <h3 className='mt-6 text-xl font-bold text-slate-950 group-hover:text-green-600 transition-colors'>{member.name}</h3>
+                <p className='mt-2 text-sm text-slate-600 font-medium'>{member.role}</p>
 
-              <div className='mt-4 flex justify-center gap-4 text-green-600'>
-                {socialLinks.map(({ label, Icon }) => (
-                  <a
-                    key={`${member.name}-${label}`}
-                    href='#'
-                    aria-label={`${label} ${member.name}`}
-                    className='text-lg transition-colors hover:text-green-700'
-                  >
-                    <Icon aria-hidden='true' />
-                  </a>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className='mt-4 flex justify-center gap-4 text-green-600'>
+                  {socialLinks.map(({ label, Icon }) => (
+                    <a
+                      key={`${member.name}-${label}`}
+                      href='#'
+                      aria-label={`${label} ${member.name}`}
+                      className='text-lg transition-colors hover:text-green-700'
+                    >
+                      <Icon aria-hidden='true' />
+                    </a>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

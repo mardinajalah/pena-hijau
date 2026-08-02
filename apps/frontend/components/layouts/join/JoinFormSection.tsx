@@ -33,7 +33,7 @@ const JoinFormSection = () => {
       try {
         // Upload profile photo to backend server if user attached a file
         if (avatarFile) {
-          const uploadJson = await frontendApi.uploadSingleImage(avatarFile, 'avatars');
+          const uploadJson = await frontendApi.uploadSingleImage(avatarFile, 'anggota');
           if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
             uploadedAvatarUrl = uploadJson.data.fullUrl || uploadJson.data.url;
           }

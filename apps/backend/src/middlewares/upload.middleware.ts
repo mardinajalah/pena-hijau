@@ -40,7 +40,9 @@ const diskStorage = multer.diskStorage({
 
     if (category.includes('article') || category.includes('pilar')) {
       subfolder = 'articles';
-    } else if (category.includes('avatar') || category.includes('user') || category.includes('member')) {
+    } else if (category.includes('anggota') || category.includes('member') || category.includes('user')) {
+      subfolder = 'anggota';
+    } else if (category.includes('avatar')) {
       subfolder = 'avatars';
     }
 

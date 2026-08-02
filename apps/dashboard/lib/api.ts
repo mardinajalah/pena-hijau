@@ -55,12 +55,11 @@ export const dashboardApi = {
   uploadSingleImage: async (file: File, category = 'galleries') => {
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('category', category);
 
     let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) token = DEV_FALLBACK_TOKEN;
 
-    const res = await fetch(`${API_BASE_URL}/uploads/single`, {
+    const res = await fetch(`${API_BASE_URL}/uploads/single?category=${encodeURIComponent(category)}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -79,12 +78,11 @@ export const dashboardApi = {
     files.forEach((file) => {
       formData.append('images', file);
     });
-    formData.append('category', category);
 
     let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) token = DEV_FALLBACK_TOKEN;
 
-    const res = await fetch(`${API_BASE_URL}/uploads/multiple`, {
+    const res = await fetch(`${API_BASE_URL}/uploads/multiple?category=${encodeURIComponent(category)}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

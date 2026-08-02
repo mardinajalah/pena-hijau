@@ -37,9 +37,8 @@ export const frontendApi = {
   uploadSingleImage: async (file: File, category = 'avatars') => {
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('category', category);
 
-    const res = await fetch(`${API_BASE_URL}/uploads/single`, {
+    const res = await fetch(`${API_BASE_URL}/uploads/single?category=${encodeURIComponent(category)}`, {
       method: 'POST',
       body: formData,
     });
