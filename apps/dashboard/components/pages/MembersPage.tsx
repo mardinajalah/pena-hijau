@@ -45,7 +45,7 @@ interface Member {
 }
 
 const getBackendHost = (): string => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pena-hijau-backend.vercel.app/api/v1';
   return apiUrl.replace(/\/api\/v1\/?$/, '');
 };
 
@@ -164,15 +164,7 @@ const MembersPage = () => {
 
     try {
       if (editAvatarFile) {
-        const formData = new FormData();
-        formData.append('image', editAvatarFile);
-        formData.append('category', 'avatars');
-
-        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadJson = await uploadRes.json();
+        const uploadJson = await dashboardApi.uploadSingleImage(editAvatarFile, 'anggota');
         if (uploadJson.data?.url) {
           finalAvatarUrl = uploadJson.data.url;
         }
@@ -283,15 +275,7 @@ const MembersPage = () => {
 
     try {
       if (selectedAvatarFile) {
-        const formData = new FormData();
-        formData.append('image', selectedAvatarFile);
-        formData.append('category', 'avatars');
-
-        const uploadRes = await fetch('http://localhost:4000/api/v1/uploads/single', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadJson = await uploadRes.json();
+        const uploadJson = await dashboardApi.uploadSingleImage(selectedAvatarFile, 'anggota');
         if (uploadJson.data?.url) {
           uploadedAvatarUrl = uploadJson.data.url;
         }

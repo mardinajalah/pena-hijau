@@ -67,11 +67,9 @@ const resolveImageUrl = (url?: string): string => {
     return url;
   }
   if (url.startsWith('/uploads/')) {
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      const host = process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '');
-      return `${host}${url}`;
-    }
-    return url;
+    const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pena-hijau-backend.vercel.app/api/v1';
+    const host = rawApiUrl.replace(/\/api\/v1\/?$/, '');
+    return `${host}${url}`;
   }
   if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
     return url;

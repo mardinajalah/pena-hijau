@@ -19,7 +19,7 @@ export interface GalleryItem {
 const categories = ['Semua', 'Penghijauan', 'Aksi Clean-Up', 'Edukasi', 'Komunitas'] as const;
 
 const getBackendHost = (): string => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pena-hijau-backend.vercel.app/api/v1';
   return apiUrl.replace(/\/api\/v1\/?$/, '');
 };
 
