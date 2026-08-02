@@ -1,6 +1,12 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config();
+const nodeEnv = process.env.NODE_ENV || 'development';
+if (nodeEnv === 'production') {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env.prod') });
+} else {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+}
 
 export const ENV = {
   PORT: process.env.PORT || 4000,

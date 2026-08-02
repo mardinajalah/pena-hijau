@@ -5,7 +5,7 @@ const getApiBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
     return '/api/v1';
   }
-  return 'https://pena-hijau-backend.vercel.app/api/v1';
+  return 'http://localhost:4000/api/v1';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
