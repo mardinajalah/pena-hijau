@@ -180,6 +180,24 @@ const GalleryPage = () => {
     }
   };
 
+  const handlePrevPhoto = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((prev) => {
+      if (!prev) return null;
+      const newIndex = prev.photoIndex === 0 ? prev.event.photos.length - 1 : prev.photoIndex - 1;
+      return { ...prev, photoIndex: newIndex };
+    });
+  };
+
+  const handleNextPhoto = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((prev) => {
+      if (!prev) return null;
+      const newIndex = prev.photoIndex === prev.event.photos.length - 1 ? 0 : prev.photoIndex + 1;
+      return { ...prev, photoIndex: newIndex };
+    });
+  };
+
   const handleDelete = async (id: number, title: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus event galeri "${title}"?`)) {
       try {
@@ -469,18 +487,90 @@ const GalleryPage = () => {
 
       {/* Lightbox Viewer */}
       {activeLightbox && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md' onClick={() => setActiveLightbox(null)}>
-          <div className='relative max-w-4xl w-full max-h-[90vh] rounded-3xl bg-slate-900 p-6 text-white shadow-2xl border border-slate-800' onClick={(e) => e.stopPropagation()}>
-            <div className='flex items-center justify-between border-b border-slate-800 pb-4 mb-4'>
-              <h3 className='font-bold text-lg text-white truncate'>{activeLightbox.event.title}</h3>
-              <button type='button' onClick={() => setActiveLightbox(null)} className='flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 cursor-pointer'>
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 sm:p-6 backdrop-blur-md transition-opacity duration-300'
+          onClick={() => setActiveLightbox(null)}
+        >
+          <div
+            className='relative flex max-h-[92vh] max-w-5xl w-full flex-col overflow-hidden rounded-3xl bg-slate-900 text-white shadow-2xl border border-slate-800'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='flex items-center justify-between border-b border-slate-800 px-6 py-4'>
+              <div className='min-w-0 pr-4'>
+                <div className='flex items-center gap-2'>
+                  <span className='rounded-full bg-green-500/20 px-3 py-0.5 text-[11px] font-bold text-green-300 border border-green-500/30'>
+                    {activeLightbox.event.category}
+                  </span>
+                  <span className='text-xs text-slate-400 font-medium'>
+                    Foto {activeLightbox.photoIndex + 1} dari {activeLightbox.event.photos.length}
+                  </span>
+                </div>
+                <h3 className='mt-1 text-base sm:text-lg font-bold text-white truncate'>
+                  {activeLightbox.event.title}
+                </h3>
+              </div>
+
+              <button
+                type='button'
+                onClick={() => setActiveLightbox(null)}
+                className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer'
+              >
                 <X className='h-5 w-5' />
               </button>
             </div>
 
-            <div className='relative h-[60vh] w-full overflow-hidden rounded-2xl bg-black/60 flex items-center justify-center'>
-              <Image src={activeLightbox.event.photos[activeLightbox.photoIndex] || activeLightbox.event.coverImage} alt='Photo' fill className='object-contain' />
+            <div className='relative flex flex-1 items-center justify-center bg-black/60 min-h-80 sm:min-h-120'>
+              <div className='relative h-full w-full p-4 flex items-center justify-center'>
+                <div className='relative h-[50vh] sm:h-[65vh] w-full'>
+                  <Image
+                    src={activeLightbox.event.photos[activeLightbox.photoIndex] || activeLightbox.event.coverImage}
+                    alt={`${activeLightbox.event.title} - Foto ${activeLightbox.photoIndex + 1}`}
+                    fill
+                    sizes='1000px'
+                    className='object-contain'
+                    priority
+                  />
+                </div>
+              </div>
+
+              {activeLightbox.event.photos.length > 1 && (
+                <>
+                  <button
+                    type='button'
+                    onClick={handlePrevPhoto}
+                    className='absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/80 text-white backdrop-blur transition-all hover:bg-green-600 hover:scale-110 cursor-pointer shadow-lg border border-slate-800'
+                  >
+                    <ChevronLeft className='h-6 w-6' />
+                  </button>
+                  <button
+                    type='button'
+                    onClick={handleNextPhoto}
+                    className='absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/80 text-white backdrop-blur transition-all hover:bg-green-600 hover:scale-110 cursor-pointer shadow-lg border border-slate-800'
+                  >
+                    <ChevronRight className='h-6 w-6' />
+                  </button>
+                </>
+              )}
             </div>
+
+            {activeLightbox.event.photos.length > 1 && (
+              <div className='flex items-center gap-2 overflow-x-auto border-t border-slate-800 p-4 scrollbar-thin bg-slate-950/40'>
+                {activeLightbox.event.photos.map((img, idx) => (
+                  <button
+                    key={img}
+                    type='button'
+                    onClick={() => setActiveLightbox({ event: activeLightbox.event, photoIndex: idx })}
+                    className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
+                      idx === activeLightbox.photoIndex
+                        ? 'border-green-500 scale-105 shadow-md shadow-green-500/20'
+                        : 'border-transparent opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <Image src={img} alt={`Thumb ${idx + 1}`} fill sizes='96px' className='object-cover' />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

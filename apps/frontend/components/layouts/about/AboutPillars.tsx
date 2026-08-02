@@ -23,6 +23,27 @@ interface ArticleData {
   }[];
 }
 
+const getBackendHost = (): string => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+  return apiUrl.replace(/\/api\/v1\/?$/, '');
+};
+
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string') {
+    return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+  }
+  if (url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    return `${getBackendHost()}${url}`;
+  }
+  if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
+};
+
 const AboutPillars = () => {
   const [articles, setArticles] = useState<ArticleData[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
@@ -79,7 +100,7 @@ const AboutPillars = () => {
               >
                 <div className='relative h-60 w-full overflow-hidden bg-slate-100'>
                   <Image
-                    src={item.image || '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp'}
+                    src={resolveImageUrl(item.image)}
                     alt={item.title}
                     fill
                     sizes='(max-width: 768px) 100vw, 33vw'
@@ -153,7 +174,7 @@ const AboutPillars = () => {
 
               <div className='relative mt-6 h-72 sm:h-96 w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md'>
                 <Image
-                  src={selectedArticle.galleryImages ? selectedArticle.galleryImages[activePhotoIdx] : selectedArticle.image}
+                  src={resolveImageUrl(selectedArticle.galleryImages ? selectedArticle.galleryImages[activePhotoIdx] : selectedArticle.image)}
                   alt={selectedArticle.title}
                   fill
                   sizes='800px'
@@ -173,7 +194,7 @@ const AboutPillars = () => {
                         idx === activePhotoIdx ? 'border-green-600 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
                       }`}
                     >
-                      <Image src={img} alt={`Foto ${idx + 1}`} fill sizes='80px' className='object-cover' />
+                      <Image src={resolveImageUrl(img)} alt={`Foto ${idx + 1}`} fill sizes='80px' className='object-cover' />
                     </button>
                   ))}
                 </div>

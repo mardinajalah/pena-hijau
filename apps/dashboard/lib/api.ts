@@ -115,6 +115,7 @@ export const dashboardApi = {
   // Articles
   getArticles: (params: string = '') => fetchApi<{ data: any[]; summary: any }>(`/articles?${params}`),
   createArticle: (data: any) => fetchApi<{ data: any }>('/articles', { method: 'POST', body: JSON.stringify(data) }),
+  updateArticle: (id: number, data: any) => fetchApi<{ data: any }>(`/articles/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   togglePublishArticle: (id: number, status: string) => fetchApi<{ data: any }>(`/articles/${id}/publish`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   deleteArticle: (id: number) => fetchApi<{ success: boolean }>(`/articles/${id}`, { method: 'DELETE' }),
 };
