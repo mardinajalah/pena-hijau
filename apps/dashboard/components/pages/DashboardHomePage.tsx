@@ -103,13 +103,13 @@ const DashboardHomePage = () => {
       <div className='relative overflow-hidden rounded-3xl bg-linear-to-r from-green-900 via-emerald-950 to-slate-950 p-6 sm:p-8 text-white shadow-xl border border-emerald-800/40'>
         <div className='relative z-10 max-w-2xl'>
           <span className='inline-flex items-center rounded-full bg-green-500/20 px-3.5 py-1 text-xs font-bold text-green-300 border border-green-400/30 mb-3'>
-            ✨ Panel Admin Terintegrasi API & Firebase
+            ✨ Panel Admin
           </span>
           <h1 className='text-2xl sm:text-4xl font-extrabold tracking-tight'>
             Selamat Datang di Sistem Kelola Pena Hijau
           </h1>
           <p className='mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed'>
-            Pantau dan kelola seluruh aktivitas relawan, verifikasi pendaftaran baru, dokumentasi foto galeri, serta publikasi berita langsung ke Cloud Firestore.
+            Pantau dan kelola seluruh aktivitas relawan, verifikasi pendaftaran baru, dokumentasi foto galeri, serta publikasi berita.
           </p>
         </div>
       </div>
