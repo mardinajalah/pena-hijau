@@ -383,7 +383,7 @@ const ArticlesPage = () => {
                 </tr>
               ) : (
                 filteredArticles.map((article) => {
-                  const catCfg = categoryConfig[article.category];
+                  const catCfg = categoryConfig[article.category as PillarCategory] ?? { color: 'text-slate-700', bg: 'bg-slate-100 border-slate-200' };
                   return (
                     <tr key={article.id} className='hover:bg-slate-50/60 transition-colors'>
                       {/* Cover + Title */}
@@ -540,7 +540,7 @@ const ArticlesPage = () => {
           >
             {/* Sticky Close */}
             <div className='sticky top-0 z-20 flex items-center justify-between bg-white/95 px-6 py-4 border-b border-slate-100 backdrop-blur'>
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold border ${categoryConfig[viewArticle.category].bg} ${categoryConfig[viewArticle.category].color}`}>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold border ${(categoryConfig[viewArticle.category as PillarCategory] ?? { bg: 'bg-slate-100 border-slate-200', color: 'text-slate-700' }).bg} ${(categoryConfig[viewArticle.category as PillarCategory] ?? { bg: 'bg-slate-100 border-slate-200', color: 'text-slate-700' }).color}`}>
                 <Tag className='h-3 w-3' />
                 {viewArticle.category}
               </span>
