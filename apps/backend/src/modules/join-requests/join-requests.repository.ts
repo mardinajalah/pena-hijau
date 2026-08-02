@@ -15,7 +15,6 @@ export interface JoinRequestDocument {
   registeredDate: string;
   status: RequestStatus;
   avatarUrl?: string;
-  avatar?: string;
   adminNote?: string;
   createdAt: string;
   verifiedAt?: string;
@@ -59,7 +58,6 @@ export class JoinRequestsRepository {
       registeredDate: data.registeredDate ? new Date(data.registeredDate) : now,
       status: data.status,
       ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
-      ...(data.avatar !== undefined && { avatar: data.avatar }),
       createdAt: now,
     });
 
@@ -98,7 +96,6 @@ export class JoinRequestsRepository {
       registeredDate: row.registeredDate?.toISOString() ?? new Date().toISOString(),
       status: (row.status as RequestStatus) ?? 'Menunggu',
       avatarUrl: row.avatarUrl ?? undefined,
-      avatar: row.avatar ?? undefined,
       adminNote: row.adminNote ?? undefined,
       createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
       verifiedAt: row.verifiedAt?.toISOString() ?? undefined,

@@ -53,7 +53,7 @@ export class JoinRequestsService {
       throw { statusCode: 400, message: 'Nama lengkap wajib diisi' };
     }
 
-    const avatarUrl = (data as any).avatarUrl || (data as any).avatar || '/profile.webp';
+    const avatarUrl = (data as any).avatarUrl || '/profile.webp';
 
     const newRequestData: Omit<JoinRequestDocument, 'id' | 'createdAt'> = {
       name: data.name,
@@ -65,7 +65,6 @@ export class JoinRequestsService {
       registeredDate: new Date().toISOString(),
       status: 'Menunggu',
       avatarUrl,
-      avatar: avatarUrl,
     };
 
     const created = await this.joinRequestsRepository.create(newRequestData);
@@ -95,7 +94,7 @@ export class JoinRequestsService {
     let newMember = null;
     // Auto-create official member if accepted!
     if (status === 'Diterima') {
-      const memberAvatar = existing.avatarUrl || existing.avatar || '/profile.webp';
+      const memberAvatar = existing.avatarUrl || '/profile.webp';
       newMember = await this.membersRepository.create({
         name: existing.name,
         address: existing.address,
@@ -106,7 +105,6 @@ export class JoinRequestsService {
         status: 'Aktif',
         joinDate: new Date().toISOString(),
         avatarUrl: memberAvatar,
-        avatar: memberAvatar,
       });
     }
 

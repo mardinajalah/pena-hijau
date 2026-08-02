@@ -70,7 +70,7 @@ const MemberSection = () => {
                 id: m.id,
                 name: m.name,
                 role: category,
-                image: resolveImageUrl(m.avatarUrl || m.avatar),
+                image: resolveImageUrl(m.avatarUrl),
               });
             }
             if (filtered.length >= 4) break;

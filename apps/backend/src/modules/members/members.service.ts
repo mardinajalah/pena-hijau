@@ -79,13 +79,6 @@ export class MembersService {
       throw { statusCode: 400, message: 'Nama anggota wajib diisi' };
     }
 
-    const initials = data.name
-      .split(' ')
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase();
-
     const newMemberData: Omit<MemberDocument, 'id' | 'createdAt'> = {
       name: data.name,
       address: data.address || '-',
@@ -95,7 +88,7 @@ export class MembersService {
       motto: data.motto || 'Bersama menjaga alam untuk masa depan.',
       status: (data.status as 'Aktif' | 'Nonaktif') || 'Aktif',
       joinDate: new Date().toISOString(),
-      avatar: initials,
+      avatarUrl: data.avatarUrl || '/profile.webp',
     };
 
     return await this.membersRepository.create(newMemberData);

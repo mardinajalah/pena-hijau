@@ -59,7 +59,7 @@ const MemberGrid = () => {
         const res = await frontendApi.getMembers();
         if (res.data && Array.isArray(res.data)) {
           const mapped: TeamMember[] = res.data.map((m: any) => {
-            const rawImage = m.avatarUrl || m.avatar;
+            const rawImage = m.avatarUrl;
             const validImage = resolveImageUrl(rawImage);
 
             return {

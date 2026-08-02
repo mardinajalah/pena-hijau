@@ -12,7 +12,6 @@ export interface MemberDocument {
   motto: string;
   status: 'Aktif' | 'Nonaktif';
   joinDate: string;
-  avatar: string;
   avatarUrl?: string;
   createdAt: string;
   updatedAt?: string;
@@ -51,7 +50,6 @@ export class MembersRepository {
       motto: data.motto,
       status: data.status,
       joinDate: data.joinDate ? new Date(data.joinDate) : now,
-      avatar: data.avatar,
       avatarUrl: data.avatarUrl,
       createdAt: now,
     });
@@ -71,7 +69,6 @@ export class MembersRepository {
     if (data.motto !== undefined) updatePayload.motto = data.motto;
     if (data.status !== undefined) updatePayload.status = data.status;
     if (data.joinDate !== undefined) updatePayload.joinDate = new Date(data.joinDate);
-    if (data.avatar !== undefined) updatePayload.avatar = data.avatar;
     if (data.avatarUrl !== undefined) updatePayload.avatarUrl = data.avatarUrl;
 
     await db.update(members).set(updatePayload).where(eq(members.id, id));
@@ -94,7 +91,6 @@ export class MembersRepository {
       motto: row.motto ?? '',
       status: (row.status as 'Aktif' | 'Nonaktif') ?? 'Aktif',
       joinDate: row.joinDate?.toISOString() ?? new Date().toISOString(),
-      avatar: row.avatar ?? '',
       avatarUrl: row.avatarUrl ?? undefined,
       createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: row.updatedAt?.toISOString() ?? undefined,

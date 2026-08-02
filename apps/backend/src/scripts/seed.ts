@@ -24,7 +24,7 @@ const membersData = [
     motto: 'Alam yang sehat adalah warisan terbaik untuk generasi mendatang.',
     status: 'Aktif' as const,
     joinDate: new Date('2024-03-12T00:00:00.000Z'),
-    avatar: 'AH',
+    avatarUrl: '/profile.webp',
     createdAt: new Date('2024-03-12T10:00:00.000Z'),
   },
   {
@@ -37,7 +37,7 @@ const membersData = [
     motto: 'Edukasi adalah kunci perubahan lingkungan yang berkelanjutan.',
     status: 'Aktif' as const,
     joinDate: new Date('2024-06-28T00:00:00.000Z'),
-    avatar: 'SN',
+    avatarUrl: '/profile.webp',
     createdAt: new Date('2024-06-28T10:00:00.000Z'),
   },
   {
@@ -50,7 +50,7 @@ const membersData = [
     motto: 'Setiap pohon yang kita tanam hari ini adalah nafas anak cucu esok hari.',
     status: 'Aktif' as const,
     joinDate: new Date('2025-01-05T00:00:00.000Z'),
-    avatar: 'BS',
+    avatarUrl: '/profile.webp',
     createdAt: new Date('2025-01-05T10:00:00.000Z'),
   },
   {
@@ -63,7 +63,7 @@ const membersData = [
     motto: 'Satu konten viral bisa menggerakkan ribuan tangan untuk alam.',
     status: 'Aktif' as const,
     joinDate: new Date('2024-08-17T00:00:00.000Z'),
-    avatar: 'DL',
+    avatarUrl: '/profile.webp',
     createdAt: new Date('2024-08-17T10:00:00.000Z'),
   },
   {
@@ -76,7 +76,7 @@ const membersData = [
     motto: 'Turun ke lapangan adalah bentuk cinta paling nyata pada lingkungan.',
     status: 'Nonaktif' as const,
     joinDate: new Date('2024-02-03T00:00:00.000Z'),
-    avatar: 'RR',
+    avatarUrl: '/profile.webp',
     createdAt: new Date('2024-02-03T10:00:00.000Z'),
   },
 ];

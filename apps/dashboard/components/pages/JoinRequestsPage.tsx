@@ -32,7 +32,6 @@ interface JoinRequest {
   registeredDate: string;
   status: RequestStatus;
   avatarUrl?: string;
-  avatar?: string;
 }
 
 const getBackendHost = (): string => {
@@ -320,7 +319,7 @@ const JoinRequestsPage = () => {
                 filteredRequests.map((req) => {
                   const cfg = statusConfig[req.status];
                   const StatusIcon = cfg.icon;
-                  const avatarSrc = resolveImageUrl(req.avatarUrl || req.avatar);
+                  const avatarSrc = resolveImageUrl(req.avatarUrl);
 
                   return (
                     <tr key={req.id} className='hover:bg-slate-50/60 transition-colors'>
@@ -479,7 +478,7 @@ const JoinRequestsPage = () => {
               <div className='flex items-center gap-5'>
                 <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
                   <Image
-                    src={resolveImageUrl(viewRequest.avatarUrl || viewRequest.avatar)}
+                    src={resolveImageUrl(viewRequest.avatarUrl)}
                     alt={viewRequest.name}
                     fill
                     sizes='64px'

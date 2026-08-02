@@ -58,7 +58,6 @@ export const frontendApi = {
     whatsapp: string;
     motto?: string;
     avatarUrl?: string;
-    avatar?: string;
   }) => fetchFrontendApi<{ data: any }>('/join-requests', { method: 'POST', body: JSON.stringify(data) }),
 
   // Public Galleries & Photos

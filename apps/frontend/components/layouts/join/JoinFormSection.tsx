@@ -47,7 +47,6 @@ const JoinFormSection = () => {
           whatsapp: phone.trim() || '082200001111',
           motto: quote.trim(),
           avatarUrl: uploadedAvatarUrl,
-          avatar: uploadedAvatarUrl,
         } as any);
 
         setIsSubmitted(true);

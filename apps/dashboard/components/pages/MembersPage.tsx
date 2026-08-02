@@ -40,7 +40,6 @@ interface Member {
   motto: string;
   status: Status;
   joinDate: string;
-  avatar?: string;
   avatarUrl?: string;
 }
 
@@ -156,7 +155,7 @@ const MembersPage = () => {
       motto: member.motto || '',
     });
     setEditAvatarFile(null);
-    const currentAvatar = member.avatarUrl || member.avatar;
+    const currentAvatar = member.avatarUrl;
     setEditAvatarPreview(resolveImageUrl(currentAvatar));
   };
 
@@ -164,7 +163,7 @@ const MembersPage = () => {
     e.preventDefault();
     if (!editingMember || !editForm.name.trim()) return;
 
-    let finalAvatarUrl = resolveImageUrl(editingMember.avatarUrl || editingMember.avatar);
+    let finalAvatarUrl = resolveImageUrl(editingMember.avatarUrl);
 
     try {
       if (editAvatarFile) {
@@ -478,7 +477,7 @@ const MembersPage = () => {
                 </tr>
               ) : (
                 filteredMembers.map((member) => {
-                  const avatarSrc = resolveImageUrl(member.avatarUrl || member.avatar);
+                  const avatarSrc = resolveImageUrl(member.avatarUrl);
 
                   return (
                     <tr key={member.id} className='hover:bg-slate-50/60 transition-colors group'>
@@ -633,7 +632,7 @@ const MembersPage = () => {
               <div className='flex items-center gap-5'>
                 <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-emerald-400 bg-slate-800 shadow-md'>
                   <Image
-                    src={resolveImageUrl(viewMember.avatarUrl || viewMember.avatar)}
+                    src={resolveImageUrl(viewMember.avatarUrl)}
                     alt={viewMember.name}
                     fill
                     sizes='64px'
