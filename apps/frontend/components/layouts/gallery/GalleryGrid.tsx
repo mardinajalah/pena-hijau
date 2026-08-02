@@ -107,6 +107,19 @@ const GalleryGrid = () => {
   return (
     <section className='bg-slate-50 py-20 sm:py-28'>
       <div className='mx-auto max-w-7xl px-5 sm:px-6 lg:px-8'>
+        {/* Header Title */}
+        <div className='mx-auto max-w-3xl text-center mb-14'>
+          <p className='text-sm font-semibold uppercase tracking-[0.25em] text-green-600'>
+            Dokumentasi Aksi
+          </p>
+          <h2 className='mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl'>
+            Galeri Kegiatan & Momen Lapangan
+          </h2>
+          <p className='mt-4 text-base leading-8 text-slate-600 sm:text-lg'>
+            Potret aksi nyata relawan Pena Hijau dalam pembersihan sungai, gerakan reboisasi, dan program edukasi kelestarian lingkungan.
+          </p>
+        </div>
+
         {/* Category Filter Pills */}
         <div className='flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12 sm:mb-16'>
           {categories.map((cat) => (
