@@ -172,7 +172,7 @@ const Sidebar = () => {
                     onClick={closeMobileMenu}
                     className={`group flex items-center justify-between px-3.5 py-3 text-sm font-semibold transition-all duration-200 cursor-pointer ${
                       isActive
-                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-lg shadow-green-900/40'
+                        ? 'bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-lg shadow-green-900/40'
                         : 'text-emerald-100/80 hover:bg-emerald-900/60 hover:text-white rounded-2xl'
                     }`}
                   >

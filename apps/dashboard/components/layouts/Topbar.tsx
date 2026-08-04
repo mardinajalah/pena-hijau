@@ -71,7 +71,7 @@ const Topbar = ({ title = 'Dashboard Overview', breadcrumb = 'Ringkasan Utama' }
         {/* Admin Profile & Logout Button */}
         <div className='flex items-center gap-3 pl-3 border-l border-slate-200'>
           <div className='flex items-center gap-2.5'>
-            <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-green-600 to-emerald-700 text-white font-extrabold text-xs shadow-sm'>
+            <div className='flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-tr from-green-600 to-emerald-700 text-white font-extrabold text-xs shadow-sm'>
               AD
             </div>
             <div className='hidden xl:block text-left text-xs'>
