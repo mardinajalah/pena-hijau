@@ -25,6 +25,7 @@ import {
   Layers,
   Upload,
 } from 'lucide-react';
+import { showToast } from 'nextjs-toast-notify';
 
 type PillarCategory = 'Aksi Clean-Up' | 'Penghijauan' | 'Edukasi' | 'Komunitas';
 type ArticleStatus = 'Dipublikasikan' | 'Draft';
@@ -89,7 +90,7 @@ const ArticlesPage = () => {
   const [viewArticle, setViewArticle] = useState<Article | null>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
+
 
   // Form Upload & Extra States (Add)
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -263,11 +264,11 @@ const ArticlesPage = () => {
         status: editingArticle.status,
       });
 
-      showToast(`Artikel "${editArticleForm.title.slice(0, 30)}..." berhasil diperbarui.`);
+      toastSuccess(`Artikel "${editArticleForm.title.slice(0, 30)}..." berhasil diperbarui.`);
       setEditingArticle(null);
       loadArticles();
     } catch (err: any) {
-      showToast(err?.message || 'Gagal memperbarui artikel');
+      toastError(err?.message || 'Gagal memperbarui artikel');
     } finally {
       setIsSubmitting(false);
     }
@@ -301,9 +302,16 @@ const ArticlesPage = () => {
     loadArticles();
   }, []);
 
-  const showToast = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3200);
+  const toastSuccess = (msg: string) => {
+    showToast.success(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true, sound: true });
+  };
+
+  const toastError = (msg: string) => {
+    showToast.error(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true });
+  };
+
+  const toastInfo = (msg: string) => {
+    showToast.info(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true });
   };
 
   const handleOpenArticle = (article: Article) => {
@@ -316,13 +324,13 @@ const ArticlesPage = () => {
     const nextStatus = article?.status === 'Dipublikasikan' ? 'Draft' : 'Dipublikasikan';
     try {
       await dashboardApi.togglePublishArticle(id, nextStatus);
-      showToast(`Status artikel "${article?.title.slice(0, 30)}..." diubah ke ${nextStatus}.`);
+      toastInfo(`Status artikel "${article?.title.slice(0, 30)}..." diubah ke ${nextStatus}.`);
       loadArticles();
     } catch (err) {
       setArticles((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: nextStatus } : a)),
       );
-      showToast(`Status artikel diubah ke ${nextStatus}.`);
+      toastInfo(`Status artikel diubah ke ${nextStatus}.`);
     }
   };
 
@@ -330,11 +338,11 @@ const ArticlesPage = () => {
     if (confirm(`Hapus artikel "${title.slice(0, 50)}..."?`)) {
       try {
         await dashboardApi.deleteArticle(id);
-        showToast('Artikel berhasil dihapus.');
+        toastSuccess('Artikel berhasil dihapus.');
         loadArticles();
       } catch (err) {
         setArticles((prev) => prev.filter((a) => a.id !== id));
-        showToast('Artikel berhasil dihapus.');
+        toastSuccess('Artikel berhasil dihapus.');
       }
     }
   };
@@ -385,12 +393,12 @@ const ArticlesPage = () => {
         status,
       });
 
-      showToast(`Artikel baru berhasil disimpan sebagai ${status}!`);
+      toastSuccess(`Artikel baru berhasil disimpan sebagai ${status}! 🎉`);
       setIsAddOpen(false);
       resetAddForm();
       loadArticles();
     } catch (err: any) {
-      showToast(err?.message || 'Gagal menambahkan artikel');
+      toastError(err?.message || 'Gagal menambahkan artikel');
     } finally {
       setIsSubmitting(false);
     }
@@ -401,13 +409,7 @@ const ArticlesPage = () => {
 
   return (
     <div className='space-y-8 p-6 sm:p-8'>
-      {/* Toast */}
-      {notification && (
-        <div className='fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-900 text-white px-5 py-3.5 shadow-2xl border border-green-500/50'>
-          <CheckCircle2 className='h-5 w-5 text-green-400 shrink-0' />
-          <span className='text-xs sm:text-sm font-semibold'>{notification}</span>
-        </div>
-      )}
+
 
       {/* ── Page Header ── */}
       <div className='flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200/80'>

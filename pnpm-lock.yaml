@@ -74,6 +74,9 @@ importers:
       next:
         specifier: 16.2.12
         version: 16.2.12(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      nextjs-toast-notify:
+        specifier: ^1.62.0
+        version: 1.62.0
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -2561,6 +2564,9 @@ packages:
         optional: true
       sass:
         optional: true
+
+  nextjs-toast-notify@1.62.0:
+    resolution: {integrity: sha512-2hn+DVYVxuNWKFXYwmvkEurxrX+8LdNSLy14sEXi4ylIvh0cVdMuJT5OyRaMej+xJnNpoEZfMp8S18V+qs+puQ==}
 
   node-exports-info@1.6.2:
     resolution: {integrity: sha512-kXs9Go0cah0qHVV2v389IXQLdLCeE1xfFtjOAF+iobu0OIoG1pje8At2vMHyaPMiPMnG/LWP50twML21eMcAag==}
@@ -5450,6 +5456,8 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  nextjs-toast-notify@1.62.0: {}
 
   node-exports-info@1.6.2:
     dependencies:

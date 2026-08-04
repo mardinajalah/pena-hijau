@@ -20,6 +20,7 @@ import {
   Quote,
   Upload,
 } from 'lucide-react';
+import { showToast } from 'nextjs-toast-notify';
 
 type Division =
   | 'Koordinator Lapangan & Clean-Up'
@@ -109,7 +110,7 @@ const MembersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('Semua');
   const [selectedStatus, setSelectedStatus] = useState('Semua');
-  const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
 
   // Add Avatar Upload State
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
@@ -183,7 +184,7 @@ const MembersPage = () => {
         avatarUrl: finalAvatarUrl,
       });
 
-      showToast(`Data anggota "${editForm.name}" berhasil diperbarui.`);
+      toastSuccess(`Data anggota "${editForm.name}" berhasil diperbarui.`);
       setEditingMember(null);
       setEditAvatarFile(null);
       loadMembers();
@@ -204,7 +205,7 @@ const MembersPage = () => {
             : m,
         ),
       );
-      showToast(`Data anggota "${editForm.name}" berhasil diperbarui.`);
+      toastSuccess(`Data anggota "${editForm.name}" berhasil diperbarui.`);
       setEditingMember(null);
       setEditAvatarFile(null);
     }
@@ -236,9 +237,12 @@ const MembersPage = () => {
     return matchSearch && matchDiv && matchStatus;
   });
 
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ msg, type });
-    setTimeout(() => setNotification(null), 3000);
+  const toastSuccess = (msg: string) => {
+    showToast.success(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true, sound: true });
+  };
+
+  const toastError = (msg: string) => {
+    showToast.error(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true });
   };
 
   const handleToggleStatus = async (id: number) => {
@@ -247,13 +251,13 @@ const MembersPage = () => {
 
     try {
       await dashboardApi.updateMemberStatus(id, nextStatus);
-      showToast(`Status anggota "${member?.name}" diubah.`);
+      toastSuccess(`Status anggota "${member?.name}" diubah.`);
       loadMembers();
     } catch (err) {
       setMembers((prev) =>
         prev.map((m) => (m.id === id ? { ...m, status: nextStatus } : m)),
       );
-      showToast(`Status anggota "${member?.name}" diubah.`);
+      toastSuccess(`Status anggota "${member?.name}" diubah.`);
     }
   };
 
@@ -261,11 +265,11 @@ const MembersPage = () => {
     if (confirm(`Hapus anggota "${name}" dari daftar relawan?`)) {
       try {
         await dashboardApi.deleteMember(id);
-        showToast(`Anggota "${name}" dihapus.`);
+        toastSuccess(`Anggota "${name}" dihapus.`);
         loadMembers();
       } catch (err) {
         setMembers((prev) => prev.filter((m) => m.id !== id));
-        showToast(`Anggota "${name}" dihapus.`);
+        toastSuccess(`Anggota "${name}" dihapus.`);
       }
     }
   };
@@ -295,7 +299,7 @@ const MembersPage = () => {
         status: 'Aktif',
       });
 
-      showToast(`Anggota baru "${form.name}" berhasil ditambahkan.`);
+      toastSuccess(`Anggota baru "${form.name}" berhasil ditambahkan. 🎉`);
       setIsAddOpen(false);
       setForm({ name: '', address: '', domicile: '', division: divisionOptions[0], whatsapp: '', motto: '' });
       setSelectedAvatarFile(null);
@@ -315,7 +319,7 @@ const MembersPage = () => {
         avatarUrl: uploadedAvatarUrl,
       };
       setMembers([newMember, ...members]);
-      showToast(`Anggota baru "${form.name}" ditambahkan.`);
+      toastSuccess(`Anggota baru "${form.name}" ditambahkan.`);
       setIsAddOpen(false);
       setSelectedAvatarFile(null);
       setAvatarPreview('/profile.webp');
@@ -327,23 +331,7 @@ const MembersPage = () => {
 
   return (
     <div className='space-y-8 p-6 sm:p-8'>
-      {/* Toast Notification */}
-      {notification && (
-        <div
-          className={`fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-3.5 shadow-2xl border text-white text-xs sm:text-sm font-semibold transition-all ${
-            notification.type === 'success'
-              ? 'bg-emerald-900 border-green-500/50'
-              : 'bg-red-900 border-red-500/50'
-          }`}
-        >
-          {notification.type === 'success' ? (
-            <CheckCircle2 className='h-5 w-5 text-green-400 shrink-0' />
-          ) : (
-            <XCircle className='h-5 w-5 text-red-400 shrink-0' />
-          )}
-          {notification.msg}
-        </div>
-      )}
+
 
       {/* ── Page Header ── */}
       <div className='flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200/80'>

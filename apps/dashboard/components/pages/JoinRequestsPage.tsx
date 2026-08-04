@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Inbox,
 } from 'lucide-react';
+import { showToast } from 'nextjs-toast-notify';
 
 type RequestStatus = 'Menunggu' | 'Diterima' | 'Ditolak';
 
@@ -104,7 +105,7 @@ const JoinRequestsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'Semua' | RequestStatus>('Semua');
   const [viewRequest, setViewRequest] = useState<JoinRequest | null>(null);
-  const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
 
   // Fetch join requests from backend API on mount
   useEffect(() => {
@@ -131,9 +132,12 @@ const JoinRequestsPage = () => {
     return matchSearch && matchStatus;
   });
 
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ msg, type });
-    setTimeout(() => setNotification(null), 3200);
+  const toastSuccess = (msg: string) => {
+    showToast.success(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true, sound: true });
+  };
+
+  const toastError = (msg: string) => {
+    showToast.error(msg, { duration: 4000, position: 'top-right', transition: 'bounceIn', progress: true });
   };
 
   const handleAccept = async (id: number, name: string) => {
@@ -144,7 +148,7 @@ const JoinRequestsPage = () => {
     }
     setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Diterima' } : r)));
     if (viewRequest?.id === id) setViewRequest((prev) => (prev ? { ...prev, status: 'Diterima' } : null));
-    showToast(`✅ Pendaftaran "${name}" berhasil DITERIMA & ditambahkan ke anggota aktif!`);
+    toastSuccess(`✅ Pendaftaran "${name}" berhasil DITERIMA & ditambahkan ke anggota aktif!`);
   };
 
   const handleReject = async (id: number, name: string) => {
@@ -156,7 +160,7 @@ const JoinRequestsPage = () => {
       }
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Ditolak' } : r)));
       if (viewRequest?.id === id) setViewRequest((prev) => (prev ? { ...prev, status: 'Ditolak' } : null));
-      showToast(`Pendaftaran "${name}" telah diubah menjadi Ditolak.`, 'error');
+      toastError(`Pendaftaran "${name}" telah diubah menjadi Ditolak.`);
     }
   };
 
@@ -172,23 +176,7 @@ const JoinRequestsPage = () => {
 
   return (
     <div className='space-y-8 p-6 sm:p-8'>
-      {/* Toast Notification */}
-      {notification && (
-        <div
-          className={`fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-3.5 shadow-2xl border text-white text-xs sm:text-sm font-semibold transition-all ${
-            notification.type === 'success'
-              ? 'bg-emerald-900 border-green-500/50'
-              : 'bg-red-900 border-red-500/50'
-          }`}
-        >
-          {notification.type === 'success' ? (
-            <CheckCircle2 className='h-5 w-5 text-green-400 shrink-0' />
-          ) : (
-            <XCircle className='h-5 w-5 text-red-400 shrink-0' />
-          )}
-          {notification.msg}
-        </div>
-      )}
+
 
       {/* ── Page Header ── */}
       <div className='pb-4 border-b border-slate-200/80'>

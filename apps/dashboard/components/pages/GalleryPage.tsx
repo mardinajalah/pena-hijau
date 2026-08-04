@@ -14,9 +14,9 @@ import {
   Upload,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
 } from 'lucide-react';
 import { dashboardApi } from '@/lib/api';
+import { showToast } from 'nextjs-toast-notify';
 
 interface GalleryEvent {
   id: number;
@@ -82,11 +82,23 @@ const GalleryPage = () => {
     description: '',
   });
 
-  const [notification, setNotification] = useState<string | null>(null);
+  const toastSuccess = (msg: string) => {
+    showToast.success(msg, {
+      duration: 4000,
+      position: 'top-right',
+      transition: 'bounceIn',
+      progress: true,
+      sound: true,
+    });
+  };
 
-  const showToast = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3200);
+  const toastError = (msg: string) => {
+    showToast.error(msg, {
+      duration: 4000,
+      position: 'top-right',
+      transition: 'bounceIn',
+      progress: true,
+    });
   };
 
   const loadGalleries = async () => {
@@ -170,7 +182,7 @@ const GalleryPage = () => {
         description: form.description || 'Dokumentasi kegiatan aksi relawan Pena Hijau.',
       });
 
-      showToast('Event galeri baru berhasil dibuat dan tersimpan!');
+      toastSuccess('Event galeri baru berhasil dibuat dan tersimpan! 🎉');
       setIsAddOpen(false);
       setForm({ title: '', category: 'Aksi Clean-Up', location: '', date: '', description: '' });
       setSelectedFiles([]);
@@ -178,7 +190,7 @@ const GalleryPage = () => {
       setCoverIndex(0);
       loadGalleries();
     } catch (error: any) {
-      showToast(error?.message || 'Gagal menambahkan event galeri');
+      toastError(error?.message || 'Gagal menambahkan event galeri');
     } finally {
       setIsSubmitting(false);
     }
@@ -206,11 +218,11 @@ const GalleryPage = () => {
     if (confirm(`Apakah Anda yakin ingin menghapus event galeri "${title}"?`)) {
       try {
         await dashboardApi.deleteGallery(id);
-        showToast('Event galeri berhasil dihapus.');
+        toastSuccess('Event galeri berhasil dihapus.');
         loadGalleries();
       } catch (err) {
         setEvents((prev) => prev.filter((e) => e.id !== id));
-        showToast('Event galeri berhasil dihapus.');
+        toastSuccess('Event galeri berhasil dihapus.');
       }
     }
   };
@@ -224,12 +236,6 @@ const GalleryPage = () => {
 
   return (
     <div className='space-y-8 p-6 sm:p-8'>
-      {notification && (
-        <div className='fixed top-24 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-900 text-white px-5 py-3.5 shadow-2xl border border-green-500/50 text-xs sm:text-sm font-semibold'>
-          <CheckCircle2 className='h-5 w-5 text-green-400 shrink-0' />
-          {notification}
-        </div>
-      )}
 
       {/* Header */}
       <div className='flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200/80'>
