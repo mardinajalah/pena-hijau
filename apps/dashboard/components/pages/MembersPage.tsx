@@ -165,12 +165,14 @@ const MembersPage = () => {
     if (!editingMember || !editForm.name.trim()) return;
 
     let finalAvatarUrl = resolveImageUrl(editingMember.avatarUrl);
+    let uploadedPath: string | null = null; // untuk rollback
 
     try {
       if (editAvatarFile) {
         const uploadJson = await dashboardApi.uploadSingleImage(editAvatarFile, 'anggota');
         if (uploadJson.data?.url) {
           finalAvatarUrl = uploadJson.data.url;
+          if (uploadJson.data.url?.includes('/uploads/')) uploadedPath = uploadJson.data.url;
         }
       }
 
@@ -189,6 +191,10 @@ const MembersPage = () => {
       setEditAvatarFile(null);
       loadMembers();
     } catch (err) {
+      // Rollback: hapus avatar yang sudah terlanjur tersimpan
+      if (uploadedPath) {
+        dashboardApi.deleteUploadedFiles([uploadedPath]).catch(() => {});
+      }
       setMembers((prev) =>
         prev.map((m) =>
           m.id === editingMember.id
@@ -279,12 +285,14 @@ const MembersPage = () => {
     if (!form.name.trim()) return;
 
     let uploadedAvatarUrl = '/profile.webp';
+    let uploadedPath: string | null = null; // untuk rollback
 
     try {
       if (selectedAvatarFile) {
         const uploadJson = await dashboardApi.uploadSingleImage(selectedAvatarFile, 'anggota');
         if (uploadJson.data?.url) {
           uploadedAvatarUrl = uploadJson.data.url;
+          if (uploadJson.data.url?.includes('/uploads/')) uploadedPath = uploadJson.data.url;
         }
       }
 
@@ -306,6 +314,10 @@ const MembersPage = () => {
       setAvatarPreview('/profile.webp');
       loadMembers();
     } catch (err) {
+      // Rollback: hapus avatar yang sudah terlanjur tersimpan
+      if (uploadedPath) {
+        dashboardApi.deleteUploadedFiles([uploadedPath]).catch(() => {});
+      }
       const newMember: Member = {
         id: Date.now(),
         name: form.name,

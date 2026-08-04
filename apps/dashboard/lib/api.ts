@@ -96,6 +96,13 @@ export const dashboardApi = {
     return json;
   },
 
+  // Rollback: hapus file yang terlanjur terupload ketika operasi DB gagal
+  deleteUploadedFiles: (paths: string[]) =>
+    fetchApi<{ data: any }>('/uploads/cleanup', {
+      method: 'DELETE',
+      body: JSON.stringify({ paths }),
+    }),
+
   // Members
   getMembers: (params: string = '') => fetchApi<{ data: any[]; summary: any }>(`/members?${params}`),
   createMember: (data: any) => fetchApi<{ data: any }>('/members', { method: 'POST', body: JSON.stringify(data) }),

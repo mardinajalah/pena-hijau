@@ -224,12 +224,14 @@ const ArticlesPage = () => {
     setIsSubmitting(true);
     let coverUrl = editCoverPreview;
     let galleryUrls = [...existingGalleryImages];
+    const uploadedPaths: string[] = []; // para rollback
 
     try {
       if (editCoverFile) {
         const uploadJson = await dashboardApi.uploadSingleImage(editCoverFile, 'articles');
         if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
           coverUrl = uploadJson.data.fullUrl || uploadJson.data.url;
+          if (uploadJson.data.url?.includes('/uploads/')) uploadedPaths.push(uploadJson.data.url);
         }
       }
 
@@ -237,6 +239,9 @@ const ArticlesPage = () => {
         const uploadJson = await dashboardApi.uploadMultipleImages(editGalleryFiles, 'articles');
         if (uploadJson.data?.files && Array.isArray(uploadJson.data.files)) {
           const newGalleryUrls = uploadJson.data.files.map((f: any) => f.fullUrl || f.url);
+          uploadJson.data.files.forEach((f: any) => {
+            if (f.url?.includes('/uploads/')) uploadedPaths.push(f.url);
+          });
           galleryUrls = [...galleryUrls, ...newGalleryUrls];
         }
       }
@@ -268,6 +273,10 @@ const ArticlesPage = () => {
       setEditingArticle(null);
       loadArticles();
     } catch (err: any) {
+      // Rollback: hapus gambar yang sudah terlanjur tersimpan
+      if (uploadedPaths.length > 0) {
+        dashboardApi.deleteUploadedFiles(uploadedPaths).catch(() => {});
+      }
       toastError(err?.message || 'Gagal memperbarui artikel');
     } finally {
       setIsSubmitting(false);
@@ -354,12 +363,14 @@ const ArticlesPage = () => {
     setIsSubmitting(true);
     let coverUrl = '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
     let galleryUrls: string[] = [];
+    const uploadedPaths: string[] = []; // untuk rollback
 
     try {
       if (coverFile) {
         const uploadJson = await dashboardApi.uploadSingleImage(coverFile, 'articles');
         if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
           coverUrl = uploadJson.data.fullUrl || uploadJson.data.url;
+          if (uploadJson.data.url?.includes('/uploads/')) uploadedPaths.push(uploadJson.data.url);
         }
       }
 
@@ -367,6 +378,9 @@ const ArticlesPage = () => {
         const uploadJson = await dashboardApi.uploadMultipleImages(galleryFiles, 'articles');
         if (uploadJson.data?.files && Array.isArray(uploadJson.data.files)) {
           galleryUrls = uploadJson.data.files.map((f: any) => f.fullUrl || f.url);
+          uploadJson.data.files.forEach((f: any) => {
+            if (f.url?.includes('/uploads/')) uploadedPaths.push(f.url);
+          });
         }
       }
 
@@ -398,6 +412,10 @@ const ArticlesPage = () => {
       resetAddForm();
       loadArticles();
     } catch (err: any) {
+      // Rollback: hapus gambar yang sudah terlanjur tersimpan
+      if (uploadedPaths.length > 0) {
+        dashboardApi.deleteUploadedFiles(uploadedPaths).catch(() => {});
+      }
       toastError(err?.message || 'Gagal menambahkan artikel');
     } finally {
       setIsSubmitting(false);

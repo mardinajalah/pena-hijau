@@ -49,6 +49,15 @@ export const frontendApi = {
     return json;
   },
 
+  // Rollback: hapus file yang terlanjur terupload ketika DB gagal (fire-and-forget)
+  deleteUploadedFile: async (filePath: string) => {
+    await fetch(`${API_BASE_URL}/uploads/cleanup`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paths: [filePath] }),
+    });
+  },
+
   // Public Join Form Submission
   submitJoinForm: (data: {
     name: string;

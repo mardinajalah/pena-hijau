@@ -12,4 +12,7 @@ router.post('/single', authenticateJwt, uploadMiddleware.single('image'), upload
 // Multiple images upload route (max 10 photos per upload)
 router.post('/multiple', authenticateJwt, uploadMiddleware.array('images', 10), uploadsController.uploadMultiple);
 
+// Cleanup/rollback route — hapus file yang terlanjur terupload ketika DB gagal
+router.delete('/cleanup', authenticateJwt, uploadsController.deleteFiles);
+
 export default router;

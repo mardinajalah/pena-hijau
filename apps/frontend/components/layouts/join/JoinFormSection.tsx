@@ -29,6 +29,7 @@ const JoinFormSection = () => {
     if (name.trim() && address.trim() && quote.trim()) {
       setIsSubmitting(true);
       let uploadedAvatarUrl = '/profile.webp';
+      let uploadedPath: string | null = null; // untuk rollback
 
       try {
         // Upload profile photo to backend server if user attached a file
@@ -36,6 +37,7 @@ const JoinFormSection = () => {
           const uploadJson = await frontendApi.uploadSingleImage(avatarFile, 'anggota');
           if (uploadJson.data?.fullUrl || uploadJson.data?.url) {
             uploadedAvatarUrl = uploadJson.data.fullUrl || uploadJson.data.url;
+            if (uploadJson.data.url?.includes('/uploads/')) uploadedPath = uploadJson.data.url;
           }
         }
 
@@ -51,6 +53,10 @@ const JoinFormSection = () => {
 
         setIsSubmitted(true);
       } catch (error) {
+        // Rollback: hapus avatar yang sudah terlanjur tersimpan jika DB gagal
+        if (uploadedPath) {
+          frontendApi.deleteUploadedFile(uploadedPath).catch(() => {});
+        }
         setIsSubmitted(true);
       } finally {
         setIsSubmitting(false);

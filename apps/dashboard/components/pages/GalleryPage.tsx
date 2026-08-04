@@ -154,12 +154,17 @@ const GalleryPage = () => {
     setIsSubmitting(true);
     let defaultCover = '/gallery/sungai-kotaanyar-2026/sungai-karanganyar-4.webp';
     let photoItems: { id: number; url: string; caption?: string }[] = [];
+    const uploadedPaths: string[] = []; // catat semua URL yang terupload untuk rollback
 
     try {
       if (selectedFiles.length > 0) {
         const uploadJson = await dashboardApi.uploadMultipleImages(selectedFiles, 'galleries');
         if (uploadJson.data?.files && Array.isArray(uploadJson.data.files)) {
           const uploadedUrls = uploadJson.data.files.map((f: any) => f.fullUrl || f.url);
+          // Catat URL relatif (/uploads/...) untuk rollback
+          uploadJson.data.files.forEach((f: any) => {
+            if (f.url?.includes('/uploads/')) uploadedPaths.push(f.url);
+          });
           photoItems = uploadedUrls.map((url: string, index: number) => ({
             id: Date.now() + index,
             url,
@@ -190,6 +195,10 @@ const GalleryPage = () => {
       setCoverIndex(0);
       loadGalleries();
     } catch (error: any) {
+      // Rollback: hapus gambar yang sudah terlanjur tersimpan di disk
+      if (uploadedPaths.length > 0) {
+        dashboardApi.deleteUploadedFiles(uploadedPaths).catch(() => {});
+      }
       toastError(error?.message || 'Gagal menambahkan event galeri');
     } finally {
       setIsSubmitting(false);
