@@ -18,7 +18,34 @@ Dokumen ini adalah **Instruksi Context & Aturan Standar Pengembangan** untuk sem
 
 ---
 
-## 🏗️ 2. Arsitektur Monorepo & Pembagian Port
+## 🧠 2. Penggunaan Agent Skills (`.agents/skills/`)
+
+Repositori ini dilengkapi dengan **Agent Skills** otomatis di direktori `.agents/skills/`. Sistem AI secara otomatis menemukan dan memuat skill ini sebagai panduan teknis mendalam.
+
+### Aturan Penggunaan Skill untuk AI:
+- Sebelum mengeksekusi pekerjaan spesifik, AI **WAJIB** membaca file `SKILL.md` terkait menggunakan `view_file` pada folder `.agents/skills/<skill-name>/SKILL.md`.
+- AI harus menerapkan standar, *best practices*, dan pola arsitektur yang tertera pada dokumen skill terkait.
+
+### Daftar Skill Terpasang:
+| Nama Skill | Lokasi (`.agents/skills/`) | Kegunaan Utama |
+|---|---|---|
+| **`frontend-design`** | `frontend-design/SKILL.md` | Standar desain UI modern, visual excellence, & komponen web |
+| **`tailwind-css-patterns`** | `tailwind-css-patterns/SKILL.md` | Pola styling Tailwind CSS v4, responsive layout, & utility |
+| **`next-best-practices`** | `next-best-practices/SKILL.md` | Praktik terbaik Next.js 16 (App Router, RSC boundary, metadata) |
+| **`next-cache-components`** | `next-cache-components/SKILL.md` | Next.js PPR & directive caching (`use cache`, `cacheTag`) |
+| **`react-best-practices`** | `react-best-practices/SKILL.md` | Optimasi performa React 19 & Next.js dari Vercel Engineering |
+| **`composition-patterns`** | `composition-patterns/SKILL.md` | Pola komposisi komponen React yang fleksibel & reusable |
+| **`nodejs-backend-patterns`** | `nodejs-backend-patterns/SKILL.md` | Arsitektur backend Node.js, middleware, & API design |
+| **`nodejs-express-server`** | `nodejs-express-server/SKILL.md` | Panduan Express.js server, middleware chain, & REST API |
+| **`nodejs-best-practices`** | `nodejs-best-practices/SKILL.md` | Prinsip pengembangan Node.js, async patterns, & keamanan |
+| **`typescript-advanced-types`**| `typescript-advanced-types/SKILL.md` | Type safety, generics, conditional & utility types |
+| **`seo`** | `seo/SKILL.md` | Optimasi SEO, meta tags, semantic HTML, & sitemap |
+| **`accessibility`** | `accessibility/SKILL.md` | Audit & pemenuhan standar WCAG 2.2 accessibility (a11y) |
+| **`next-upgrade`** | `next-upgrade/SKILL.md` | Panduan migrasi & upgrade Next.js |
+
+---
+
+## 🏗️ 3. Arsitektur Monorepo & Pembagian Port
 
 Proyek ini disusun dalam bentuk **PNPM Workspace Monorepo** dengan pembagian port standar:
 
@@ -38,7 +65,7 @@ Proyek ini disusun dalam bentuk **PNPM Workspace Monorepo** dengan pembagian por
 
 ---
 
-## 🛠️ 3. Standar Arsitektur Backend (`apps/backend`)
+## 🛠️ 4. Standar Arsitektur Backend (`apps/backend`)
 
 Backend menggunakan **Layered Modular Architecture** (Controller - Service - Repository):
 
@@ -64,7 +91,7 @@ apps/backend/src/
 
 ---
 
-## 🎨 4. Standar Frontend & Admin Dashboard (`apps/dashboard` & `apps/frontend`)
+## 🎨 5. Standar Frontend & Admin Dashboard (`apps/dashboard` & `apps/frontend`)
 
 ### Dashboard (`apps/dashboard`):
 1. **Toast Notification System**:
@@ -81,7 +108,7 @@ apps/backend/src/
 
 ---
 
-## 🖼️ 5. Penanganan Upload File & Aturan Rollback Gambar (Issue #6)
+## 🖼️ 6. Penanganan Upload File & Aturan Rollback Gambar (Issue #6)
 
 Upload gambar menggunakan 2 tahap terpisah (Upload ke Server -> Simpan ke DB). Untuk mencegah timbunan file sampah ketika penyimpanan DB gagal:
 
@@ -98,57 +125,29 @@ Upload gambar menggunakan 2 tahap terpisah (Upload ke Server -> Simpan ke DB). U
 
 ---
 
-## 📁 6. Snapshot Struktur Direktori Proyek
+## 📁 7. Snapshot Struktur Direktori Proyek
 
 ```
+├── 📁 .agents
+│   └── 📁 skills/              # 13 Agent Skills (Autoskills)
 ├── 📁 apps
 │   ├── 📁 backend
 │   │   ├── 📁 doc
-│   │   │   ├── 📝 articles.md
-│   │   │   ├── 📝 auth.md
-│   │   │   ├── 📝 galleries.md
-│   │   │   ├── 📝 join-requests.md
-│   │   │   └── 📝 members.md
-│   │   ├── 📁 public
-│   │   │   └── 📁 uploads
-│   │   │       ├── 📁 anggota
-│   │   │       ├── 📁 articles
-│   │   │       └── 📁 galleries
+│   │   ├── 📁 public/uploads
 │   │   ├── 📁 src
-│   │   │   ├── 📁 config
-│   │   │   ├── 📁 db
-│   │   │   ├── 📁 middlewares
-│   │   │   ├── 📁 modules
-│   │   │   │   ├── 📁 articles
-│   │   │   │   ├── 📁 auth
-│   │   │   │   ├── 📁 galleries
-│   │   │   │   ├── 📁 join-requests
-│   │   │   │   ├── 📁 members
-│   │   │   │   └── 📁 uploads
-│   │   │   ├── 📁 routes
-│   │   │   ├── 📁 scripts
-│   │   │   └── 📁 utils
 │   │   ├── 📄 drizzle.config.ts
 │   │   ├── ⚙️ package.json
 │   │   └── ⚙️ tsconfig.json
 │   ├── 📁 dashboard
 │   │   ├── 📁 app
 │   │   ├── 📁 components
-│   │   │   ├── 📁 layouts
-│   │   │   └── 📁 pages
 │   │   ├── 📁 lib
-│   │   │   └── 📄 api.ts
-│   │   ├── 📁 public
 │   │   ├── ⚙️ package.json
 │   │   └── ⚙️ tsconfig.json
 │   └── 📁 frontend
 │       ├── 📁 app
 │       ├── 📁 components
-│       │   ├── 📁 layouts
-│       │   └── 📁 pages
 │       ├── 📁 lib
-│       │   └── 📄 api.ts
-│       ├── 📁 public
 │       ├── ⚙️ package.json
 │       └── ⚙️ tsconfig.json
 ├── 📁 packages
