@@ -35,9 +35,6 @@ Proyek ini disusun dalam bentuk **PNPM Workspace Monorepo** dengan pembagian por
 - `pnpm dashboard` : Menjalankan dev server dashboard (Port 3000).
 - `pnpm frontend` : Menjalankan dev server frontend (Port 3001).
 - `pnpm build` : Membangun seluruh aplikasi.
-- `pnpm --filter backend build`: Menjalankan build backend.
-- `pnpm --filter dashboard build`: Menjalankan build dashboard.
-- `pnpm --filter frontend build`: Menjalankan build frontend.
 
 ---
 
