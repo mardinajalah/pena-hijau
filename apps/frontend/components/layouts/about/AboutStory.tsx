@@ -68,17 +68,6 @@ const AboutStory = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Floating secondary badge image */}
-              <div className='hidden sm:block absolute -bottom-8 -left-8 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl aspect-square w-44'>
-                <Image
-                  src='/boxAboutStorieImage.webp'
-                  alt='Aksi Relawan'
-                  fill
-                  sizes='176px'
-                  className='object-cover'
-                />
-              </div>
             </div>
           </div>
         </div>
